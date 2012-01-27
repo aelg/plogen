@@ -1,0 +1,698 @@
+NDS Database:  version K.31
+
+NDS_INFO | xc9500 | 953644PC | XC9536-5-PC44
+
+DEVICE | 9536 | 953644PC | 
+
+NETWORK | sender | 0 | 0 | 201342983
+
+INPUT_INSTANCE | 0 | 0 | NULL | clk_IBUF | sender_COPY_0_COPY_0 | 0 | 1 | 1
+INPUT_NODE_TYPE | 0 | 5 | II_IN
+NODE | clk | 1232 | PI | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | NULL | 0 | 100 | NOTYPE
+OUTPUT_NODE_TYPE | 3 | 5 | II_FCLK
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+
+INPUT_INSTANCE | 0 | 0 | NULL | reset_IBUF | sender_COPY_0_COPY_0 | 0 | 1 | 2
+INPUT_NODE_TYPE | 0 | 5 | II_IN
+NODE | reset | 1233 | PI | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | NULL | 0 | 100 | NOTYPE
+OUTPUT_NODE_TYPE | 0 | 5 | II_IMUX
+NODE | reset_IBUF | 1209 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 0 | 5 | II_IMUX
+OUTPUT_NODE_TYPE | 6 | 5 | II_FSR
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+
+INPUT_INSTANCE | 0 | 0 | NULL | strobe_IBUF | sender_COPY_0_COPY_0 | 0 | 1 | 1
+INPUT_NODE_TYPE | 0 | 5 | II_IN
+NODE | strobe | 1234 | PI | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | NULL | 0 | 100 | NOTYPE
+OUTPUT_NODE_TYPE | 0 | 5 | II_IMUX
+NODE | strobe_IBUF | 1216 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | strobe_IBUF | 0 | 5 | II_IMUX
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped | strobe_pulse | sender_COPY_0_COPY_0 | 2155873280 | 6 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd2 | 1217 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd2.Q | qs_FSM_FFd2 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd1 | 1215 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd1.Q | qs_FSM_FFd1 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_IBUF | 1216 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | strobe_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | strobe_pulse.SI | strobe_pulse | 0 | 4 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd2 | 1217 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd2.Q | qs_FSM_FFd2 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd1 | 1215 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd1.Q | qs_FSM_FFd1 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_IBUF | 1216 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | strobe_IBUF | 0 | 5 | II_IMUX
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | strobe_pulse.D1 | 1240 | ? | 0 | 4096 | strobe_pulse | NULL | NULL | strobe_pulse.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | strobe_pulse.D2 | 1241 | ? | 0 | 4096 | strobe_pulse | NULL | NULL | strobe_pulse.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 2 | IV_TRUE | strobe_pulse | IV_FALSE | qs_FSM_FFd2
+SPPTERM | 3 | IV_FALSE | qs_FSM_FFd1 | IV_TRUE | strobe_IBUF | IV_FALSE | qs_FSM_FFd2
+
+SRFF_INSTANCE | strobe_pulse.REG | strobe_pulse | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | strobe_pulse.D | 1239 | ? | 0 | 0 | strobe_pulse | NULL | NULL | strobe_pulse.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | strobe_pulse.Q | 1242 | ? | 0 | 0 | strobe_pulse | NULL | NULL | strobe_pulse.REG | 0 | 8 | SRFF_Q
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped | qc_0 | sender_COPY_0_COPY_0 | 2155873280 | 4 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qc_0.SI | qc_0 | 0 | 2 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qc_0.D1 | 1244 | ? | 0 | 4096 | qc_0 | NULL | NULL | qc_0.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qc_0.D2 | 1245 | ? | 0 | 4096 | qc_0 | NULL | NULL | qc_0.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 2 | IV_FALSE | strobe_pulse | IV_FALSE | qc_0
+
+SRFF_INSTANCE | qc_0.REG | qc_0 | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qc_0.D | 1243 | ? | 0 | 0 | qc_0 | NULL | NULL | qc_0.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qc_0.Q | 1246 | ? | 0 | 0 | qc_0 | NULL | NULL | qc_0.REG | 0 | 8 | SRFF_Q
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped | qc<1> | sender_COPY_0_COPY_0 | 2155873280 | 5 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<1> | 1213 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<1>.Q | qc<1> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qc<1> | 1213 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<1>.Q | qc<1> | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qc<1>.SI | qc<1> | 0 | 3 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<1> | 1213 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<1>.Q | qc<1> | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qc<1>.D1 | 1248 | ? | 0 | 4096 | qc<1> | NULL | NULL | qc<1>.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qc<1>.D2 | 1249 | ? | 0 | 4096 | qc<1> | NULL | NULL | qc<1>.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_TRUE | qc_0 | IV_FALSE | qc<1>
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_FALSE | qc_0 | IV_TRUE | qc<1>
+
+SRFF_INSTANCE | qc<1>.REG | qc<1> | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qc<1>.D | 1247 | ? | 0 | 0 | qc<1> | NULL | NULL | qc<1>.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qc<1>.Q | 1250 | ? | 0 | 0 | qc<1> | NULL | NULL | qc<1>.REG | 0 | 8 | SRFF_Q
+
+MACROCELL_INSTANCE | PrldLow+Tff+OptxMapped | qc<2> | sender_COPY_0_COPY_0 | 2155877376 | 6 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<1> | 1213 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<1>.Q | qc<1> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<2> | 1214 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<2>.Q | qc<2> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qc<2> | 1214 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<2>.Q | qc<2> | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qc<2>.SI | qc<2> | 0 | 4 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<1> | 1213 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<1>.Q | qc<1> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<2> | 1214 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<2>.Q | qc<2> | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qc<2>.D1 | 1252 | ? | 0 | 4096 | qc<2> | NULL | NULL | qc<2>.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qc<2>.D2 | 1253 | ? | 0 | 4096 | qc<2> | NULL | NULL | qc<2>.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 2 | IV_TRUE | strobe_pulse | IV_TRUE | qc<2>
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_TRUE | qc_0 | IV_TRUE | qc<1>
+
+SRFF_INSTANCE | qc<2>.REG | qc<2> | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qc<2>.D | 1251 | ? | 0 | 0 | qc<2> | NULL | NULL | qc<2>.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qc<2>.Q | 1254 | ? | 0 | 0 | qc<2> | NULL | NULL | qc<2>.REG | 0 | 8 | SRFF_Q
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped | qs_FSM_FFd1 | sender_COPY_0_COPY_0 | 2155873280 | 5 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd2 | 1217 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd2.Q | qs_FSM_FFd2 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd1 | 1215 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd1.Q | qs_FSM_FFd1 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_IBUF | 1216 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | strobe_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qs_FSM_FFd1 | 1215 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd1.Q | qs_FSM_FFd1 | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qs_FSM_FFd1.SI | qs_FSM_FFd1 | 0 | 3 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd2 | 1217 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd2.Q | qs_FSM_FFd2 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd1 | 1215 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd1.Q | qs_FSM_FFd1 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_IBUF | 1216 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | strobe_IBUF | 0 | 5 | II_IMUX
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qs_FSM_FFd1.D1 | 1256 | ? | 0 | 4096 | qs_FSM_FFd1 | NULL | NULL | qs_FSM_FFd1.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qs_FSM_FFd1.D2 | 1257 | ? | 0 | 4096 | qs_FSM_FFd1 | NULL | NULL | qs_FSM_FFd1.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 1 | IV_TRUE | qs_FSM_FFd2
+SPPTERM | 2 | IV_TRUE | qs_FSM_FFd1 | IV_TRUE | strobe_IBUF
+
+SRFF_INSTANCE | qs_FSM_FFd1.REG | qs_FSM_FFd1 | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qs_FSM_FFd1.D | 1255 | ? | 0 | 0 | qs_FSM_FFd1 | NULL | NULL | qs_FSM_FFd1.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qs_FSM_FFd1.Q | 1258 | ? | 0 | 0 | qs_FSM_FFd1 | NULL | NULL | qs_FSM_FFd1.REG | 0 | 8 | SRFF_Q
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped | qs_FSM_FFd2 | sender_COPY_0_COPY_0 | 2155873280 | 5 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd1 | 1215 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd1.Q | qs_FSM_FFd1 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_IBUF | 1216 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | strobe_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd2 | 1217 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd2.Q | qs_FSM_FFd2 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qs_FSM_FFd2 | 1217 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd2.Q | qs_FSM_FFd2 | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qs_FSM_FFd2.SI | qs_FSM_FFd2 | 0 | 3 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd1 | 1215 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd1.Q | qs_FSM_FFd1 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_IBUF | 1216 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | strobe_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qs_FSM_FFd2 | 1217 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qs_FSM_FFd2.Q | qs_FSM_FFd2 | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qs_FSM_FFd2.D1 | 1260 | ? | 0 | 4096 | qs_FSM_FFd2 | NULL | NULL | qs_FSM_FFd2.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qs_FSM_FFd2.D2 | 1261 | ? | 0 | 4096 | qs_FSM_FFd2 | NULL | NULL | qs_FSM_FFd2.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 3 | IV_FALSE | qs_FSM_FFd1 | IV_TRUE | strobe_IBUF | IV_FALSE | qs_FSM_FFd2
+
+SRFF_INSTANCE | qs_FSM_FFd2.REG | qs_FSM_FFd2 | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qs_FSM_FFd2.D | 1259 | ? | 0 | 0 | qs_FSM_FFd2 | NULL | NULL | qs_FSM_FFd2.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qs_FSM_FFd2.Q | 1262 | ? | 0 | 0 | qs_FSM_FFd2 | NULL | NULL | qs_FSM_FFd2.REG | 0 | 8 | SRFF_Q
+
+MACROCELL_INSTANCE | PrldLow+Tff+OptxMapped | qc<3> | sender_COPY_0_COPY_0 | 2155877376 | 7 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<1> | 1213 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<1>.Q | qc<1> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<2> | 1214 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<2>.Q | qc<2> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<3> | 1218 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<3>.Q | qc<3> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qc<3> | 1218 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<3>.Q | qc<3> | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qc<3>.SI | qc<3> | 0 | 5 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<1> | 1213 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<1>.Q | qc<1> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<2> | 1214 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<2>.Q | qc<2> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<3> | 1218 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<3>.Q | qc<3> | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qc<3>.D1 | 1264 | ? | 0 | 4096 | qc<3> | NULL | NULL | qc<3>.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qc<3>.D2 | 1265 | ? | 0 | 4096 | qc<3> | NULL | NULL | qc<3>.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 2 | IV_TRUE | strobe_pulse | IV_TRUE | qc<3>
+SPPTERM | 4 | IV_FALSE | strobe_pulse | IV_TRUE | qc_0 | IV_TRUE | qc<1> | IV_TRUE | qc<2>
+
+SRFF_INSTANCE | qc<3>.REG | qc<3> | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qc<3>.D | 1263 | ? | 0 | 0 | qc<3> | NULL | NULL | qc<3>.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qc<3>.Q | 1266 | ? | 0 | 0 | qc<3> | NULL | NULL | qc<3>.REG | 0 | 8 | SRFF_Q
+
+MACROCELL_INSTANCE | Inv+PrldLow+OptxMapped | qr<0> | sender_COPY_0_COPY_0 | 2155873536 | 6 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<1> | 1220 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<1>.Q | qr<1> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<0> | 1219 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<0>.Q | qr<0> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qr<0> | 1219 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<0>.Q | qr<0> | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qr<0>.SI | qr<0> | 0 | 4 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<1> | 1220 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<1>.Q | qr<1> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<0> | 1219 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<0>.Q | qr<0> | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qr<0>.D1 | 1268 | ? | 0 | 4096 | qr<0> | NULL | NULL | qr<0>.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qr<0>.D2 | 1269 | ? | 0 | 4096 | qr<0> | NULL | NULL | qr<0>.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_FALSE | qr<0> | IV_FALSE | cr
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_FALSE | qr<1> | IV_TRUE | cr
+
+SRFF_INSTANCE | qr<0>.REG | qr<0> | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qr<0>.D | 1267 | ? | 0 | 0 | qr<0> | NULL | NULL | qr<0>.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qr<0>.Q | 1270 | ? | 0 | 0 | qr<0> | NULL | NULL | qr<0>.REG | 0 | 8 | SRFF_Q
+
+INPUT_INSTANCE | 0 | 0 | NULL | d_1_IBUF | sender_COPY_0_COPY_0 | 0 | 1 | 1
+INPUT_NODE_TYPE | 0 | 5 | II_IN
+NODE | d<1> | 1235 | PI | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | NULL | 0 | 100 | NOTYPE
+OUTPUT_NODE_TYPE | 0 | 5 | II_IMUX
+NODE | d_1_IBUF | 1227 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_1_IBUF | 0 | 5 | II_IMUX
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped | qr<1> | sender_COPY_0_COPY_0 | 2155873280 | 7 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | d_1_IBUF | 1227 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_1_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<2> | 1221 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<2>.Q | qr<2> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<1> | 1220 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<1>.Q | qr<1> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qr<1> | 1220 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<1>.Q | qr<1> | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qr<1>.SI | qr<1> | 0 | 5 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | d_1_IBUF | 1227 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_1_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<2> | 1221 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<2>.Q | qr<2> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<1> | 1220 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<1>.Q | qr<1> | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qr<1>.D1 | 1272 | ? | 0 | 4096 | qr<1> | NULL | NULL | qr<1>.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qr<1>.D2 | 1273 | ? | 0 | 4096 | qr<1> | NULL | NULL | qr<1>.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 2 | IV_TRUE | strobe_pulse | IV_TRUE | d_1_IBUF
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_TRUE | qr<1> | IV_FALSE | cr
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_TRUE | qr<2> | IV_TRUE | cr
+
+SRFF_INSTANCE | qr<1>.REG | qr<1> | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qr<1>.D | 1271 | ? | 0 | 0 | qr<1> | NULL | NULL | qr<1>.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qr<1>.Q | 1274 | ? | 0 | 0 | qr<1> | NULL | NULL | qr<1>.REG | 0 | 8 | SRFF_Q
+
+INPUT_INSTANCE | 0 | 0 | NULL | d_2_IBUF | sender_COPY_0_COPY_0 | 0 | 1 | 1
+INPUT_NODE_TYPE | 0 | 5 | II_IN
+NODE | d<2> | 1236 | PI | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | NULL | 0 | 100 | NOTYPE
+OUTPUT_NODE_TYPE | 0 | 5 | II_IMUX
+NODE | d_2_IBUF | 1228 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_2_IBUF | 0 | 5 | II_IMUX
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped | qr<2> | sender_COPY_0_COPY_0 | 2155873280 | 7 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | d_2_IBUF | 1228 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_2_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<3> | 1222 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<3>.Q | qr<3> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<2> | 1221 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<2>.Q | qr<2> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qr<2> | 1221 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<2>.Q | qr<2> | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qr<2>.SI | qr<2> | 0 | 5 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | d_2_IBUF | 1228 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_2_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<3> | 1222 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<3>.Q | qr<3> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<2> | 1221 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<2>.Q | qr<2> | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qr<2>.D1 | 1276 | ? | 0 | 4096 | qr<2> | NULL | NULL | qr<2>.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qr<2>.D2 | 1277 | ? | 0 | 4096 | qr<2> | NULL | NULL | qr<2>.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 2 | IV_TRUE | strobe_pulse | IV_TRUE | d_2_IBUF
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_TRUE | qr<2> | IV_FALSE | cr
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_TRUE | qr<3> | IV_TRUE | cr
+
+SRFF_INSTANCE | qr<2>.REG | qr<2> | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qr<2>.D | 1275 | ? | 0 | 0 | qr<2> | NULL | NULL | qr<2>.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qr<2>.Q | 1278 | ? | 0 | 0 | qr<2> | NULL | NULL | qr<2>.REG | 0 | 8 | SRFF_Q
+
+INPUT_INSTANCE | 0 | 0 | NULL | d_3_IBUF | sender_COPY_0_COPY_0 | 0 | 1 | 1
+INPUT_NODE_TYPE | 0 | 5 | II_IN
+NODE | d<3> | 1237 | PI | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | NULL | 0 | 100 | NOTYPE
+OUTPUT_NODE_TYPE | 0 | 5 | II_IMUX
+NODE | d_3_IBUF | 1229 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_3_IBUF | 0 | 5 | II_IMUX
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped | qr<3> | sender_COPY_0_COPY_0 | 2155873280 | 7 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | d_3_IBUF | 1229 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_3_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<4> | 1223 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<4>.Q | qr<4> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<3> | 1222 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<3>.Q | qr<3> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qr<3> | 1222 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<3>.Q | qr<3> | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qr<3>.SI | qr<3> | 0 | 5 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | d_3_IBUF | 1229 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_3_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<4> | 1223 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<4>.Q | qr<4> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<3> | 1222 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<3>.Q | qr<3> | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qr<3>.D1 | 1280 | ? | 0 | 4096 | qr<3> | NULL | NULL | qr<3>.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qr<3>.D2 | 1281 | ? | 0 | 4096 | qr<3> | NULL | NULL | qr<3>.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 2 | IV_TRUE | strobe_pulse | IV_TRUE | d_3_IBUF
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_TRUE | qr<3> | IV_FALSE | cr
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_TRUE | qr<4> | IV_TRUE | cr
+
+SRFF_INSTANCE | qr<3>.REG | qr<3> | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qr<3>.D | 1279 | ? | 0 | 0 | qr<3> | NULL | NULL | qr<3>.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qr<3>.Q | 1282 | ? | 0 | 0 | qr<3> | NULL | NULL | qr<3>.REG | 0 | 8 | SRFF_Q
+
+INPUT_INSTANCE | 0 | 0 | NULL | d_4_IBUF | sender_COPY_0_COPY_0 | 0 | 1 | 1
+INPUT_NODE_TYPE | 0 | 5 | II_IN
+NODE | d<4> | 1238 | PI | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | NULL | 0 | 100 | NOTYPE
+OUTPUT_NODE_TYPE | 0 | 5 | II_IMUX
+NODE | d_4_IBUF | 1230 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_4_IBUF | 0 | 5 | II_IMUX
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped | qr<4> | sender_COPY_0_COPY_0 | 2155873280 | 6 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | d_4_IBUF | 1230 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_4_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<4> | 1223 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<4>.Q | qr<4> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | qr<4> | 1223 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<4>.Q | qr<4> | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | qr<4>.SI | qr<4> | 0 | 4 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | strobe_pulse | 1211 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | strobe_pulse.Q | strobe_pulse | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | d_4_IBUF | 1230 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | d_4_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<4> | 1223 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<4>.Q | qr<4> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | qr<4>.D1 | 1284 | ? | 0 | 4096 | qr<4> | NULL | NULL | qr<4>.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | qr<4>.D2 | 1285 | ? | 0 | 4096 | qr<4> | NULL | NULL | qr<4>.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 2 | IV_TRUE | strobe_pulse | IV_TRUE | d_4_IBUF
+SPPTERM | 3 | IV_FALSE | strobe_pulse | IV_TRUE | qr<4> | IV_FALSE | cr
+
+SRFF_INSTANCE | qr<4>.REG | qr<4> | 0 | 3 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | qr<4>.D | 1283 | ? | 0 | 0 | qr<4> | NULL | NULL | qr<4>.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 3 | 8 | SRFF_R
+NODE | FSRIO_1 | 1210 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 6 | 5 | II_FSR
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | qr<4>.Q | 1286 | ? | 0 | 0 | qr<4> | NULL | NULL | qr<4>.REG | 0 | 8 | SRFF_Q
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped+OeInv | u_OBUF | sender_COPY_0_COPY_0 | 2290091008 | 4 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | reset_IBUF | 1209 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<0> | 1219 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<0>.Q | qr<0> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | u_PIN_BUF_ | 1295 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | Pfbk_Created_u | 0 | 5 | II_IMUX
+OUTPUT_NODE_TYPE | 0 | 0 | MC_Q
+NODE | u_OBUF$Q | 1224 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | u_OBUF.Q | u_OBUF | 0 | 0 | MC_Q
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | u_OBUF | 1225 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | u_OBUF.Q | u_OBUF | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | u_OBUF.SI | u_OBUF | 0 | 3 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | reset_IBUF | 1209 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qr<0> | 1219 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qr<0>.Q | qr<0> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | u_PIN_BUF_ | 1295 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | Pfbk_Created_u | 0 | 5 | II_IMUX
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | u_OBUF.D1 | 1288 | ? | 0 | 4096 | u_OBUF | NULL | NULL | u_OBUF.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | u_OBUF.D2 | 1289 | ? | 0 | 4096 | u_OBUF | NULL | NULL | u_OBUF.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 2 | IV_TRUE | reset_IBUF | IV_TRUE | u_PIN_BUF_
+SPPTERM | 2 | IV_FALSE | reset_IBUF | IV_TRUE | qr<0>
+
+SRFF_INSTANCE | u_OBUF.REG | u_OBUF | 0 | 2 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | u_OBUF.D | 1287 | ? | 0 | 0 | u_OBUF | NULL | NULL | u_OBUF.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | u_OBUF.Q | 1290 | ? | 0 | 0 | u_OBUF | NULL | NULL | u_OBUF.REG | 0 | 8 | SRFF_Q
+
+MACROCELL_INSTANCE | PrldLow+OptxMapped | cr | sender_COPY_0_COPY_0 | 2155873280 | 7 | 1
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | reset_IBUF | 1209 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<1> | 1213 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<1>.Q | qc<1> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<2> | 1214 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<2>.Q | qc<2> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<3> | 1218 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<3>.Q | qc<3> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+OUTPUT_NODE_TYPE | 1 | 0 | MC_UIM
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+
+SIGNAL_INSTANCE | cr.SI | cr | 0 | 6 | 2
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | reset_IBUF | 1209 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | reset_IBUF | 0 | 5 | II_IMUX
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | cr | 1226 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | cr.Q | cr | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc_0 | 1212 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc_0.Q | qc_0 | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<1> | 1213 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<1>.Q | qc<1> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<2> | 1214 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<2>.Q | qc<2> | 1 | 0 | MC_UIM
+INPUT_NODE_TYPE | 1 | 100 | NOTYPE
+NODE | qc<3> | 1218 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | qc<3>.Q | qc<3> | 1 | 0 | MC_UIM
+OUTPUT_NODE_TYPE | 1 | 9 | MC_SI_D1
+SIGNAL | NODE | cr.D1 | 1292 | ? | 0 | 4096 | cr | NULL | NULL | cr.SI | 1 | 9 | MC_SI_D1
+SPPTERM | 0 | IV_ZERO
+OUTPUT_NODE_TYPE | 2 | 9 | MC_SI_D2
+SIGNAL | NODE | cr.D2 | 1293 | ? | 0 | 4096 | cr | NULL | NULL | cr.SI | 2 | 9 | MC_SI_D2
+SPPTERM | 2 | IV_TRUE | reset_IBUF | IV_TRUE | cr
+SPPTERM | 5 | IV_FALSE | reset_IBUF | IV_TRUE | qc_0 | IV_TRUE | qc<1> | IV_TRUE | qc<2> | IV_TRUE | qc<3>
+
+SRFF_INSTANCE | cr.REG | cr | 0 | 2 | 1
+INPUT_NODE_TYPE | 0 | 8 | SRFF_D
+NODE | cr.D | 1291 | ? | 0 | 0 | cr | NULL | NULL | cr.XOR | 0 | 7 | ALU_F
+INPUT_NODE_TYPE | 1 | 8 | SRFF_C
+NODE | FCLKIO_0 | 1208 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | clk_IBUF | 3 | 5 | II_FCLK
+OUTPUT_NODE_TYPE | 0 | 8 | SRFF_Q
+NODE | cr.Q | 1294 | ? | 0 | 0 | cr | NULL | NULL | cr.REG | 0 | 8 | SRFF_Q
+
+OUTPUT_INSTANCE | 0 | u | sender_COPY_0_COPY_0 | 3 | 1 | 1
+INPUT_NODE_TYPE | 0 | 6 | OI_IN
+NODE | u_OBUF$Q | 1224 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | u_OBUF.Q | u_OBUF | 0 | 0 | MC_Q
+OUTPUT_NODE_TYPE | 0 | 6 | OI_OUT
+NODE | u | 1231 | PO | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | u | 0 | 6 | OI_OUT
+
+INPUT_INSTANCE | 0 | 0 | NULL | Pfbk_Created_u | sender_COPY_0_COPY_0 | 0 | 1 | 1
+INPUT_NODE_TYPE | 0 | 5 | II_IN
+NODE | u | 1231 | PO | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | u | 0 | 6 | OI_OUT
+OUTPUT_NODE_TYPE | 0 | 5 | II_IMUX
+NODE | u_PIN_BUF_ | 1295 | ? | 0 | 0 | sender_COPY_0_COPY_0 | NULL | NULL | Pfbk_Created_u | 0 | 5 | II_IMUX
+
+FB_INSTANCE | FOOBAR1_ | sender_COPY_0_COPY_0 | 0 | 0 | 0
+FBPIN | 2 | u_OBUF | 1 | Pfbk_Created_u | 1 | u | 1 | 3 | 49152
+FBPIN | 3 | NULL | 0 | clk_IBUF | 1 | NULL | 0 | 5 | 57344
+FBPIN | 6 | qs_FSM_FFd2 | 1 | d_1_IBUF | 1 | NULL | 0 | 8 | 49152
+FBPIN | 7 | qc_0 | 1 | NULL | 0 | NULL | 0 | 7 | 57344
+FBPIN | 8 | strobe_pulse | 1 | strobe_IBUF | 1 | NULL | 0 | 9 | 49152
+FBPIN | 9 | qs_FSM_FFd1 | 1 | d_4_IBUF | 1 | NULL | 0 | 11 | 49152
+FBPIN | 10 | qr<4> | 1 | NULL | 0 | NULL | 0 | 12 | 49152
+FBPIN | 11 | qr<0> | 1 | NULL | 0 | NULL | 0 | 13 | 49152
+FBPIN | 12 | qc<3> | 1 | NULL | 0 | NULL | 0 | 14 | 49152
+FBPIN | 13 | qc<2> | 1 | NULL | 0 | NULL | 0 | 18 | 49152
+FBPIN | 14 | qc<1> | 1 | NULL | 0 | NULL | 0 | 19 | 49152
+FBPIN | 15 | cr | 1 | NULL | 0 | NULL | 0 | 20 | 49152
+FBPIN | 16 | qr<3> | 1 | NULL | 0 | NULL | 0 | 22 | 49152
+FBPIN | 17 | qr<2> | 1 | NULL | 0 | NULL | 0 | 24 | 49152
+FBPIN | 18 | qr<1> | 1 | NULL | 0 | NULL | 0
+
+FB_INSTANCE | FOOBAR2_ | sender_COPY_0_COPY_0 | 0 | 0 | 0
+FBPIN | 6 | NULL | 0 | reset_IBUF | 1 | NULL | 0 | 39 | 51200
+FBPIN | 9 | NULL | 0 | d_3_IBUF | 1 | NULL | 0 | 36 | 49152
+FBPIN | 10 | NULL | 0 | d_2_IBUF | 1 | NULL | 0 | 35 | 49152
+
+FB_INSTANCE | INPUTPINS_FOOBAR3_ | sender_COPY_0_COPY_0 | 0 | 0 | 0
+
+BUSINFO | D<4:1> | 4 | 0 | 0 | d<1> | 3 | d<2> | 2 | d<3> | 1 | d<4> | 0
+
+FB_ORDER_OF_INPUTS | FOOBAR1_ | 0 | strobe | 9 | 1 | d<4> | 11 | 2 | d<3> | 36 | 3 | d<2> | 35 | 4 | d<1> | 8
+FB_ORDER_OF_INPUTS | FOOBAR1_ | 5 | qr<0> | NULL | 6 | qs_FSM_FFd1 | NULL | 7 | qs_FSM_FFd2 | NULL | 8 | strobe_pulse | NULL | 9 | qc_0 | NULL
+FB_ORDER_OF_INPUTS | FOOBAR1_ | 10 | qr<4> | NULL | 11 | cr | NULL | 12 | qr<1> | NULL | 13 | qc<1> | NULL | 14 | reset | 39
+FB_ORDER_OF_INPUTS | FOOBAR1_ | 15 | qc<2> | NULL | 16 | qc<3> | NULL | 17 | qr<3> | NULL | 18 | qr<2> | NULL | 24 | u | 3
+
+FB_IMUX_INDEX | FOOBAR1_ | 36 | 37 | 38 | 39 | 40 | 999 | 999 | 999 | 999 | 999 | 999 | 999 | 999 | 999 | 50 | 999 | 999 | 999 | 999 | -1 | -1 | -1 | -1 | -1 | 60 | -1 | -1 | -1 | -1 | -1 | -1 | -1 | -1 | -1 | -1 | -1
+
+
+GLOBAL_FCLK | FCLKIO_0 | 0 | 0
+
+GLOBAL_FSR | FSRIO_1 | 0 | 0

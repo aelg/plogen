@@ -1,0 +1,23 @@
+Pin Freeze File:  version K.31
+
+953644PC XC9536-5-PC44
+clk S:PIN5
+d<1> S:PIN8
+d<2> S:PIN35
+d<3> S:PIN36
+d<4> S:PIN11
+reset S:PIN39
+strobe S:PIN9
+u S:PIN3
+
+
+;The remaining section of the .gyd file is for documentation purposes only.
+;It shows where your internal equations were placed in the last successful fit.
+
+PARTITION FB1_2 u_OBUF
+PARTITION FB1_6 qs_FSM_FFd2 qc_0 strobe_pulse qs_FSM_FFd1
+		 qr<4> qr<0> qc<3> qc<2>
+		 qc<1> cr qr<3> qr<2>
+		 qr<1>
+
+

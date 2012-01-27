@@ -1,0 +1,6 @@
+CommandLine
+/home/aelg/Xilinx/10.1/ISE/bin/lin/unwrapped/tsim -ise /home/aelg/projekt/VHDL/Lab1/Lab1.ise -intstyle ise sender sender.nga
+s
+FormatString
+tsim <design[.vm6]> [--intstyle ise|xflow|silent] [<outfile>] 
+s

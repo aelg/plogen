@@ -1,0 +1,9 @@
+# Current time Fri Jan 27 15:47:17 2012
+# ModelSim PE Student Edition Stack Trace
+# Program = vish
+# Id = "10.1"
+# Version = "2011.12"
+# Date = "Dec  6 2011"
+# Platform = win32pe
+
+Exception c0000005 has occurred at address 1022f080. Traceback:

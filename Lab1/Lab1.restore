@@ -836,7 +836,9 @@ proc restore { { project_dir "" } } {
   } "A problem occured while restoring project settings."
 
   set user_files { 
-      "sender.vhd"}
+      "reciever.vhd" 
+      "sender.vhd" 
+      "test.vhd"}
 
   HandleException {
     AddUserFiles $iProjHelper $user_files
@@ -876,7 +878,7 @@ proc restore { { project_dir "" } } {
       "A" "" "" "" "PROP_PartitionCreateDelete" "" 
       "A" "" "" "" "PROP_PartitionForceSynth" "" 
       "A" "" "" "" "PROP_PlsClockEnable" "true" 
-      "A" "" "" "" "PROP_PostFitSimTop" "Architecture|sender|Behavioral" 
+      "A" "" "" "" "PROP_PostFitSimTop" "Architecture|test|behavior" 
       "A" "" "" "" "PROP_PostParSimTop" "" 
       "A" "" "" "" "PROP_SimDo" "true" 
       "A" "" "" "" "PROP_SimModelGenerateTestbenchFile" "false" 

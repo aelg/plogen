@@ -1,7 +1,0 @@
-V3 3
-FL /home/aelg/projekt/TSEA27/plogen/Lab1/reciever.vhd 2012/01/28.12:19:14 K.31
-EN work/reciever 1327749563 FL /home/aelg/projekt/TSEA27/plogen/Lab1/reciever.vhd \
-      PB ieee/std_logic_1164 1200023565 PB ieee/std_logic_arith 1200023566 \
-      PB ieee/STD_LOGIC_UNSIGNED 1200023567
-AR work/reciever/Behavioral 1327749564 \
-      FL /home/aelg/projekt/TSEA27/plogen/Lab1/reciever.vhd EN work/reciever 1327749563

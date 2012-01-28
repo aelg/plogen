@@ -1,6 +1,0 @@
-CommandLine
-/home/aelg/Xilinx/10.1/ISE/bin/lin/unwrapped/XSLTProcess -ise /home/aelg/projekt/TSEA27/plogen/Lab1/Lab1.ise sender_build.xml
-s
-FormatString
-xsltprocess [--intstyle ise|xflow|silent] <xmlfile> [-a] [-w] [--libxslt <limit:-1,10>] 
-s

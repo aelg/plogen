@@ -30,24 +30,33 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity reciever is
     Port ( clk : in  STD_LOGIC;
            IR : in  STD_LOGIC;
-           display : out  STD_LOGIC_VECTOR (3 downto 0));
+			  reset : in STD_LOGIC;
+           displayout : out  STD_LOGIC_VECTOR (4 downto 1);
+			  q: buffer std_logic_vector(2 downto 1);
+			  counter4: buffer std_logic_vector(3 downto 1)
+			 );
 end reciever;
 
 architecture Behavioral of reciever is
 
-signal q: std_logic_vector(1 downto 0);
-signal reg: std_logic_vector(3 downto 0);
+--signal q: std_logic_vector(2 downto 1);
+signal reg: std_logic_vector(4 downto 1);
 signal counter16: std_logic_vector(4 downto 1);
-signal counter4: std_logic_vector(2 downto 1);
---signal qdisplay: std_logic_vector(4 downto 1);
+--signal counter4: std_logic_vector(2 downto 1);
 signal clear16: std_logic;
 
 begin
 
 s_net:
-process(clk)
+process(clk, reset)
 begin
- if rising_edge(clk) then
+ if reset = '1' then
+  q <= (others => '0');
+  clear16 <= '0';
+  counter4 <= (others => '0');
+  reg <= (others => '0');
+  displayout<= (others => '0');
+ elsif rising_edge(clk) then
   case q is
   when "00" =>
    if IR = '1' then 
@@ -60,7 +69,7 @@ begin
 	 if IR = '1' then 
 	  q <= "10";
 	  clear16 <= '1';
-	  counter4 <= "00";
+	  counter4 <= (others => '0');
 	 else 
 	  q <= "00";
 	  clear16 <= '0';
@@ -70,14 +79,13 @@ begin
   when "10" =>
    clear16 <= '0';
    if counter16 = "1111" then
-	 reg(0) <= reg(1);
 	 reg(1) <= reg(2);
 	 reg(2) <= reg(3);
-	 reg(3) <= IR;
+	 reg(3) <= reg(4);
+	 reg(4) <= IR;
 	 counter4 <= counter4 + 1;
-	end if;
-	if counter4 = "11" then
-	 display <= reg;
+	elsif counter4 = "100" then
+	 displayout <= reg;
 	 q <= "11";
 	end if;
   when others =>
@@ -88,9 +96,11 @@ begin
 end process;
  
 counter:
-process(clk)
+process(clk, reset)
 begin
- if rising_edge(clk) then
+ if reset = '1' then
+  counter16 <= (others => '0');
+ elsif rising_edge(clk) then
   if clear16 = '1' then
    counter16 <= (others => '0');
   else

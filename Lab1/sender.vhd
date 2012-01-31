@@ -2,7 +2,7 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    16:16:22 01/26/2012 
+-- Create Date:    22:07:53 01/29/2012 
 -- Design Name: 
 -- Module Name:    sender - Behavioral 
 -- Project Name: 
@@ -28,21 +28,31 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --use UNISIM.VComponents.all;
 
 entity sender is
-    Port ( strobe : in  std_logic;
+
+Port ( strobe : in  std_logic;
            d : in  std_logic_vector (4 downto 1);
            clk : in  std_logic;
            reset : in  std_logic;
            u : out  std_logic);
+			  
 end sender;
 
 architecture Behavioral of sender is
+
   signal qc: std_logic_vector(4 downto 1);
-  signal qr: std_logic_vector(4 downto 0);
+  signal qr: std_logic_vector(7 downto 0);
   signal qs: std_logic_vector(1 downto 0);
   signal strobe_pulse: std_logic;
   signal cr: std_logic;
+  signal p: std_logic_vector (3 downto 1);
+  
 begin
- make_strobe_pulse:
+
+p(1) <= (d(1) XOR d(2)) XOR d(4);
+p(2) <= (d(1) XOR d(3)) XOR d(4);
+p(3) <= (d(2) XOR d(3)) XOR d(4);
+
+make_strobe_pulse:
  process(clk, reset)
  begin
   if reset = '1' then
@@ -91,17 +101,21 @@ begin
    qr <= (others => '0');
   elsif rising_edge(clk) then
    if strobe_pulse = '1' then
-	 qr <= d & '1';
+	 qr <= p & d & '1';
+	 qr(1) <= not d(1);
 	elsif cr = '1' then
 	 qr(0) <= qr(1);
 	 qr(1) <= qr(2);
 	 qr(2) <= qr(3);
 	 qr(3) <= qr(4);
-	 qr(4) <= '0';
+	 qr(4) <= qr(5);
+	 qr(5) <= qr(6);
+	 qr(6) <= qr(7);
+	 qr(7) <= '0';
 	end if;
 	u <= qr(0);
   end if;
  end process;
-
+ 
 end Behavioral;
 

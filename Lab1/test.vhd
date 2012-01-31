@@ -2,15 +2,15 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   11:53:15 01/27/2012
+-- Create Date:   22:10:57 01/29/2012
 -- Design Name:   
--- Module Name:   /home/aelg/projekt/TSEA27/plogen/Lab1/test.vhd
--- Project Name:  Lab1
+-- Module Name:   C:/Users/Micke/Plogen/Plogen/test.vhd
+-- Project Name:  Plogen
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
 -- 
--- VHDL Test Bench Created by ISE for module: sender
+-- VHDL Test Bench Created by ISE for module: Reciever
 -- 
 -- Dependencies:
 -- 
@@ -46,19 +46,20 @@ ARCHITECTURE behavior OF test IS
          u : OUT  std_logic
         );
     END COMPONENT;
-	 
-	 COMPONENT reciever
-    Port ( clk : in  STD_LOGIC;
-           IR : in  STD_LOGIC;
-			  reset : in STD_LOGIC;
-           displayout : out  STD_LOGIC_VECTOR (4 downto 1);
-			  q: buffer std_logic_vector(2 downto 1);
-			  counter4: buffer std_logic_vector(3 downto 1)
-			 );
+
+    COMPONENT Reciever
+    PORT(
+         clk : IN  std_logic;
+         IR : IN  std_logic;
+         reset : IN  std_logic;
+         displayout : OUT  std_logic_vector(4 downto 1);
+         q : OUT  std_logic_vector(2 downto 1);
+         counter4 : OUT  std_logic_vector(3 downto 1)
+        );
     END COMPONENT;
     
 
-   --Inputs
+--Inputs
    signal strobe : std_logic := '0';
    signal d : std_logic_vector(4 downto 1) := (others => '0');
    signal clk : std_logic := '0';
@@ -72,12 +73,15 @@ ARCHITECTURE behavior OF test IS
 	signal q: std_logic_vector(2 downto 1);
 	signal counter4: std_logic_vector(3 downto 1);
 
+   --internal
+	signal err : std_logic := '0';
+
    -- Clock period definitions
    constant clk_period : time := 1us;
  
 BEGIN
  
-	-- Instantiate the Unit Under Test (UUT)
+		-- Instantiate the Unit Under Test (UUT)
    uut: sender PORT MAP (
           strobe => strobe,
           d => d,
@@ -94,16 +98,20 @@ BEGIN
 			 counter4 => counter4
         );
 
-   -- Clock process definitions
+    -- Clock process definitions
    clk_process :process
    begin
 		clk <= '0';
+		if err = '1' then
+		IR <= not u;
+		else
 		IR <= u;
+		end if;
 		wait for clk_period/2;
 		clk <= '1';
 		wait for clk_period/2;
    end process;
-	
+
 	clk16_process :process
    begin
 		clk16 <= '0';
@@ -121,7 +129,7 @@ BEGIN
 		reset <= '0';
 
       wait for clk_period*10;
-		
+
 		d <= "0101";
 		wait for clk_period;
 		strobe <= '1';
@@ -135,14 +143,15 @@ BEGIN
 		wait for clk_period*4;
 		strobe <= '0';
 		wait for clk_period*1000;
-		
+
 		d <= d + 3;
 		wait for clk_period;
 		strobe <= '1';
 		wait for clk_period*40;
 		strobe <= '0';
 		wait for clk_period*1000;
-		
+
    end process;
+
 
 END;

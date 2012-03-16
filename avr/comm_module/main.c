@@ -10,34 +10,35 @@
 #include <inttypes.h>
 #include <avr/sleep.h>
 
-#define UART_BUFFER_SIZE
+#define UART_BUFFER_SIZE 32
 
-char read_buff[UART_BUFFER_SIZE];
-char write_buff[UART_BUFFER_SIZE];
-char read_start, read_end, write_start, write_end;
-bool writing;
+volatile uint8_t read_buff[UART_BUFFER_SIZE];
+volatile uint8_t write_buff[UART_BUFFER_SIZE];
+volatile uint8_t read_start, read_end, write_start, write_end;
+volatile uint8_t writing;
 
 ISR(USART_UDRE_vect){
 	// Is there more data to send.
+
 	if (write_start != write_end){
 		// Write data to RXE to send it.
-		UDR = write_buff[read_start];
+		UDR = write_buff[write_start];
 		// Update buffer pointer.
-		read_start = (read_start+1) % UART_BUFFER_SIZE
+		write_start = (write_start+1) % UART_BUFFER_SIZE;
 	}
-	else writing = false;
+	else writing = 0;
 }
 
-void USART_init(){
+void UART_init(){
 	// Set buffer pointers to beginning of buffers.
 	read_start = read_end = write_start = write_end = 0;
-	writing = false;
+	writing = 0;
 	// Init UCSRA just to make sure.
-	USCRA = 0x0;
+	UCSRA = 0x0;
 	// Write to UCSRA; set Asyncronous, no parity, 8 databits.
 	UCSRC = 0x86;
 	// Set baudrate 115200
-	UBRR = 0x09;
+	UBRRL = 0x09;
 	// Activate interrupts on UDRE and RX Complete.
 	UCSRB = 0xb8;
 }
@@ -45,27 +46,47 @@ void USART_init(){
 void UART_start(){
 	if(!writing){
 		// No write in progress start writing by putting data in TXD
-		UDR = write_buff[write_start];
-		// Update pointer.
-		write_start = (write_start + 1) % READ_BUFFER_SIZE;
-		// Set writing.
-		writing = true;
+		if(write_end != write_start){
+			UDR = write_buff[write_start];
+			// Update pointer.
+			write_start = (write_start + 1) % UART_BUFFER_SIZE;
+			// Set writing.
+			writing = 1;
+		}
 	}
+}
+
+uint8_t UART_write(uint8_t *s, uint8_t len){
+	// Temporary end to handle circular buffer.
+	uint8_t end;
+	// Make sure end always is bigger than write_start.
+	if(write_start >= write_end){
+		end = write_end + UART_BUFFER_SIZE;
+	}
+	else end = write_end;
+	// Return false if the message doesn't fit in buffer.
+	if(len > UART_BUFFER_SIZE - (end - write_start)){
+		// TODO: signal buffer error.
+		return 0;
+	}
+
+	// Copy message to buffer.
+	for(int i = 0; i < len; ++i){
+		write_buff[write_end] = s[i];
+		write_end = (write_end+1) % UART_BUFFER_SIZE;
+	}
+	UART_start();
+	return 1;
 }
 
 int main(void)
 {
-	volatile char c;
-	c=1;
-
-
-	MCUCR = 0x03;
-	GICR = 0x40;
-	ADMUX = 0x20;
-	ADCSRA = 0xAB;
-	SFIOR = 0x40;
+	UART_init();
 	sei();
 
-	while (c){}
+	uint8_t s[7] = {'P', 'l', 'o', 'g', 'e', 'n', '\n'};
 
+	while (1){
+		UART_write(s, 7);
+	}
 }

@@ -18,8 +18,11 @@ char read_start, read_end, write_start, write_end;
 bool writing;
 
 ISR(USART_UDRE_vect){
+	// Is there more data to send.
 	if (write_start != write_end){
+		// Write data to RXE to send it.
 		UDR = write_buff[read_start];
+		// Update buffer pointer.
 		read_start = (read_start+1) % UART_BUFFER_SIZE
 	}
 	else writing = false;
@@ -40,7 +43,14 @@ void USART_init(){
 }
 
 void UART_start(){
-
+	if(!writing){
+		// No write in progress start writing by putting data in TXD
+		UDR = write_buff[write_start];
+		// Update pointer.
+		write_start = (write_start + 1) % READ_BUFFER_SIZE;
+		// Set writing.
+		writing = true;
+	}
 }
 
 int main(void)

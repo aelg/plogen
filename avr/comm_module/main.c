@@ -17,9 +17,18 @@ int main(void)
 	UART_init();
 	sei();
 
+	// Send greeting
 	uint8_t s[13] = {'P', 'l', 'o', 'g', 'e', 'n', 'P', 'l', 'o', 'g', 'e', 'n', '\n'};
+	UART_write(s, 13);
+
+	uint8_t buff[10];
 
 	while (1){
-		UART_write(s, 13);
+		uint8_t len = UART_read(buff);
+		if(len != 0){
+			// Write greeting again and send back what was received.
+			UART_write(s, 13);
+			UART_write(buff, len);
+		}
 	}
 }

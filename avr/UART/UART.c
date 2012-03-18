@@ -34,7 +34,8 @@ ISR(USART_RXC_vect){
 	// Is the buffer full?
 	if((read_start+1)%UART_BUFFER_SIZE == read_end){
 		error(UART_RXE_BUFFER_FULL);
-		// Read UDR to clear interrupt. THIS BYTE WILL BE LOST!
+		// Read UDR to clear interrupt.
+		// FIXME: THIS BYTE WILL BE LOST AND WE WILL BE OUT OF SYNC WITH PACKETS.
 		asm volatile("ldi r24, 0x2c" : : : "r24");
 	}
 	else{
@@ -101,14 +102,14 @@ uint8_t UART_write(uint8_t *s, uint8_t len){
 uint8_t UART_read(uint8_t* s){
 	// Temporary variable to handle circular list.
 	uint8_t end;
-	// Calculate the lengt of the circular list.
+	// Calculate the length of the circular list.
 	if(read_end < read_start)
 		end = read_end + UART_BUFFER_SIZE;
 	else end = read_end;
 	// Check if read_buff contains correct number of bytes.
 	if(end-read_start >= 2){
 		// Read length byte from packet.
-		uint8_t len = read_buff[(read_start+1) % UART_BUFFER_SIZE] +2;
+		uint8_t len = read_buff[(read_start+1) % UART_BUFFER_SIZE]+2;
 			// Check if correct number of bytes in read_buff
 			if(len >= end-read_start){
 				// Copy the bytes to the list s

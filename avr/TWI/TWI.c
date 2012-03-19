@@ -147,3 +147,54 @@ ISR(TWI_vect){
 		break;
 	}
 }
+
+
+uint8_t TWI_write(uint8_t addr, uint8_t *s, uint8_t len){
+	// Temporary end to handle circular buffer.
+	uint8_t end;
+	// Make sure end always is bigger than write_start.
+	if(write_start > write_end){
+		end = write_end + TWI_BUFFER_SIZE;
+	}
+	else end = write_end;
+	// Return false if the message doesn't fit in buffer.
+	if(len > TWI_BUFFER_SIZE - 2 - (end - write_start)){
+		// TODO: signal buffer error.
+		return 0;
+	}
+	write_buff[write_end) = addr;
+	write_end = (write_end+1) % TWI_BUFFER_SIZE;
+	// Copy message to buffer.
+	for(int i = 0; i < len; ++i){
+		write_buff[write_end] = s[i];
+		write_end = (write_end+1) % TWI_BUFFER_SIZE;
+	}
+	TWI_start();
+	return 1;
+}
+
+uint8_t TWI_read(uint8_t* s){
+	// Temporary variable to handle circular list.
+	uint8_t end;
+	// Calculate the length of the circular list.
+	if(read_end < read_start)
+		end = read_end + TWI_BUFFER_SIZE;
+	else end = read_end;
+	// Check if read_buff contains correct number of bytes.
+	if(end-read_start >= 2){
+		// Read length byte from packet.
+		uint8_t len = read_buff[(read_start+1) % TWI_BUFFER_SIZE]+2;
+			// Check if correct number of bytes in read_buff
+			if(len >= end-read_start){
+				// Copy the bytes to the list s
+				for(uint8_t i = 0; i < len; i++){
+					s[i]=read_buff[read_start];
+					read_start =(read_start + 1) % TWI_BUFFER_SIZE;
+					}
+				//return the length of the list
+				return len;
+			}
+			else return 0;
+		}
+		else return 0;
+}

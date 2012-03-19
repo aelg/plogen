@@ -10,7 +10,7 @@
 #include <inttypes.h>
 #include <avr/sleep.h>
 
-#include "UART.h"
+#include "../UART/UART.h"
 
 int main(void)
 {
@@ -19,7 +19,7 @@ int main(void)
 
 	// Send greeting
 	uint8_t s[13] = {'P', 'l', 'o', 'g', 'e', 'n', 'P', 'l', 'o', 'g', 'e', 'n', '\n'};
-	UART_write(s, 13);
+	//UART_write(s, 13);
 
 	uint8_t buff[10];
 

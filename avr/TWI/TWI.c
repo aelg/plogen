@@ -75,15 +75,13 @@ ISR(TWI_vect){
 		TWCR = START;
 		break;
 	case 0x20: // Not ACK received after SLA+W, unknown address.
-	case 0x30: // Not ACK received after data. THIS IS BAD WE ARE LOSING DATA!
-		// Signal error
-		if(sr == 20) error(TWI_UNKNOWN_ADDRESS);
-		else if(sr == 30) error(TWI_NOT_ACK_RECEIVED);
-		// Find next packet.
+		error(TWI_UNKNOWN_ADDRESS);
+		// Remove current packet.
 		while(remaining_bytes--)
 			++write_current;
 
 		write_start = TWIca(write_current);
+
 		// Check if there are more packets.
 		if(write_start == write_end){
 			// No more packets, send STOP.
@@ -93,6 +91,12 @@ ISR(TWI_vect){
 			// More packets in queue, send REPEATED START.
 			TWCR = START;
 		}
+		break;
+	case 0x30: // Not ACK received after data.
+		// Signal error
+		error(TWI_NOT_ACK_RECEIVED);
+		// Start over and that the receiver has more space in buffer this time.
+		TWCR = START;
 		break;
 	case 0x60: // Own SLA+W received, ACK returned.
 	case 0x68: // Arbitration lost in MR mode, own SLA+W received, ACK returned.

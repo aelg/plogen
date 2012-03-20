@@ -149,6 +149,7 @@ ISR(TWI_vect){
 	}
 }
 
+<<<<<<< Updated upstream
 void TWI_start(){
 	TWCR = START;
 }

@@ -7,5 +7,6 @@
 
 uint8_t TWI_write(uint8_t addr, uint8_t *s, uint8_t len);
 uint8_t TWI_read(uint8_t* s);
+void TWI_init(uint8_t sla);
 
 #endif

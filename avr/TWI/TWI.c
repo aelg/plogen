@@ -61,7 +61,7 @@ ISR(TWI_vect){
 				TWCR = START;
 			}
 			// Update start_write, there was no arbitration error.
-			write_start = TWIca(write_current+1);
+			write_start = TWIca(write_current);
 		}
 		else {
 			// Send byte.
@@ -99,10 +99,10 @@ ISR(TWI_vect){
 	case 0x70: // General call address received.
 	case 0x78: // Arbitration lost in MR mode, general call address received, ACK returned.
 		// Read byte
-		read_buff[read_end] = TWDR;
-		read_current = TWIca(read_end+1);
+		//read_buff[read_current] = TWDR;
+		read_current = TWIca(read_end);
 		// Check if buffer is full.
-		if(read_current == read_start){
+		if(TWIca(read_current+1) == read_start){
 			// Return NOT ACK.
 			TWCR = NACK;
 		}
@@ -113,7 +113,7 @@ ISR(TWI_vect){
 	case 0x80: // Data received, ACK sent. (Addressed)
 	case 0x90: // Data received, ACK sent. (General call)
 		// Read byte
-		read_buff[read_end] = TWDR;
+		read_buff[read_current] = TWDR;
 		read_current = TWIca(read_current+1);
 		// Check if buffer is full.
 		if(read_current == read_start){

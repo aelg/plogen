@@ -40,7 +40,7 @@ ISR(TWI_vect){
 		write_current = write_start;
 		// Read number of bytes in packet, assume there is a complete packet in the queue.
 		// Add 3 to count SLA+W, command, and length.
-		remaining_bytes = write_buff[TWIca(write_start+2)]+3;
+		remaining_bytes = write_buff[TWIca(write_start+2)]+2;
 		// Load addressbyte, clear W/R to select write.
 		TWDR = write_buff[write_start] << 1;
 		TWCR = SEND;
@@ -65,6 +65,7 @@ ISR(TWI_vect){
 		}
 		else {
 			// Send byte.
+			--remaining_bytes;
 			TWCR = SEND;
 			write_current = TWIca(write_current+1);
 		}
@@ -148,6 +149,21 @@ ISR(TWI_vect){
 	}
 }
 
+void TWI_start(){
+	TWCR = START;
+}
+
+void TWI_init(uint8_t sla){
+	// Set correct bitrate.
+	TWBR = 0x0c;
+	// Set slave address and receive general calls.
+	TWAR = (sla << 1) | 0x01;
+	// Just to make sure.
+	TWSR = 0;
+	// Reset to make TWI ready for use.
+	TWCR = RESET;
+}
+	
 
 uint8_t TWI_write(uint8_t addr, uint8_t *s, uint8_t len){
 	// Temporary end to handle circular buffer.
@@ -183,13 +199,13 @@ uint8_t TWI_read(uint8_t* s){
 	// Check if read_buff contains correct number of bytes.
 	if(end-read_start >= 2){
 		// Read length byte from packet.
-		uint8_t len = read_buff[(read_start+1) % TWI_BUFFER_SIZE]+2;
+		uint8_t len = read_buff[TWIca(read_start+1)]+2;
 			// Check if correct number of bytes in read_buff
-			if(len >= end-read_start){
+			if(len <= end-read_start){
 				// Copy the bytes to the list s
 				for(uint8_t i = 0; i < len; i++){
 					s[i]=read_buff[read_start];
-					read_start =(read_start + 1) % TWI_BUFFER_SIZE;
+					read_start =TWIca(read_start + 1);
 					}
 				//return the length of the list
 				return len;

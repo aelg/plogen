@@ -1,7 +1,7 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-#include "error.h"
+#include "../error/error.h"
 #include "UART.h"
 
 volatile uint8_t read_buff[UART_BUFFER_SIZE];
@@ -40,7 +40,7 @@ ISR(USART_UDRE_vect){
  */
 ISR(USART_RXC_vect){
 	// Is the buffer full?
-	if(UARTca(read_start+1) == read_end){
+	if(read_start == UARTca(read_end+1)){
 		error(UART_RXE_BUFFER_FULL);
 		// Read UDR to clear interrupt.
 		// FIXME: THIS BYTE WILL BE LOST AND WE WILL BE OUT OF SYNC WITH PACKETS.
@@ -108,6 +108,7 @@ uint8_t UART_write(uint8_t *s, uint8_t len){
  * Return value: Length of packet, 0 if no complete packet is in the buffer.
  */
 uint8_t UART_read(uint8_t* s){
+	if(read_start == read_end) return 0;
 	// Temporary variable to handle circular list.
 	uint8_t end;
 	// Calculate the length of the circular list.
@@ -119,7 +120,7 @@ uint8_t UART_read(uint8_t* s){
 		// Read length byte from packet.
 		uint8_t len = read_buff[UARTca(read_start+1)]+2;
 			// Check if correct number of bytes in read_buff
-			if(len >= end-read_start){
+			if(len <= end-read_start){
 				// Copy the bytes to the list s
 				for(uint8_t i = 0; i < len; i++){
 					s[i]=read_buff[read_start];

@@ -1,7 +1,7 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-#include "error.h"
+#include "../error/error.h"
 #include "TWI.h"
 
 //TWCR BITS(TWxx):   INT EA STA STO WC EN Res IE
@@ -162,12 +162,12 @@ uint8_t TWI_write(uint8_t addr, uint8_t *s, uint8_t len){
 		// TODO: signal buffer error.
 		return 0;
 	}
-	write_buff[write_end) = addr;
-	write_end = (write_end+1) % TWI_BUFFER_SIZE;
+	write_buff[write_end] = addr;
+	write_end = TWIca(write_end+1);
 	// Copy message to buffer.
 	for(int i = 0; i < len; ++i){
 		write_buff[write_end] = s[i];
-		write_end = (write_end+1) % TWI_BUFFER_SIZE;
+		write_end = TWIca(write_end+1);
 	}
 	TWI_start();
 	return 1;

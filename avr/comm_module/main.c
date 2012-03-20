@@ -28,7 +28,7 @@ int main(void)
 		if(len != 0){
 			// Write greeting again and send back what was received.
 			UART_write(s, 13);
-			UART_write(buff, len);
+			UART_write(buff+2, len-2);
 		}
 	}
 }

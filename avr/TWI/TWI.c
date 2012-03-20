@@ -22,7 +22,7 @@ volatile uint8_t read_start, read_end, write_start, write_end,
  */
 inline uint8_t TWIca(uint8_t);
 uint8_t TWIca(uint8_t addr){
-	return addr % TWI_BUFFER_SIZE;
+	return addr & 0x1f;
 }
 
 /**

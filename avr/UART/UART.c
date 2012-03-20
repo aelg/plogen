@@ -9,6 +9,14 @@ volatile uint8_t write_buff[UART_BUFFER_SIZE];
 volatile uint8_t read_start, read_end, write_start, write_end;
 
 /**
+ * TWI calculate address: make sure the address is within queue.
+ */
+inline uint8_t UARTca(uint8_t);
+uint8_t UARTca(uint8_t addr){
+	return addr & 0x1f;
+}
+
+/**
  * Interrupt vector for UDR Empty. UDR is empty and ready to receive a new byte.
  * Sends next byte from the USART packet queue.
  */
@@ -18,7 +26,7 @@ ISR(USART_UDRE_vect){
 		// Write data to RXE to send it.
 		UDR = write_buff[write_start];
 		// Update buffer pointer.
-		write_start = (write_start+1) % UART_BUFFER_SIZE;
+		write_start = UARTca(write_start+1);
 	}
 	else {
 	    // Disable UDRIE to stop sending data.
@@ -32,7 +40,7 @@ ISR(USART_UDRE_vect){
  */
 ISR(USART_RXC_vect){
 	// Is the buffer full?
-	if((read_start+1)%UART_BUFFER_SIZE == read_end){
+	if(UARTca(read_start+1) == read_end){
 		error(UART_RXE_BUFFER_FULL);
 		// Read UDR to clear interrupt.
 		// FIXME: THIS BYTE WILL BE LOST AND WE WILL BE OUT OF SYNC WITH PACKETS.
@@ -42,7 +50,7 @@ ISR(USART_RXC_vect){
 		// Copy UDR to read_buffer.
 		read_buff[read_end] = UDR;
 		// Update pointer.
-		read_end = (read_end+1) % UART_BUFFER_SIZE;
+		read_end = UARTca(read_end+1);
 	}
 }
 
@@ -87,7 +95,7 @@ uint8_t UART_write(uint8_t *s, uint8_t len){
 	// Copy message to buffer.
 	for(int i = 0; i < len; ++i){
 		write_buff[write_end] = s[i];
-		write_end = (write_end+1) % UART_BUFFER_SIZE;
+		write_end = UARTca(write_end+1);
 	}
 	UART_start();
 	return 1;
@@ -109,13 +117,13 @@ uint8_t UART_read(uint8_t* s){
 	// Check if read_buff contains correct number of bytes.
 	if(end-read_start >= 2){
 		// Read length byte from packet.
-		uint8_t len = read_buff[(read_start+1) % UART_BUFFER_SIZE]+2;
+		uint8_t len = read_buff[UARTca(read_start+1)]+2;
 			// Check if correct number of bytes in read_buff
 			if(len >= end-read_start){
 				// Copy the bytes to the list s
 				for(uint8_t i = 0; i < len; i++){
 					s[i]=read_buff[read_start];
-					read_start =(read_start + 1) % UART_BUFFER_SIZE;
+					read_start =UARTca(read_start + 1);
 					}
 				//return the length of the list
 				return len;

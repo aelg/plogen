@@ -1,7 +1,7 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-#include "error.h"
+#include "../error/error.h"
 #include "TWI.h"
 
 //TWCR BITS(TWxx):   INT EA STA STO WC EN Res IE
@@ -40,7 +40,7 @@ ISR(TWI_vect){
 		write_current = write_start;
 		// Read number of bytes in packet, assume there is a complete packet in the queue.
 		// Add 3 to count SLA+W, command, and length.
-		remaining_bytes = write_buff[TWIca(write_start+2)]+3;
+		remaining_bytes = write_buff[TWIca(write_start+2)]+2;
 		// Load addressbyte, clear W/R to select write.
 		TWDR = write_buff[write_start] << 1;
 		TWCR = SEND;
@@ -61,10 +61,11 @@ ISR(TWI_vect){
 				TWCR = START;
 			}
 			// Update start_write, there was no arbitration error.
-			write_start = TWIca(write_current+1);
+			write_start = TWIca(write_current);
 		}
 		else {
 			// Send byte.
+			--remaining_bytes;
 			TWCR = SEND;
 			write_current = TWIca(write_current+1);
 		}
@@ -74,15 +75,13 @@ ISR(TWI_vect){
 		TWCR = START;
 		break;
 	case 0x20: // Not ACK received after SLA+W, unknown address.
-	case 0x30: // Not ACK received after data. THIS IS BAD WE ARE LOSING DATA!
-		// Signal error
-		if(sr == 20) error(TWI_UNKNOWN_ADDRESS);
-		else if(sr == 30) error(TWI_NOT_ACK_RECEIVED);
-		// Find next packet.
+		error(TWI_UNKNOWN_ADDRESS);
+		// Remove current packet.
 		while(remaining_bytes--)
 			++write_current;
 
 		write_start = TWIca(write_current);
+
 		// Check if there are more packets.
 		if(write_start == write_end){
 			// No more packets, send STOP.
@@ -93,15 +92,21 @@ ISR(TWI_vect){
 			TWCR = START;
 		}
 		break;
+	case 0x30: // Not ACK received after data.
+		// Signal error
+		error(TWI_NOT_ACK_RECEIVED);
+		// Start over and that the receiver has more space in buffer this time.
+		TWCR = START;
+		break;
 	case 0x60: // Own SLA+W received, ACK returned.
 	case 0x68: // Arbitration lost in MR mode, own SLA+W received, ACK returned.
 	case 0x70: // General call address received.
 	case 0x78: // Arbitration lost in MR mode, general call address received, ACK returned.
 		// Read byte
-		read_buff[read_end] = TWDR;
-		read_current = TWIca(read_end+1);
+		//read_buff[read_current] = TWDR;
+		read_current = TWIca(read_end);
 		// Check if buffer is full.
-		if(read_current == read_start){
+		if(TWIca(read_current+1) == read_start){
 			// Return NOT ACK.
 			TWCR = NACK;
 		}
@@ -112,7 +117,7 @@ ISR(TWI_vect){
 	case 0x80: // Data received, ACK sent. (Addressed)
 	case 0x90: // Data received, ACK sent. (General call)
 		// Read byte
-		read_buff[read_end] = TWDR;
+		read_buff[read_current] = TWDR;
 		read_current = TWIca(read_current+1);
 		// Check if buffer is full.
 		if(read_current == read_start){
@@ -148,6 +153,22 @@ ISR(TWI_vect){
 	}
 }
 
+<<<<<<< Updated upstream
+void TWI_start(){
+	TWCR = START;
+}
+
+void TWI_init(uint8_t sla){
+	// Set correct bitrate.
+	TWBR = 0x0c;
+	// Set slave address and receive general calls.
+	TWAR = (sla << 1) | 0x01;
+	// Just to make sure.
+	TWSR = 0;
+	// Reset to make TWI ready for use.
+	TWCR = RESET;
+}
+	
 
 uint8_t TWI_write(uint8_t addr, uint8_t *s, uint8_t len){
 	// Temporary end to handle circular buffer.
@@ -162,12 +183,12 @@ uint8_t TWI_write(uint8_t addr, uint8_t *s, uint8_t len){
 		// TODO: signal buffer error.
 		return 0;
 	}
-	write_buff[write_end) = addr;
-	write_end = (write_end+1) % TWI_BUFFER_SIZE;
+	write_buff[write_end] = addr;
+	write_end = TWIca(write_end+1);
 	// Copy message to buffer.
 	for(int i = 0; i < len; ++i){
 		write_buff[write_end] = s[i];
-		write_end = (write_end+1) % TWI_BUFFER_SIZE;
+		write_end = TWIca(write_end+1);
 	}
 	TWI_start();
 	return 1;
@@ -183,13 +204,13 @@ uint8_t TWI_read(uint8_t* s){
 	// Check if read_buff contains correct number of bytes.
 	if(end-read_start >= 2){
 		// Read length byte from packet.
-		uint8_t len = read_buff[(read_start+1) % TWI_BUFFER_SIZE]+2;
+		uint8_t len = read_buff[TWIca(read_start+1)]+2;
 			// Check if correct number of bytes in read_buff
-			if(len >= end-read_start){
+			if(len <= end-read_start){
 				// Copy the bytes to the list s
 				for(uint8_t i = 0; i < len; i++){
 					s[i]=read_buff[read_start];
-					read_start =(read_start + 1) % TWI_BUFFER_SIZE;
+					read_start =TWIca(read_start + 1);
 					}
 				//return the length of the list
 				return len;

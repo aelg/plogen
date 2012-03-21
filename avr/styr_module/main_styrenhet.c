@@ -1,5 +1,4 @@
 //STYRENHET.C
-
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <inttypes.h>
@@ -31,6 +30,8 @@
 //MAIN
 int main(void)
 {
+	setup_motor();
+
 uint8_t TWI_read(uint8_t* s);
 void TWI_init(uint8_t sla);
 
@@ -56,7 +57,7 @@ while (c=1){
 			break;
 		}
 	case STRAIGHT:
-		run_straight(diff);
+		run_straight(difference,direction);
 	case TURN:
 		switch(s[2]){
 		case TURN_LEFT:
@@ -74,6 +75,7 @@ while (c=1){
 		case MANUAL_LEFT:
 			turn_left();
 			break;
+		
 	}
 //	while(1){
 //		asm volatile("nop");

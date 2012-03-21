@@ -6,6 +6,7 @@
 #include <avr/sleep.h>
 
 
+
 //Functions
 
 //Griparmsfunktion
@@ -57,11 +58,58 @@ void rotate_left(void)
 	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
 }
 
+//Köra framåt ur korsning
+void drive_forward(void)
+{
+	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
+	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
+	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
+	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+}
+
+//Rutin för vänstersväng
+void turn_left(void)
+{
+	OCR1A =	0x0040;//sets the length of pulses, left side - pin7
+	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
+	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
+	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+}
+
+//Rutin för högersväng
+void turn_right(void)
+{
+	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
+	OCR1B =	0x0040;//sets the length of pulses, right side - pin8
+	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
+	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+}
+
+//Rutin för körning rakt fram
+void turn_forward(void)
+{
+	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
+	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
+	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
+	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+}
+
+
+
+
 void manual_left(void)
 {
+	OCR1A =	0x0030;//sets the length of pulses, left side - pin7
+	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
+	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
+	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
 }
 void manual_right(void)
 {
+	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
+	OCR1B =	0x0030;//sets the length of pulses, right side - pin8
+	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
+	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
 }
 
 void manual_forward(void)
@@ -77,12 +125,11 @@ int main(void)
 
 	//griparm();
 	setup_motor();
-
-	int c=0;	
-	while(c < 30000)
+	
+	for(unsigned int i = 0; i < 0xffff; ++i)
+		for(unsigned int j = 0; j < 0x000f; ++j)
 	{
 	manual_forward();
-	c++;
 	}
 	
 	setup_motor();

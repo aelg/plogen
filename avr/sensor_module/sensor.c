@@ -4,8 +4,8 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-//	int i = 0;
-//	int tape_value; //Värdet på den analoga spänning som tejpdetektorn gett
+	int i = 0;
+	int tape_value; //Värdet på den analoga spänning som tejpdetektorn gett
 //	int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett
 //	int long_ir_2_value;//Värdet på den analoga spänning som lång avståndsmätare 2 gett
 //	int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett
@@ -14,11 +14,11 @@
 //	int gyro_value; //Värdet på den analoga spänning som gyrot gett
 
 //AD-omvandling klar. 
-//ISR(ADC_vect){
+ISR(ADC_vect){
 
-//	switch(i){
-//		case 0: tape_value = ADCH;
-//		break;
+	switch(i){
+		case 0: tape_value = ADCH;
+		break;
 //		case 1: long_ir_1_value = ADCH;
 //		break;
 //		case 2: long_ir_2_value = ADCH;
@@ -31,27 +31,35 @@
 //		break;
 //		case 6: gyro_value = ADCH;
 //		break;
-//	}
+	}
 
 //	i++;
 //	if(i == 6){
 //	i = 0;}
 
 //	ADMUX = (ADMUX & 0xE0) | (i & 0x1F);
-//	ADCSRA = 0xCB;
-//}
+	ADCSRA = 0xCB;
+}
 
-//int global_tape = 0;
-//int tape_counter = 0;
+uint8_t global_tape = 0;
+uint8_t tape_counter = 0;
+uint8_t timer = 0;
 
 //Subrutin för tejpdetektering
-//int tape_detected(int tape){
-//	if(tape xor global_tape){
-//	global_tape = tape;
-//	tape_counter++;}
-	
-//	return 0;
-//}
+int tape_detected(int tape){
+	if(tape ^ global_tape){
+	global_tape = tape;
+	tape_counter++;
+	timer = 0;}
+
+	if(tape_counter == 4){
+		//Målområdeskörning
+	}
+
+	if(timer > 
+
+	return 0;
+}
 		
 
 
@@ -64,9 +72,18 @@ int main()
 	MCUCR = 0x03;
 	GICR = 0x40;
 	DDRB= 0xFF;
+	DDRD= 0xFF; //PORTD som utgångar för timern. 
 
+	//Initiera timer
+	TCCR1A = 0x88; 
+	TCCR1B = 0x4D;
+	TIMSK = 0x30;
+	OCR1AH = //sätt in högt värde i timern
+	OCR1AL = //sätt in lågt värde i timern
+
+
+	uint8_t threshold = 0xCC;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 	uint8_t diod = 0x06;//Anger vilken diod som vi skriver/läser till i diodbryggan	
-	uint8_t threshold = 2;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 	PORTB = diod; //tänd diod
 
 	volatile char c;
@@ -74,15 +91,13 @@ int main()
 
 	//Starta AD-omvandling av insignalen på PA0 
 	ADMUX = 0x20;
-//	ADCSRA = 0xCB; 
+	ADCSRA = 0xCB; 
 	sei(); //tillåt interrupt
 	
 	while(c) {
-	//	if(tape_value > threshold){
-	//		tape = 1;
-	//		tape_interrupt = 1;
-	//		tape_detected(1);}
-	//	else tape_detected(0);
+		if(tape_value > threshold){
+			tape_detected(1);}
+		else tape_detected(0);
 	}
 
 	return 0;

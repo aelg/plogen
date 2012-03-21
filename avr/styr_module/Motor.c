@@ -3,9 +3,8 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <inttypes.h>
-#include <avr/sleep.h>
 
-
+#include "motor.h"
 
 //Functions
 
@@ -94,9 +93,6 @@ void turn_forward(void)
 	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
 }
 
-
-
-
 void manual_left(void)
 {
 	OCR1A =	0x0030;//sets the length of pulses, left side - pin7
@@ -120,25 +116,18 @@ void manual_forward(void)
 	PORTA |=(1<<PORTA1);//Right wheel direction - pin6	
 }
 
-int main(void)
+void manual_stop(void)
 {
+	OCR1A =	0x0003;//sets the length of pulses, left side - pin7
+	OCR1B =	0x0003;//sets the length of pulses, right side - pin8
+	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
+	PORTA |=(1<<PORTA1);//Right wheel direction - pin6	
+}
 
-	//griparm();
-	setup_motor();
-	
-	for(unsigned int i = 0; i < 0xffff; ++i)
-		for(unsigned int j = 0; j < 0x000f; ++j)
-	{
-	manual_forward();
-	}
-	
-	setup_motor();
-
-	while(1){
-		asm volatile("nop");
-		}	
-	
-	}		
-
-
-
+void manual_reverse(void)
+{
+	OCR1A =	0x00f0;//sets the length of pulses, left side - pin7
+	OCR1B =	0x00f0;//sets the length of pulses, right side - pin8
+	PORTA |=(0<<PORTA0);//Left wheel direction - pin5
+	PORTA |=(0<<PORTA1);//Right wheel direction - pin6	
+}

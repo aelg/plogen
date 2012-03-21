@@ -14,6 +14,9 @@
 
 #define COMM_ADDRESS 0x01
 #define SENSOR_ADDRESS 0x02
+#define CONTROL_ADDRESS 0x03
+
+#define OK = 0x1;
 
 int main(void)
 {
@@ -25,14 +28,19 @@ int main(void)
 	//uint8_t s[13] = {'P', 'l', 'o', 'g', 'e', 'n', 'P', 'l', 'o', 'g', 'e', 'n', '\n'};
 	//UART_write(s, 13);
 
-	uint8_t send[6] = {2, 4, 'H', 'e', 'j', '!'};
-	uint8_t recv[6] = {0, 0, '0', '0', '0', '0'};
-	
-	//for(volatile int i = 0; i < 0xff; ++i)
-	//	for(volatile int j = 0; j < 0xff; ++j);
+	uint8_t ok[2] = {OK, 0};
+	uint8_t buff[10];
 
 	TWI_write(SENSOR_ADDRESS, send, 6);
 	while (1){
-		TWI_read(recv);
+		for(volatile int i = 0; i < 0xff; ++i)
+			for(volatile int j = 0; j < 0xff; ++j){
+				//if(i == 0 && j == 0) UART_write(ok, 2);
+				int len;
+				len = UART_read(recv);
+				if(len){
+					TWI_write(CONTROL_ADDRESS, buff, len);
+				}
+			}
 	}
 }

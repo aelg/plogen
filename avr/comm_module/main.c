@@ -12,10 +12,6 @@
 #include "../UART/UART.h"
 #include "../TWI/TWI.h"
 
-#define COMM_ADDRESS 0x01
-#define SENSOR_ADDRESS 0x02
-#define CONTROL_ADDRESS 0x03
-
 #define CMD_OK = 0x1;
 
 int main(void)
@@ -28,7 +24,11 @@ int main(void)
 	//uint8_t s[13] = {'P', 'l', 'o', 'g', 'e', 'n', 'P', 'l', 'o', 'g', 'e', 'n', '\n'};
 	//UART_write(s, 13);
 
-	uint8_t buff[10];
+	uint8_t start[3] = {0x09, 0x01, 0x0c};
+	uint8_t stop[3] = {0x09, 0x01, 0x10};
+	
+
+	/*uint8_t buff[10];
 	//UART_write(s, 12);
 	while (1){
 		//for(volatile int i = 0; i < 0xff; ++i)
@@ -40,5 +40,16 @@ int main(void)
 					TWI_write(CONTROL_ADDRESS, buff, len);
 				}
 		//	}
+	}*/
+	uint8_t buff[10];
+	//UART_write(s, 12);
+	while (1){
+		for(volatile int i = 0; i < 0xffff; ++i)
+			for(volatile int j = 0; j < 0x00ff; ++j);
+		TWI_write(CONTROL_ADDRESS, start, 3);
+		for(volatile int i = 0; i < 0xffff; ++i)
+			for(volatile int j = 0; j < 0x00ff; ++j);
+		TWI_write(CONTROL_ADDRESS, stop, 3);
+		while(1);
 	}
 }

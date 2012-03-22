@@ -31,7 +31,7 @@ uint8_t TWIca(uint8_t addr){
  */
 
 ISR(TWI_vect){
-	uint8_t sr = TWSR & 0xfc;
+	uint8_t sr = TWSR & 0xf8;
 	switch(sr){
 	case 0x8: // Start sent.
 	case 0x10: // Repeated start sent.

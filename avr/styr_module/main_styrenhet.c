@@ -12,7 +12,8 @@ int main(void)
 {
 
 	setup_motor();
-	TWI_init(0x03);
+	TWI_init(CONTROL_ADDRESS);
+	sei();
 
 	uint8_t s[10];
 

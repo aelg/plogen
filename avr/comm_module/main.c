@@ -28,7 +28,7 @@ int main(void)
 	uint8_t stop[3] = {0x09, 0x01, 0x10};
 	
 
-	/*uint8_t buff[10];
+	uint8_t buff[10];
 	//UART_write(s, 12);
 	while (1){
 		//for(volatile int i = 0; i < 0xff; ++i)
@@ -40,16 +40,16 @@ int main(void)
 					TWI_write(CONTROL_ADDRESS, buff, len);
 				}
 		//	}
-	}*/
-	uint8_t buff[10];
+	}
+	//uint8_t buff[10];
 	//UART_write(s, 12);
-	while (1){
+	/*while (1){
 		for(volatile int i = 0; i < 0xffff; ++i)
-			for(volatile int j = 0; j < 0x00ff; ++j);
+			for(volatile int j = 0; j < 0x000f; ++j);
 		TWI_write(CONTROL_ADDRESS, start, 3);
 		for(volatile int i = 0; i < 0xffff; ++i)
-			for(volatile int j = 0; j < 0x00ff; ++j);
+			for(volatile int j = 0; j < 0x000f; ++j);
 		TWI_write(CONTROL_ADDRESS, stop, 3);
 		while(1);
-	}
+	}*/
 }

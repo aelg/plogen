@@ -36,8 +36,8 @@ void setup_motor(void)
 
 	OCR1A = 0x0003;//sets the length of pulses, left side - pin7
 	OCR1B = 0x0003;//sets the length of pulses, right side - pin8
-	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
 //Rotera höger
@@ -45,8 +45,8 @@ void rotate_right(void)
 {
 	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
 	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
-	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(0<<PORTA1);//Right wheel direction - pin6
+	PORTA =(1<<PORTA0) //Left wheel direction - pin5
+		  |(0<<PORTA1);//Right wheel direction - pin6
 }
 	
 //Rotera vänster
@@ -54,8 +54,8 @@ void rotate_left(void)
 {
 	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
 	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
-	PORTA |=(0<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+	PORTA =(0<<PORTA0)//Left wheel direction - pin5
+	      |(1<<PORTA1);//Right wheel direction - pin6
 }
 
 //Köra framåt ur korsning
@@ -63,8 +63,8 @@ void drive_forward(void)
 {
 	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
 	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
-	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
 //Rutin för vänstersväng
@@ -72,8 +72,8 @@ void turn_left(void)
 {
 	OCR1A =	0x0040;//sets the length of pulses, left side - pin7
 	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
-	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
 //Rutin för högersväng
@@ -81,8 +81,8 @@ void turn_right(void)
 {
 	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
 	OCR1B =	0x0040;//sets the length of pulses, right side - pin8
-	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
 //Rutin för körning rakt fram
@@ -90,45 +90,45 @@ void turn_forward(void)
 {
 	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
 	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
-	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
 void manual_left(void)
 {
 	OCR1A =	0x0030;//sets the length of pulses, left side - pin7
 	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
-	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 void manual_right(void)
 {
 	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
 	OCR1B =	0x0030;//sets the length of pulses, right side - pin8
-	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(1<<PORTA1);//Right wheel direction - pin6
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
 void manual_forward(void)
 {
 	OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
 	OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
-	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(1<<PORTA1);//Right wheel direction - pin6	
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6	
 }
 
 void manual_stop(void)
 {
 	OCR1A =	0x0003;//sets the length of pulses, left side - pin7
 	OCR1B =	0x0003;//sets the length of pulses, right side - pin8
-	PORTA |=(1<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(1<<PORTA1);//Right wheel direction - pin6	
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6	
 }
 
 void manual_reverse(void)
 {
 	OCR1A =	0x00f0;//sets the length of pulses, left side - pin7
 	OCR1B =	0x00f0;//sets the length of pulses, right side - pin8
-	PORTA |=(0<<PORTA0);//Left wheel direction - pin5
-	PORTA |=(0<<PORTA1);//Right wheel direction - pin6	
+	PORTA =(0<<PORTA0)//Left wheel direction - pin5
+		  |(0<<PORTA1);//Right wheel direction - pin6	
 }

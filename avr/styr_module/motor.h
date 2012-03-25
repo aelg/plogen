@@ -11,14 +11,13 @@
 #define TURN_RIGHT 0x07
 #define TURN_FORWARD 0x08
 
-#define MANUAL 0x09 // onödig?
-#define MANUAL_LEFT 0x0A
-#define MANUAL_RIGHT 0x0B
-#define MANUAL_FORWARD 0x0C
-#define MANUAL_BACK 0x0D
-#define MANUAL_ROTATE_LEFT 0x0E
-#define MANUAL_ROTATE_RIGHT 0x0F
-#define MANUAL_STOP 0x10
+#define LEFT 0x0A
+#define RIGHT 0x0B
+#define FORWARD 0x0C
+#define REVERSE 0x0D
+#define ROTATE_LEFT 0x0E
+#define ROTATE_RIGHT 0x0F
+#define STOP 0x10
 
 #define ROTATION_COMPLETE 0x11 //onödig?
 

@@ -5,6 +5,7 @@
 #include <inttypes.h>
 
 #include "motor.h"
+#include "../commands.h"
 
 //Functions
 

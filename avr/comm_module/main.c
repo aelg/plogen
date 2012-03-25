@@ -11,6 +11,7 @@
 
 #include "../UART/UART.h"
 #include "../TWI/TWI.h"
+#include "../commands.h"
 
 
 int main(void)
@@ -23,9 +24,9 @@ int main(void)
 	//uint8_t s[13] = {'P', 'l', 'o', 'g', 'e', 'n', 'P', 'l', 'o', 'g', 'e', 'n', '\n'};
 	//UART_write(s, 13);
 
-	uint8_t start[3] = {CMD_MANUAL, 0x01, 0x0c};
-	uint8_t stop[3] = {CMD_MANUAL, 0x01, 0x10};
-	uint8_t end[2] = {CMD_END, 0}
+	//uint8_t start[3] = {CMD_MANUAL, 0x01, 0x0c};
+	//uint8_t stop[3] = {CMD_MANUAL, 0x01, 0x10};
+	uint8_t end[2] = {CMD_END, 0};
 	
 
 	uint8_t buff[10];

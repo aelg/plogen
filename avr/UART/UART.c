@@ -55,12 +55,6 @@ ISR(USART_RXC_vect){
 	}
 }
 
-uint8_t UART_send_buffer_empty(){
-	if(read_start == UARTca(read_end+1))
-		return 1;
-	else return 0;
-}
-
 void UART_init(){
 	// Set buffer pointers to beginning of buffers.
 	read_start = read_end = write_start = write_end = 0;

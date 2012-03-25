@@ -5,6 +5,7 @@
 
 #include "../TWI/TWI.h"
 #include "motor.h"
+#include "../commands.h"
 
 
 //MAIN
@@ -23,7 +24,7 @@ int main(void)
 		uint8_t len = TWI_read(s);
 		if(len){
 			switch(s[0]){
-			case CROSSING:
+			/*case CROSSING:
 				switch(s[2]){
 				case CROSSING_LEFT:
 					rotate_left();
@@ -51,26 +52,29 @@ int main(void)
 					turn_forward();
 					break;
 				}
-				break;
-			case MANUAL:
+				break;*/
+			case CMD_MANUAL:
 				switch(s[2]){
-				case MANUAL_LEFT:
+				case LEFT:
 					manual_left();
 					break;
-				case MANUAL_RIGHT:
+				case RIGHT:
 					manual_right();
 					break;
-				case MANUAL_FORWARD:
+				case FORWARD:
 					manual_forward();
 					break;
-				case MANUAL_BACK:
+				case REVERSE:
 					manual_reverse();
 					break;
-				case MANUAL_ROTATE_LEFT:
+				case ROTATE_LEFT:
 					rotate_left();
 					break;
-				case MANUAL_ROTATE_RIGHT:
+				case ROTATE_RIGHT:
 					rotate_right();
+					break;
+				case STOP:
+					manual_stop();
 					break;
 				}
 				break;

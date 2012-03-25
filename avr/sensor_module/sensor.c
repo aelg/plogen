@@ -6,12 +6,12 @@
 
 	volatile uint8_t i = 0;
 	volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
-//	int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett
-//	int long_ir_2_value;//Värdet på den analoga spänning som lång avståndsmätare 2 gett
-//	int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett
-//	int short_ir_2_value;//Värdet på den analoga spänning som kort avståndsmätare 2 gett
-//	int short_ir_3_value;//Värdet på den analoga spänning som kort avståndsmätare 3 gett
-//	int gyro_value; //Värdet på den analoga spänning som gyrot gett
+//	volatile int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett
+//	volatile int long_ir_2_value;//Värdet på den analoga spänning som lång avståndsmätare 2 gett
+//	volatile int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett
+//	volatile int short_ir_2_value;//Värdet på den analoga spänning som kort avståndsmätare 2 gett
+//	volatile int short_ir_3_value;//Värdet på den analoga spänning som kort avståndsmätare 3 gett
+//	volatile int gyro_value; //Värdet på den analoga spänning som gyrot gett
 	volatile uint8_t global_tape = 0;
 	volatile uint8_t tape_counter = 0;
 	volatile uint8_t timer = 0;
@@ -48,16 +48,20 @@ ISR(ADC_vect){
 //Timern har räknat klart, interrupt skickas, nu kommer ingen mer tejp.
 ISR (TIMER1_COMPA_vect){
 
-	uint8_t tape = tape_counter/2; //Ger antalet tejpar
+	volatile uint8_t tape = tape_counter/2; //Ger antalet tejpar
 
 	switch(tape){
-		case 1: PORTB = (PORTB & 0b11110011); //Nollställ PB4 och PB5
+		case 0: PORTB = (PORTB & 0b11001111); //Nollställ PB4 och PB5
 		break;
-		case 2: PORTB = (0b00001000 | (PORTB & 0b11110011)); //Ettställ PB4 och nollställ PB5
+		case 1: PORTB = (0b10010000 | (PORTB & 0b11001111)); //Ettställ PB7, PB4
 		break;
-		case 3: PORTB = (0b00001100 | (PORTB & 0b11110011)); //Ettställ PB4 och PB5
+		case 2: PORTB = (0b10100000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 
+		break;
+		case 3: PORTB = (0b10110000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 och PB4
 		break;
 	}
+
+	tape_counter = 0; //Nollställ tape_counter då timern gått.
 }
 
 
@@ -72,9 +76,9 @@ void tape_detected(int tape){
 	tape_counter++;
 	TCNT1 = 0x0000;} //Nollställ timer
 
-
+	//Målområdeskörning
 	//if(tape_counter == 7){
-		//Målområdeskörning
+		//PORTB |= 0b11000000; // Ettställ PB7, PB6
 	//}
 }
 		
@@ -97,11 +101,12 @@ int main()
 	TCCR1B = 0x4D;
 	TIMSK = 0x30;
 	TCNT1 = 0; //Nollställ timer
-	OCR1A = 0xFFFF; //sätt in värde som ska trigga avbrott gammal värde = 210
+	OCR1A = 0xFFFF; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
 
 
 
-	uint8_t threshold = 100;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+	uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+	uint8_t low_threshold = 20;
 	uint8_t diod = 0b00001000;//Anger vilken diod som vi skriver/läser till i diodbryggan	
 	PORTB = diod; //tänd diod
 
@@ -114,25 +119,11 @@ int main()
 	sei(); //tillåt interrupt
 	
 	while(c) {
-		if(tape_value > threshold){
+		if(tape_value > high_threshold){
 			tape_detected(1);}
-		else tape_detected(0);
+		else if (tape_value < low_threshold){
+			tape_detected(0);}
 	}
+
 	return 0;
 }
-
-//Subrutin för att se om tejp eller inte
-//int tape_detection(){
-
-//	int tape;//Tejp eller inte. tape=1 => tejp. tape=0 => inte tejp.
-	
-
-
-//	if (analog_value > threshold){
-//	tape = 1;} //tejp detekterad
-
-//	else {
-//	tape = 0;} //ingen tejp detekterad
-
-//	return tape; //returnera 1 om tejp. 0 om inte tejp.
-//}

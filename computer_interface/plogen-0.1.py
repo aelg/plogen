@@ -18,7 +18,8 @@ RIGHT_AREA = 3
 
 #Commands
 MANUAL = 0x12
-SEND_NEXT = 0x13 
+SEND_NEXT = 0x13
+END = 0x14
 
 CALIBRATE = chr(1)          # Constants for different functions in the BT-program
 CALIBRATELEFT = chr(2)      # The first byte in the message to the BT is set to one of these
@@ -29,19 +30,19 @@ SETSPEED = chr(6)
 SETMARGIN = chr(7)
 LOCK = chr(8)
 UNLOCK = chr(9)
-STOP = chr(10)
-RIGHT = chr(11)
+STOP = chr(0x10)
+RIGHT = chr(0x0f)
 RIGHTFORW = chr(12)
-LEFT = chr(13)
+LEFT = chr(0x0e)
 LEFTFORW = chr(14)
-STRAIGHT = chr(15)
-BACKWARD = chr(16)
+STRAIGHT = chr(0x0c)
+BACKWARD = chr(0x0d)
 INCSPEED = chr(17)
 DECSPEED = chr(18)
 SETALGO = chr(19)
 
 socket_lock = threading.Semaphore() 	# Semaphore to handle different threads using the bluetooth-socket
-debug_nobluetooth = 1			        # Run without bluetooth, debug
+debug_nobluetooth = 0			        # Run without bluetooth, debug
 debug = 2                               # Turns on or off some printing to console. 1 = Print outgoing data, 2 = Print in and outgoing data
 
 ##
@@ -84,6 +85,7 @@ class Cbt:
   #
   # Removes length bytes from packet
   def readcmd(self):
+    return chr(0x00)+chr(0x00)
     if debug :
       print 'readcmd'
     if debug_nobluetooth: return chr(0x00)    # Debug, we don't have a bluetooth-connection so pretend that everything is fine
@@ -95,9 +97,15 @@ class Cbt:
       socket_lock.release()
       return ERROR 
     head = self.bt.recv(2)                 # Read length of packet and command
-    data = self.bt.recv(ord(head[1]))       # Recieve packet
-    socket_lock.release() 	# Release lock
-    return head[0] + data                   # Strip length byte.
+    if(len(head) < 2):
+      head += self.bt.recv(1)
+    if ord(head[1]) != 0:
+      data = self.bt.recv(ord(head[1]))       # Recieve packet
+      socket_lock.release() 	# Release lock
+      return head[0] + data                   # Strip length byte.
+    else :
+      socket_lock.release() 	# Release lock
+      return head[0]
 
   ##
   # Sends data to the BT
@@ -115,9 +123,9 @@ class Cbt:
     if self.bt.fileno() == ERROR : # Connection down
       socket_lock.release()
       return ERROR 
-    self.bt.send(cmd)
+    self.bt.send(chr(cmd))
     self.bt.send(chr(len(data))) 		# Length of data
-    self.bt.send(data)			# Data
+    self.bt.send(str(data))			# Data
     socket_lock.release() 	# Release lock
 
   ##

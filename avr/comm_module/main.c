@@ -12,7 +12,6 @@
 #include "../UART/UART.h"
 #include "../TWI/TWI.h"
 
-#define CMD_OK = 0x1;
 
 int main(void)
 {
@@ -24,8 +23,9 @@ int main(void)
 	//uint8_t s[13] = {'P', 'l', 'o', 'g', 'e', 'n', 'P', 'l', 'o', 'g', 'e', 'n', '\n'};
 	//UART_write(s, 13);
 
-	uint8_t start[3] = {0x09, 0x01, 0x0c};
-	uint8_t stop[3] = {0x09, 0x01, 0x10};
+	uint8_t start[3] = {CMD_MANUAL, 0x01, 0x0c};
+	uint8_t stop[3] = {CMD_MANUAL, 0x01, 0x10};
+	uint8_t end[2] = {CMD_END, 0}
 	
 
 	uint8_t buff[10];
@@ -37,7 +37,14 @@ int main(void)
 				int len;
 				len = UART_read(buff);
 				if(len){
-					TWI_write(CONTROL_ADDRESS, buff, len);
+					switch(buff[0]){
+					case CMD_SEND_NEXT:
+						UART_write(end, 2);
+						break;
+					case CMD_MANUAL:
+						TWI_write(CONTROL_ADDRESS, buff, len);
+						break;
+					}
 				}
 		//	}
 	}

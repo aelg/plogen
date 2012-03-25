@@ -21,10 +21,10 @@ while s != 'q':
   #print r + '\n'
   #print(s)
   try:
-    s = raw_input()
-    bt.send(chr(2) + chr(len(s)) + s)
+#    s = raw_input()
+#    bt.send(chr(2) + chr(len(s)) + s)
     #time.sleep(1)
-    r = bt.recv(100);
+    r = bt.recv(1);
     print r 
   except btcommon.BluetoothError:
     """ asdf"""

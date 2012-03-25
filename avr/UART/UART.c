@@ -7,6 +7,7 @@
 volatile uint8_t read_buff[UART_BUFFER_SIZE];
 volatile uint8_t write_buff[UART_BUFFER_SIZE];
 volatile uint8_t read_start, read_end, write_start, write_end;
+volatile uint8_t remaining_bytes, remaining_packets;
 
 /**
  * TWI calculate address: make sure the address is within queue.
@@ -52,6 +53,12 @@ ISR(USART_RXC_vect){
 		// Update pointer.
 		read_end = UARTca(read_end+1);
 	}
+}
+
+uint8_t UART_send_buffer_empty(){
+	if(read_start == UARTca(read_end+1))
+		return 1;
+	else return 0;
 }
 
 void UART_init(){

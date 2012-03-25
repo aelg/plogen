@@ -4,17 +4,17 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-	uint8_t i = 0;
-	uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
+	volatile uint8_t i = 0;
+	volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
 //	int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett
 //	int long_ir_2_value;//Värdet på den analoga spänning som lång avståndsmätare 2 gett
 //	int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett
 //	int short_ir_2_value;//Värdet på den analoga spänning som kort avståndsmätare 2 gett
 //	int short_ir_3_value;//Värdet på den analoga spänning som kort avståndsmätare 3 gett
 //	int gyro_value; //Värdet på den analoga spänning som gyrot gett
-	uint8_t global_tape = 0;
-	uint8_t tape_counter = 0;
-	uint8_t timer = 0;
+	volatile uint8_t global_tape = 0;
+	volatile uint8_t tape_counter = 0;
+	volatile uint8_t timer = 0;
 
 
 //AD-omvandling klar. 
@@ -73,9 +73,9 @@ void tape_detected(int tape){
 	TCNT1 = 0x0000;} //Nollställ timer
 
 
-	if(tape_counter == 7){
+	//if(tape_counter == 7){
 		//Målområdeskörning
-	}
+	//}
 }
 		
 
@@ -97,11 +97,11 @@ int main()
 	TCCR1B = 0x4D;
 	TIMSK = 0x30;
 	TCNT1 = 0; //Nollställ timer
-	OCR1A = 0x4444; //sätt in värde som ska trigga avbrott gammal värde = 210
+	OCR1A = 0xFFFF; //sätt in värde som ska trigga avbrott gammal värde = 210
 
 
 
-	uint8_t threshold = 0xCC;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+	uint8_t threshold = 100;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 	uint8_t diod = 0b00001000;//Anger vilken diod som vi skriver/läser till i diodbryggan	
 	PORTB = diod; //tänd diod
 

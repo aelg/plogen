@@ -4,14 +4,15 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-	volatile uint8_t i = 0;
+	volatile uint8_t gyro_mode = 0;
+	volatile uint8_t i = 7;
 	volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
 //	volatile int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett
 //	volatile int long_ir_2_value;//Värdet på den analoga spänning som lång avståndsmätare 2 gett
 //	volatile int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett
 //	volatile int short_ir_2_value;//Värdet på den analoga spänning som kort avståndsmätare 2 gett
 //	volatile int short_ir_3_value;//Värdet på den analoga spänning som kort avståndsmätare 3 gett
-//	volatile int gyro_value; //Värdet på den analoga spänning som gyrot gett
+	volatile int gyro_value; //Värdet på den analoga spänning som gyrot gett
 	volatile uint8_t global_tape = 0;
 	volatile uint8_t tape_counter = 0;
 	volatile uint8_t timer = 0;
@@ -20,28 +21,33 @@
 //AD-omvandling klar. 
 ISR(ADC_vect){
 
-	switch(i){
-		case 0: tape_value = ADCH;
-		break;
-//		case 1: long_ir_1_value = ADCH;
-//		break;
-//		case 2: long_ir_2_value = ADCH;
-//		break;
-//		case 3: short_ir_1_value = ADCH;
-//		break;
-//		case 4: short_ir_2_value = ADCH;
-//		break;
-//		case 5: short_ir_3_value = ADCH;
-//		break;
-//		case 6: gyro_value = ADCH;
-//		break;
+	if(gyro_mode == 0){
+		switch(i){
+//			case 2: long_ir_right_value = ADCH;
+//			break;
+//			case 3: short_ir_left_value = ADCH;
+//			break;
+//			case 4: short_ir_right_value = ADCH;
+//			break;
+//			case 5: short_ir_back_value = ADCH;
+//			break;
+//			case 6: long_ir_left_value = ADCH;
+//			break;
+			case 7: tape_value = ADCH;
+			break;
+		}
+
+//		i++;
+//		if(i == 7){
+//		i = 2;}
+
+//		ADMUX = (ADMUX & 0xE0) | (i & 0x1F);
 	}
 
-//	i++;
-//	if(i == 6){
-//	i = 0;}
+	else {
+		gyro_value = ADCH;
+	}
 
-//	ADMUX = (ADMUX & 0xE0) | (i & 0x1F);
 	ADCSRA = 0xCB;
 }
 
@@ -81,7 +87,11 @@ void tape_detected(int tape){
 		//PORTB |= 0b11000000; // Ettställ PB7, PB6
 	//}
 }
-		
+	
+//Subrutin för att integrera gyrovärden
+void integrate_gyro(){
+
+}
 
 
 
@@ -114,15 +124,23 @@ int main()
 	c=1;
 
 	//Starta AD-omvandling av insignalen på PA0 
-	ADMUX = 0x20;
+	ADMUX = 0x27;
 	ADCSRA = 0xCB; 
 	sei(); //tillåt interrupt
 	
 	while(c) {
 		if(tape_value > high_threshold){
-			tape_detected(1);}
+			tape_detected(1);
+		}
 		else if (tape_value < low_threshold){
-			tape_detected(0);}
+			tape_detected(0);
+		}
+
+		if(gyro_mode == 1){
+			ADMUX = 0b00110000;
+			integrate_gyro();
+		}
+
 	}
 
 	return 0;

@@ -3,11 +3,12 @@
 debug = 2                               # Turns on or off some printing to console. 1 = Print outgoing data, 2 = Print in and outgoing data
 
 from Tkinter import * 	# GUI
+import time
 from gui import *
 
 socket_lock = threading.Semaphore() 	# Semaphore to handle different threads using the bluetooth-socket
 
-bt = Cbt(BT_ADRESS) 	# Create bt-object
+bt = Cbt(BT_ADRESS, socket_lock) 	# Create bt-object
 
 robot = Crobot(bt) 	# Create robot-object
 

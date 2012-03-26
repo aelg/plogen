@@ -1,4 +1,15 @@
 from constants import *
+from bluetooth import *
+
+ERROR = -1
+IN = 11 		# In-queue in the BT
+OUT = 1 		# Out-queue in the BT
+BT_ADRESS = "00:06:66:03:A9:9C" # Hardware-address to the BT
+PROGRAM = "fkub" # Default program to be run on the BT
+DEFAULT = 0xff
+CENTER_AREA = 1
+LEFT_AREA = 2
+RIGHT_AREA = 3
 
 ##
 # Class which handles communication with the BT
@@ -10,7 +21,7 @@ class Cbt:
   ##
   # Constructor, addr is a string with the physical address of the BT
   # Creates socket
-  def __init__(self, addr) : 
+  def __init__(self, addr, socket_lock) : 
     print debug_nobluetooth
     if debug_nobluetooth: 	# Debug for running without bluetooth
       self.bt = 1
@@ -18,7 +29,8 @@ class Cbt:
 
     self.bt = BluetoothSocket( RFCOMM ) 	# Create socket
     error = self.bt.connect((addr, 1)); 	# Connect, channel 1
-    self.bt.setblocking(1) 		# Activates blocking, which makes the socket wait for data if there is non
+    self.bt.setblocking(1) 		# Activates blocking, which makes the socket wait for data if there is none
+    self.socket_lock = socket_lock
     if (not(error)) : 
       print("Bluetooth connection OK")                 # Everything is fine we've got a connection to the BT 
     else : 
@@ -40,26 +52,24 @@ class Cbt:
   #
   # Removes length bytes from packet
   def readcmd(self):
-    return chr(0x00)+chr(0x00)
     if debug :
       print 'readcmd'
-    if debug_nobluetooth: return chr(0x00)    # Debug, we don't have a bluetooth-connection so pretend that everything is fine
+    if debug_nobluetooth:
+      return str('' + chr(CMD_SENSOR_DATA)+IRLEFT+chr(23))   # Debug, we don't have a bluetooth-connection so pretend that everything is fine
 
-    self.sendcmd(SEND_NEXT, '')
-
-    socket_lock.acquire() 		# Lock socket
+    self.socket_lock.acquire() 		# Lock socket
     if self.bt.fileno() == ERROR : # Connection down
-      socket_lock.release()
+      self.socket_lock.release()
       return ERROR 
     head = self.bt.recv(2)                 # Read length of packet and command
     if(len(head) < 2):
       head += self.bt.recv(1)
     if ord(head[1]) != 0:
       data = self.bt.recv(ord(head[1]))       # Recieve packet
-      socket_lock.release() 	# Release lock
+      self.socket_lock.release() 	# Release lock
       return head[0] + data                   # Strip length byte.
     else :
-      socket_lock.release() 	# Release lock
+      self.socket_lock.release() 	# Release lock
       return head[0]
 
   ##
@@ -74,14 +84,14 @@ class Cbt:
         s += ' ' + str(ord(b))
       print s
     if debug_nobluetooth: return
-    socket_lock.acquire() 		# Lock socket
+    self.socket_lock.acquire() 		# Lock socket
     if self.bt.fileno() == ERROR : # Connection down
-      socket_lock.release()
+      self.socket_lock.release()
       return ERROR 
     self.bt.send(chr(cmd))
     self.bt.send(chr(len(data))) 		# Length of data
     self.bt.send(str(data))			# Data
-    socket_lock.release() 	# Release lock
+    self.socket_lock.release() 	# Release lock
 
   ##
   # Get data from BT
@@ -168,10 +178,10 @@ class Cbt:
     if debug_nobluetooth: # Debug set bt to 0 so the threads exits nicely
       self.bt = 0
       return
-    socket_lock.acquire() # Lock socket
+    self.socket_lock.acquire() # Lock socket
     if self.bt.fileno() == ERROR:
-      socket_lock.release() 
+      self.socket_lock.release() 
       return
     self.bt.shutdown(2) 	# Stop accepting data
     self.bt.close() 	# Destroy socket
-    socket_lock.release() 	# Release socket
+    self.socket_lock.release() 	# Release socket

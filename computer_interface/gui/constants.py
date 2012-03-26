@@ -1,5 +1,4 @@
 ERROR = -1
-EMPTY = chr(0x40) 	# Status byte from BT if messagequeue is empty
 IN = 11 		# In-queue in the BT
 OUT = 1 		# Out-queue in the BT
 BT_ADRESS = "00:06:66:03:A9:9C" # Hardware-address to the BT
@@ -8,30 +7,32 @@ CENTER_AREA = 1
 LEFT_AREA = 2
 RIGHT_AREA = 3
 
-#Commands
-MANUAL = 0x12
-SEND_NEXT = 0x13
-END = 0x14
+# Commands
+CMD_MANUAL = 0x12
+CMD_SEND_NEXT = 0x13
+CMD_END = 0x14
+CMD_SENSOR_DATA = 0x15
 
-CALIBRATE = chr(1)          # Constants for different functions in the BT-program
-CALIBRATELEFT = chr(2)      # The first byte in the message to the BT is set to one of these
-CALIBRATECENTER = chr(3)
-CALIBRATERIGHT = chr(4)
-NEXTLF = chr(5)
-SETSPEED = chr(6)
-SETMARGIN = chr(7)
-LOCK = chr(8)
-UNLOCK = chr(9)
+# Messages
+SEND_NEXT = chr(CMD_SEND_NEXT) + chr(0)
+EMPTY = chr(CMD_END) + chr(0) 	# Message from plogen if end of queue
+
+#Sensor constants
+IRLEFT = chr(1)
+IRRIGHT = chr(2)
+IRANGLE = chr(3)
+IRDIFF = chr(4)
+AUTO_MODE = chr(5)
+TAPE = chr(6)
+
+#Control constants
 STOP = chr(0x10)
 RIGHT = chr(0x0f)
 RIGHTFORW = chr(12)
 LEFT = chr(0x0e)
 LEFTFORW = chr(14)
-STRAIGHT = chr(0x0c)
+FORWARD = chr(0x0c)
 BACKWARD = chr(0x0d)
-INCSPEED = chr(17)
-DECSPEED = chr(18)
-SETALGO = chr(19)
 
-debug_nobluetooth = 1
+debug_nobluetooth = 0
 debug = 2

@@ -53,10 +53,10 @@ class Capp:
     self.bnextLF = Button(self.frame, text="Change LF", command=self.nextLF)
     self.bnextLF.grid(column=3, row=3)
 
-    self.bIncSpeed = Button(self.frame, text="Inc Speed", command=self.robot.incSpeed)
+    self.bIncSpeed = Button(self.frame, text="Inc Speed")#, command=self.robot.incSpeed)
     self.bIncSpeed.grid(column=3, row=4)
 
-    self.bDecSpeed = Button(self.frame, text="Dec Speed", command=self.robot.decSpeed)
+    self.bDecSpeed = Button(self.frame, text="Dec Speed")#, command=self.robot.decSpeed)
     self.bDecSpeed.grid(column=3, row=5)
 
     self.bCalibrateLeft = Button(self.frame, text="Cal Left", command=self.calibrateLeft)

@@ -25,14 +25,11 @@ class ThreadSafeLabel(Label):
 
   def updateData(self) :
     # Display data from the robot-object on the label
-    self.data.set("Light: " + str(self.robot.getLight()) + \
-        "\nUltrasound: " + str(self.robot.getUs()) + \
-        "\nTouch: " + str(self.robot.getTouch()) + \
-        "\nBT lock: " + str(self.robot.getLock()) + \
-        "\nSpeed: " + str(self.robot.getSpeed()) + \
-        "\nLeft: " + str(self.robot.getLeft()) + \
-        "\nCenter: " + str(self.robot.getCenter()) + \
-        "\nRight: " + str(self.robot.getRight()) + \
-        "\nSensor margin: " + str(self.robot.getMargin()) + \
-        "\nAlgorithm: " + str(self.robot.getAlgorithm()))
+    self.data.set("Antal tejp: " + str(self.robot.getTape()) + \
+        "\nIR Left: " + str(self.robot.getIRLeft()) + \
+        "\nIR Right: " + str(self.robot.getIRRight()) + \
+        "\nIR Diff: " + str(self.robot.getIRDiff()) + \
+        "\nIR Angle: " + str(self.robot.getIRAngle()) + \
+        "\nAuto mode: " + str(self.robot.getAutoMode()) + \
+        "\nSpeed: " + str(self.robot.getSpeed()))
     self.after(100, self.updateData) # Request to be called again after 100 milliseconds

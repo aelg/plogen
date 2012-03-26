@@ -62,13 +62,16 @@ class Cbt:
       self.socket_lock.release()
       return ERROR 
     head = self.bt.recv(2)                 # Read length of packet and command
+    print 'efter recv'
     if(len(head) < 2):
       head += self.bt.recv(1)
     if ord(head[1]) != 0:
+      print 'hej'
       data = self.bt.recv(ord(head[1]))       # Recieve packet
       self.socket_lock.release() 	# Release lock
       return head[0] + data                   # Strip length byte.
     else :
+      print 'fu'
       self.socket_lock.release() 	# Release lock
       return head[0]
 
@@ -90,7 +93,8 @@ class Cbt:
       return ERROR 
     self.bt.send(chr(cmd))
     self.bt.send(chr(len(data))) 		# Length of data
-    self.bt.send(str(data))			# Data
+    if len(data) != 0 : 
+      self.bt.send(str(data))			# Data
     self.socket_lock.release() 	# Release lock
 
   ##

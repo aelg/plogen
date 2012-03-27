@@ -4,7 +4,7 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-	volatile uint8_t gyro_mode = 0;
+
 	volatile uint8_t i = 7;
 	volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
 //	volatile int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett
@@ -13,6 +13,9 @@
 //	volatile int short_ir_2_value;//Värdet på den analoga spänning som kort avståndsmätare 2 gett
 //	volatile int short_ir_3_value;//Värdet på den analoga spänning som kort avståndsmätare 3 gett
 	volatile int gyro_value; //Värdet på den analoga spänning som gyrot gett
+	volatile int gyro_sum; //Summan av gyrovärden. Används som integral. 
+	volatile uint8_t gyro_mode = 0;
+	volatile uint8_t gyro_initialize = 0;
 	volatile uint8_t global_tape = 0;
 	volatile uint8_t tape_counter = 0;
 	volatile uint8_t timer = 0;
@@ -51,7 +54,7 @@ ISR(ADC_vect){
 	ADCSRA = 0xCB;
 }
 
-//Timern har räknat klart, interrupt skickas, nu kommer ingen mer tejp.
+//Timer A har räknat klart,För tejpsensorn
 ISR (TIMER1_COMPA_vect){
 
 	volatile uint8_t tape = tape_counter/2; //Ger antalet tejpar
@@ -70,6 +73,17 @@ ISR (TIMER1_COMPA_vect){
 	tape_counter = 0; //Nollställ tape_counter då timern gått.
 }
 
+//Interrupt för timer B. Används för att integrera gyrovärden.
+ISR (TIMER1_COMPB_vect){
+
+	gyro_sum += gyro_value;
+
+	if((gyro_sum == 90) | (gyro_sum == -90)){ //Värde för fullbordad sväng
+		PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
+
+		gyro_mode = 0; //gå ur gyro_mode
+	}
+}
 
 
 
@@ -88,11 +102,18 @@ void tape_detected(int tape){
 	//}
 }
 	
-//Subrutin för att integrera gyrovärden
-void integrate_gyro(){
 
+void init_gyro(){
+	ADMUX = 0b00110000;
+			
+	TCCR1A = 0x24; 
+	TCCR1B = 0x4D;
+	TIMSK = 0x28;
+	TCNT1 = 0; //Nollställ timer
+	OCR1B = 0xFFFF; //sätt in värde som ska trigga avbrott, intervallet för integration
+
+	gyro_initialize = 0;
 }
-
 
 
 
@@ -129,18 +150,19 @@ int main()
 	sei(); //tillåt interrupt
 	
 	while(c) {
-		if(tape_value > high_threshold){
-			tape_detected(1);
+		
+		switch(gyro_mode){
+			case 1: if(gyro_initialize == 1) 
+						init_gyro();
+			break;	
+			case 0: if(tape_value > high_threshold){
+						tape_detected(1);
+					}
+					else if (tape_value < low_threshold){
+						tape_detected(0);
+					}
+			break;	
 		}
-		else if (tape_value < low_threshold){
-			tape_detected(0);
-		}
-
-		if(gyro_mode == 1){
-			ADMUX = 0b00110000;
-			integrate_gyro();
-		}
-
 	}
 
 	return 0;

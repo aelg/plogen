@@ -28,69 +28,41 @@
 //AD-omvandling klar. 
 ISR(ADC_vect){
 
-	switch(i){
-		case 0: tape_value = ADCH;
-		break;
-		case 1:
-		if (itr_long_ir_1 >= 3){
-		long_ir_1_values[itr_long_ir_1]= ADCH;
-		itr_long_ir_1 = 0;
+	if(gyro_mode == 0){
+		switch(i){
+//			case 2: long_ir_right_value = ADCH;
+//			break;
+//			case 3: short_ir_left_value = ADCH;
+//			break;
+//			case 4: short_ir_right_value = ADCH;
+//			break;
+//			case 5: short_ir_back_value = ADCH;
+//			break;
+//			case 6: long_ir_left_value = ADCH;
+//			break;
+			case 7: tape_value = ADCH;
+			break;
 		}
-		else {
-		long_ir_1_values[itr_long_ir_1]= ADCH;
-		itr_long_ir_1++;
-		}
-		break;
-		case 2: 		
-		if (itr_long_ir_2 >= 3){
-		long_ir_2_values[itr_long_ir_2]= ADCH;
-		itr_long_ir_2 = 0;
-		}
-		else {
-		long_ir_2_values[itr_long_ir_2]= ADCH;
-		itr_long_ir_2++;
-		}
-		break;
-		case 3:
-		if (itr_short_ir_1 >= 3){
-		short_ir_1_values[itr_short_ir_1]= ADCH;
-		itr_short_ir_1 = 0;
-		}
-		else {
-		short_ir_1_values[itr_short_ir_1]= ADCH;
-		itr_short_ir_1++;
-		}
-		break;
-		case 4: 
-		if (itr_short_ir_2 >= 3){
-		short_ir_2_values[itr_short_ir_2]= ADCH;
-		itr_short_ir_2 = 0;
-		}
-		else {
-		short_ir_2_values[itr_short_ir_2]= ADCH;
-		itr_short_ir_2´++;
-		}
-		break;
-		case 5: 
-		if (itr_short_ir_3 >= 3){
-		short_ir_3_values[itr_short_ir_3]= ADCH;
-		itr_short_ir_3 = 0;
-		}
-		else {
-		short_ir_3_values[itr_short_ir_3]= ADCH;
-		itr_short_ir_3++;
-		}
-		break;
-//		case 6: gyro_value = ADCH;
-//		break;
+
+//		i++;
+//		if(i == 7){
+//		i = 2;}
+
+//		ADMUX = (ADMUX & 0xE0) | (i & 0x1F);
 	}
 
-	i++;
-	if(i == 6){
-	i = 0;}
+	else {
 
-	ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
-	ADCSRA = 0xCB;//Interrupt-bit nollställs
+		gyro_sum += ADCH;		
+
+		if((gyro_sum >= GYRO_TURN_RIGHT) | (gyro_sum <= GYRO_TURN_LEFT)){ //Värde för fullbordad sväng
+			PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
+			gyro_mode = 0; //gå ur gyro_mode
+			gyro_sum = 0;
+		}
+	}
+
+	ADCSRA = 0xCB;
 }
 
 
@@ -140,42 +112,7 @@ ISR (TIMER1_COMPA_vect){
 }
 
 
-	if(gyro_mode == 0){
-		switch(i){
-//			case 2: long_ir_right_value = ADCH;
-//			break;
-//			case 3: short_ir_left_value = ADCH;
-//			break;
-//			case 4: short_ir_right_value = ADCH;
-//			break;
-//			case 5: short_ir_back_value = ADCH;
-//			break;
-//			case 6: long_ir_left_value = ADCH;
-//			break;
-			case 7: tape_value = ADCH;
-			break;
-		}
 
-//		i++;
-//		if(i == 7){
-//		i = 2;}
-
-//		ADMUX = (ADMUX & 0xE0) | (i & 0x1F);
-	}
-
-	else {
-
-		gyro_sum += ADCH;		
-
-		if((gyro_sum >= GYRO_TURN_RIGHT) | (gyro_sum <= GYRO_TURN_LEFT)){ //Värde för fullbordad sväng
-			PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
-			gyro_mode = 0; //gå ur gyro_mode
-			gyro_sum = 0;
-		}
-	}
-
-	ADCSRA = 0xCB;
-}
 
 //Timer A har räknat klart,För tejpsensorn
 ISR (TIMER1_COMPA_vect){

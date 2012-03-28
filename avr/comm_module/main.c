@@ -30,12 +30,8 @@ int main(void)
 	
 
 	uint8_t buff[10];
-	//UART_write(s, 12);
 	while (1){
-		//for(volatile int i = 0; i < 0xff; ++i)
-		//	for(volatile int j = 0; j < 0xff; ++j){
-				//if(i == 0 && j == 0) UART_write(ok, 2);
-				int len;
+				uint8_t len;
 				len = UART_read(buff);
 				if(len){
 					switch(buff[0]){
@@ -47,17 +43,13 @@ int main(void)
 						break;
 					}
 				}
-		//	}
+				len = TWI_read(buff);
+				if(len){
+					switch(buff[0]){
+					case CMD_SENSOR_DATA:
+						UART_write(buff, len);
+						break;
+					}
+				}
 	}
-	//uint8_t buff[10];
-	//UART_write(s, 12);
-	/*while (1){
-		for(volatile int i = 0; i < 0xffff; ++i)
-			for(volatile int j = 0; j < 0x000f; ++j);
-		TWI_write(CONTROL_ADDRESS, start, 3);
-		for(volatile int i = 0; i < 0xffff; ++i)
-			for(volatile int j = 0; j < 0x000f; ++j);
-		TWI_write(CONTROL_ADDRESS, stop, 3);
-		while(1);
-	}*/
 }

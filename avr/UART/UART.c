@@ -7,6 +7,7 @@
 volatile uint8_t read_buff[UART_BUFFER_SIZE];
 volatile uint8_t write_buff[UART_BUFFER_SIZE];
 volatile uint8_t read_start, read_end, write_start, write_end;
+volatile uint8_t remaining_bytes, remaining_packets;
 
 /**
  * TWI calculate address: make sure the address is within queue.

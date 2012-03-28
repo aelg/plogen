@@ -2,9 +2,8 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <inttypes.h>
-#include <avr/sleep.h>
-#include "TWI/TWI.h"
 
+<<<<<<< HEAD
 
 //Constants
 #define CROSSING 0x00 //onödig? väntläge tom mitten?
@@ -28,11 +27,17 @@
 #define MANUAL_ROTATE_RIGHT 0x0F
 
 #define ROTATION_COMPLETE 0x10 //onödig?
+=======
+#include "../TWI/TWI.h"
+#include "motor.h"
+#include "../commands.h"
+>>>>>>> fa147aff99211a71087ec5c53ac62d27095dcbcb
 
 
 //MAIN
 int main(void)
 {
+<<<<<<< HEAD
 
 setup_motor();
 
@@ -41,22 +46,78 @@ void TWI_init(uint8_t sla);
 
 // Loop
 while (1){
+=======
 
-	TWI_read(s);
+	setup_motor();
+	TWI_init(CONTROL_ADDRESS);
+	sei();
 
-	switch(s[0]){
-	case CROSSING:
-		switch(s[2]){
-		case CROSSING_LEFT:
-			rotate_left();
+	uint8_t s[10];
+>>>>>>> fa147aff99211a71087ec5c53ac62d27095dcbcb
+
+	// Loop
+	while (1){
+
+		uint8_t len = TWI_read(s);
+		if(len){
+			switch(s[0]){
+			/*case CROSSING:
+				switch(s[2]){
+				case CROSSING_LEFT:
+					rotate_left();
+					break;
+				case CROSSING_RIGHT:
+					rotate_right();
+					break;
+				case CROSSING_FORWARD:
+					drive_forward();
+					break;
+				}
 			break;
-		case CROSSING_RIGHT:
-			rotate_right();
-			break;
-		case CROSSING_FORWARD:
-			drive_forward();
-			break;
+			case STRAIGHT:
+	//			run_straight(difference,direction);
+				break;
+			case TURN:
+				switch(s[2]){
+				case TURN_LEFT:
+					turn_left();
+					break;
+				case TURN_RIGHT:
+					turn_right();
+					break;
+				case TURN_FORWARD:
+					turn_forward();
+					break;
+				}
+				break;*/
+			case CMD_MANUAL:
+				switch(s[2]){
+				case LEFT:
+					manual_left();
+					break;
+				case RIGHT:
+					manual_right();
+					break;
+				case FORWARD:
+					manual_forward();
+					break;
+				case REVERSE:
+					manual_reverse();
+					break;
+				case ROTATE_LEFT:
+					rotate_left();
+					break;
+				case ROTATE_RIGHT:
+					rotate_right();
+					break;
+				case STOP:
+					manual_stop();
+					break;
+				}
+				break;
+			}
 		}
+<<<<<<< HEAD
 	case STRAIGHT:
 		run_straight(difference,direction);
 	case TURN:
@@ -101,3 +162,9 @@ while (1){
 //		asm volatile("nop");
 //		}	
 	}	
+=======
+	}
+		
+}
+	
+>>>>>>> fa147aff99211a71087ec5c53ac62d27095dcbcb

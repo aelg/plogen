@@ -9,18 +9,14 @@
 #include <avr/io.h>
 #include <inttypes.h>
 
-//#include "../UART/UART.h"
+#include "../UART/UART.h"
 #include "../TWI/TWI.h"
+#include "../commands.h"
 
-#define COMM_ADDRESS 0x01
-#define SENSOR_ADDRESS 0x02
-#define CONTROL_ADDRESS 0x03
-
-#define OK = 0x1;
 
 int main(void)
 {
-	//UART_init();
+	UART_init();
 	TWI_init(COMM_ADDRESS);
 	sei();
 
@@ -28,19 +24,32 @@ int main(void)
 	//uint8_t s[13] = {'P', 'l', 'o', 'g', 'e', 'n', 'P', 'l', 'o', 'g', 'e', 'n', '\n'};
 	//UART_write(s, 13);
 
-	uint8_t ok[2] = {OK, 0};
-	uint8_t buff[10];
+	//uint8_t start[3] = {CMD_MANUAL, 0x01, 0x0c};
+	//uint8_t stop[3] = {CMD_MANUAL, 0x01, 0x10};
+	uint8_t end[2] = {CMD_END, 0};
+	
 
-	TWI_write(SENSOR_ADDRESS, send, 6);
+	uint8_t buff[10];
 	while (1){
-		for(volatile int i = 0; i < 0xff; ++i)
-			for(volatile int j = 0; j < 0xff; ++j){
-				//if(i == 0 && j == 0) UART_write(ok, 2);
-				int len;
-				len = UART_read(recv);
+				uint8_t len;
+				len = UART_read(buff);
 				if(len){
-					TWI_write(CONTROL_ADDRESS, buff, len);
+					switch(buff[0]){
+					case CMD_SEND_NEXT:
+						UART_write(end, 2);
+						break;
+					case CMD_MANUAL:
+						TWI_write(CONTROL_ADDRESS, buff, len);
+						break;
+					}
 				}
-			}
+				len = TWI_read(buff);
+				if(len){
+					switch(buff[0]){
+					case CMD_SENSOR_DATA:
+						UART_write(buff, len);
+						break;
+					}
+				}
 	}
 }

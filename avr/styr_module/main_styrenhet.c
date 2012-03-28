@@ -5,8 +5,9 @@
 #include <avr/sleep.h>
 #include "TWI/TWI.h"
 
+
 //Constants
-#define CROSSING 0x00 //onödig?
+#define CROSSING 0x00 //onödig? väntläge tom mitten?
 #define CROSSING_LEFT 0x01
 #define CROSSING_RIGHT 0x02
 #define CROSSING_FORWARD 0x03
@@ -23,23 +24,23 @@
 #define MANUAL_RIGHT 0x0B
 #define MANUAL_FORWARD 0x0C
 #define MANUAL_BACK 0x0D
-#define MANUAL_ROTATELEFT 0x0E
-#define MANUAL_ROTATERIGHT 0x0F
+#define MANUAL_ROTATE_LEFT 0x0E
+#define MANUAL_ROTATE_RIGHT 0x0F
+
+#define ROTATION_COMPLETE 0x10 //onödig?
 
 
 //MAIN
 int main(void)
 {
-	setup_motor();
+
+setup_motor();
 
 uint8_t TWI_read(uint8_t* s);
 void TWI_init(uint8_t sla);
 
-volatile char c;
-c=1;
-
 // Loop
-while (c=1){
+while (1){
 
 	TWI_read(s);
 
@@ -73,10 +74,29 @@ while (c=1){
 	case MANUAL
 		switch(s[2]){
 		case MANUAL_LEFT:
-			turn_left();
+			manual_left();
 			break;
-		
+		case MANUAL_RIGHT:
+			manual_right();
+			break;
+		case MANUAL_FORWARD:
+			manual_forward();
+			break;
+		case MANUAL_BACK:
+			manual_back();
+			break;
+		case MANUAL_ROTATE_LEFT:
+			rotate_left();
+			break;
+		case MANUAL_ROTATE_RIGHT:
+			rotate_right();
+			break;
+		}
 	}
+	
+	}
+		
+}
 //	while(1){
 //		asm volatile("nop");
 //		}	

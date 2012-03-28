@@ -30,26 +30,27 @@ int main(void)
 	
 
 	uint8_t buff[10];
+
 	while (1){
-				uint8_t len;
-				len = UART_read(buff);
-				if(len){
-					switch(buff[0]){
-					case CMD_SEND_NEXT:
-						UART_write(end, 2);
-						break;
-					case CMD_MANUAL:
-						TWI_write(CONTROL_ADDRESS, buff, len);
-						break;
-					}
-				}
-				len = TWI_read(buff);
-				if(len){
-					switch(buff[0]){
-					case CMD_SENSOR_DATA:
-						UART_write(buff, len);
-						break;
-					}
-				}
+		uint8_t len;
+		len = UART_read(buff);
+		if(len){
+			switch(buff[0]){
+			case CMD_SEND_NEXT:
+				UART_write(end, 2);
+				break;
+			case CMD_MANUAL:
+				TWI_write(CONTROL_ADDRESS, buff, len);
+				break;
+			}
+		}
+		len = TWI_read(buff);
+		if(len){
+			switch(buff[0]){
+			case CMD_SENSOR_DATA:
+				UART_write(buff, len);
+				break;
+			}
+		}
 	}
 }

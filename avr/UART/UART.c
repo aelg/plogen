@@ -117,7 +117,7 @@ uint8_t UART_read(uint8_t* s){
 		end = read_end + UART_BUFFER_SIZE;
 	else end = read_end;
 	// Check if read_buff contains correct number of bytes.
-	if(end-read_start >= 2){
+	if(end-read_start > 1){
 		// Read length byte from packet.
 		uint8_t len = read_buff[UARTca(read_start+1)]+2;
 			// Check if correct number of bytes in read_buff

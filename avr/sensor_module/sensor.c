@@ -1,6 +1,8 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <inttypes.h>
+
+#include "../TWI/TWI.h"
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
@@ -99,6 +101,7 @@ void integrate_gyro(){
 //Huvudprogram
 int main()
 {
+	TWI_init(SENSOR_ADDRESS);
 	//Initiering
 	MCUCR = 0x03;
 //	GICR = 0x40;

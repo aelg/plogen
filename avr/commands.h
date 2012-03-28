@@ -15,9 +15,10 @@
 
 
 //Sensor constants
-#define IRLEFT = 1
-#define IRRIGHT = 2
-#define IRANGLE = 3
-#define IRDIFF = 4
-#define AUTO_MODE = 5
-#define TAPE = 6
+#define IRLEFT 1
+#define IRRIGHT 2
+#define IRANGLE 3
+#define IRDIFF 4
+#define AUTO_MODE 5
+#define TAPE 6
+#define TAPE_VALUE 7

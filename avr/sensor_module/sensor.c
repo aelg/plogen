@@ -3,121 +3,99 @@
 #include <inttypes.h>
 
 #include "../TWI/TWI.h"
+#include "../utility/send.h"
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
 
-
-	volatile uint8_t i = 7;
-	volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
+uint16_t temp_count = 0;
+volatile uint8_t i = 7;
+volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
 //	volatile int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett
 //	volatile int long_ir_2_value;//Värdet på den analoga spänning som lång avståndsmätare 2 gett
 //	volatile int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett
 //	volatile int short_ir_2_value;//Värdet på den analoga spänning som kort avståndsmätare 2 gett
 //	volatile int short_ir_3_value;//Värdet på den analoga spänning som kort avståndsmätare 3 gett
-	volatile int gyro_value; //Värdet på den analoga spänning som gyrot gett
-	volatile int gyro_sum; //Summan av gyrovärden. Används som integral. 
-	volatile uint8_t gyro_mode = 0;
-	volatile uint8_t gyro_initialize = 0;
-	volatile uint8_t global_tape = 0;
-	volatile uint8_t tape_counter = 0;
-	volatile uint8_t timer = 0;
+volatile int gyro_value; //Värdet på den analoga spänning som gyrot gett
+volatile int gyro_sum; //Summan av gyrovärden. Används som integral. 
+volatile uint8_t gyro_mode = 0;
+volatile uint8_t gyro_initialize = 0;
+volatile uint8_t global_tape = 0;
+volatile uint8_t tape_counter = 0;
+volatile uint8_t timer = 0;
+volatile uint8_t long_ir_left_values[4];
+volatile uint8_t long_ir_right_values[4];
+volatile uint8_t short_ir_left_values[4];
+volatile uint8_t short_ir_right_values[4];
+volatile uint8_t short_ir_back_values[4];
+volatile uint8_t itr_long_ir_left = 0;
+volatile uint8_t itr_long_ir_right = 0;
+volatile uint8_t itr_short_ir_left = 0;
+volatile uint8_t itr_short_ir_right = 0;
+volatile uint8_t itr_short_ir_back = 0;
 
 
 //AD-omvandling klar. 
 ISR(ADC_vect){
 
-	switch(i){
-		case 0: tape_value = ADCH;
-		break;
-		case 1:
-		if (itr_long_ir_1 >= 3){
-		long_ir_1_values[itr_long_ir_1]= ADCH;
-		itr_long_ir_1 = 0;
-		}
-		else {
-		long_ir_1_values[itr_long_ir_1]= ADCH;
-		itr_long_ir_1++;
-		}
-		break;
-		case 2: 		
-		if (itr_long_ir_2 >= 3){
-		long_ir_2_values[itr_long_ir_2]= ADCH;
-		itr_long_ir_2 = 0;
-		}
-		else {
-		long_ir_2_values[itr_long_ir_2]= ADCH;
-		itr_long_ir_2++;
-		}
-		break;
+	if(gyro_mode){
+		gyro_value = ADCH;
+
+		ADCSRA = 0xCB;
+		return;
+	}
+	else{	
+		switch(i){
+		case 2:
+			// Spara värde från ad-omvandligen.
+			long_ir_right_values[itr_long_ir_right]= ADCH;
+			// Räkna upp iteratorn, maska för att undvika hålla sig i vektorn.
+			itr_long_ir_right = ++itr_long_ir_right & 0x03;
+			break;
 		case 3:
-		if (itr_short_ir_1 >= 3){
-		short_ir_1_values[itr_short_ir_1]= ADCH;
-		itr_short_ir_1 = 0;
+			// Spara värde från ad-omvandligen.
+			short_ir_left_values[itr_short_ir_left]= ADCH;
+			// Räkna upp iteratorn, maska för att undvika hålla sig i vektorn.
+			itr_short_ir_left = ++itr_short_ir_left & 0x03;
+			break;
+		case 4:
+			// Spara värde från ad-omvandligen.
+			short_ir_right_values[itr_short_ir_right]= ADCH;
+			// Räkna upp iteratorn, maska för att undvika hålla sig i vektorn.
+			itr_short_ir_right = ++itr_short_ir_right & 0x03;
+			break;
+		case 5:
+			// Spara värde från ad-omvandligen.
+			short_ir_back_values[itr_short_ir_back]= ADCH;
+			// Räkna upp iteratorn, maska för att undvika hålla sig i vektorn.
+			itr_short_ir_back = ++itr_short_ir_back & 0x03;
+			break;
+		case 6:
+			// Spara värde från ad-omvandligen.
+			long_ir_left_values[itr_long_ir_left]= ADCH;
+			// Räkna upp iteratorn, maska för att undvika hålla sig i vektorn.
+			itr_long_ir_left = ++itr_long_ir_left & 0x03;
+			break;
+		case 7: 
+			tape_value = ADCH;
+			break;
 		}
-		else {
-		short_ir_1_values[itr_short_ir_1]= ADCH;
-		itr_short_ir_1++;
+
+		if(++i > 7){
+			i = 2;
 		}
-		break;
-		case 4: 
-		if (itr_short_ir_2 >= 3){
-		short_ir_2_values[itr_short_ir_2]= ADCH;
-		itr_short_ir_2 = 0;
+
+		i = 7;
+		if (temp_count++ > 0x0f00){
+			send_tape_value(tape_value);
+			temp_count = 0;
 		}
-		else {
-		short_ir_2_values[itr_short_ir_2]= ADCH;
-		itr_short_ir_2´++;
-		}
-		break;
-		case 5: 
-		if (itr_short_ir_3 >= 3){
-		short_ir_3_values[itr_short_ir_3]= ADCH;
-		itr_short_ir_3 = 0;
-		}
-		else {
-		short_ir_3_values[itr_short_ir_3]= ADCH;
-		itr_short_ir_3++;
-		}
-		break;
-//		case 6: gyro_value = ADCH;
-//		break;
+
+		ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
+		ADCSRA = 0xCB;//Interrupt-bit nollställs
+		return;
 	}
-
-	i++;
-	if(i == 6){
-	i = 0;}
-
-	ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
-	ADCSRA = 0xCB;//Interrupt-bit nollställs
 }
-
-
-//Subrutin för att plocka ut det minsta värdet av två stycken
-	unit8_t min(unit8_t value_one, unit8_t value_two)
-	if(value_one < value_two)
-	{
-	return value_one;
-	}
-	else 
-	{ 
-	return value_two;
-	}
-
-//Subrutin som plockar ut det minsta värdet i arrayen
-	unit8_t lowest_value(uint8_t *list)
-	{
-	int minimum = list[0];
-	int itr=1;
-	for(itr=1,irt<4,itr++)
-		{
-		if(minimum>list[itr])
-		{
-		minimum=list[itr];
-		}
-	}
-	}
-
 
 //Timern har räknat klart, interrupt skickas, nu kommer ingen mer tejp.
 ISR (TIMER1_COMPA_vect){
@@ -125,66 +103,21 @@ ISR (TIMER1_COMPA_vect){
 	volatile uint8_t tape = tape_counter/2; //Ger antalet tejpar
 
 	switch(tape){
-		case 0: PORTB = (PORTB & 0b11001111); //Nollställ PB4 och PB5
+	case 0: 
+		PORTB = (PORTB & 0b11001111); //Nollställ PB4 och PB5
 		break;
-		case 1: PORTB = (0b10010000 | (PORTB & 0b11001111)); //Ettställ PB7, PB4
+	case 1:
+		PORTB = (0b10010000 | (PORTB & 0b11001111)); //Ettställ PB7, PB4
 		break;
-		case 2: PORTB = (0b10100000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 
+	case 2: 
+		PORTB = (0b10100000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 
 		break;
-		case 3: PORTB = (0b10110000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 och PB4
-		break;
-	}
-
-	tape_counter = 0; //Nollställ tape_counter då timern gått.
-}
-
-
-	if(gyro_mode == 0){
-		switch(i){
-//			case 2: long_ir_right_value = ADCH;
-//			break;
-//			case 3: short_ir_left_value = ADCH;
-//			break;
-//			case 4: short_ir_right_value = ADCH;
-//			break;
-//			case 5: short_ir_back_value = ADCH;
-//			break;
-//			case 6: long_ir_left_value = ADCH;
-//			break;
-			case 7: tape_value = ADCH;
-			break;
-		}
-
-//		i++;
-//		if(i == 7){
-//		i = 2;}
-
-//		ADMUX = (ADMUX & 0xE0) | (i & 0x1F);
-	}
-
-	else {
-		gyro_value = ADCH;
-	}
-
-	ADCSRA = 0xCB;
-}
-
-//Timer A har räknat klart,För tejpsensorn
-ISR (TIMER1_COMPA_vect){
-
-	volatile uint8_t tape = tape_counter/2; //Ger antalet tejpar
-
-	switch(tape){
-		case 0: PORTB = (PORTB & 0b11001111); //Nollställ PB4 och PB5
-		break;
-		case 1: PORTB = (0b10010000 | (PORTB & 0b11001111)); //Ettställ PB7, PB4
-		break;
-		case 2: PORTB = (0b10100000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 
-		break;
-		case 3: PORTB = (0b10110000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 och PB4
+	case 3: 
+		PORTB = (0b10110000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 och PB4
 		break;
 	}
 
+	if (tape) send_tape(tape);
 	tape_counter = 0; //Nollställ tape_counter då timern gått.
 }
 
@@ -200,9 +133,23 @@ ISR (TIMER1_COMPB_vect){
 	}
 }
 
+//Subrutin för att plocka ut det minsta värdet av två stycken
+uint8_t min(uint8_t value_one, uint8_t value_two){
+	if(value_one < value_two)
+		return value_one;
+	else 
+		return value_two;
+}
 
-
-
+//Subrutin som plockar ut det minsta värdet i arrayen
+uint8_t lowest_value(uint8_t *list)
+{
+	uint8_t minimum = list[0];
+	for(uint8_t itr = 1; itr < 4; ++itr){
+		if(minimum>list[itr])
+			minimum=list[itr];
+	}
+}
 
 //Subrutin för tejpdetektering
 void tape_detected(int tape){
@@ -232,12 +179,19 @@ void init_gyro(){
 	gyro_initialize = 0;
 }
 
-
+void init_sensor_buffers(){
+	itr_long_ir_left = 0;
+	itr_long_ir_right = 0;
+	itr_short_ir_left = 0;
+	itr_short_ir_right = 0;
+	itr_short_ir_back = 0;
+}
 
 //Huvudprogram
 int main()
 {
 	TWI_init(SENSOR_ADDRESS);
+	init_sensor_buffers();
 	//Initiering
 	MCUCR = 0x03;
 //	GICR = 0x40;
@@ -250,7 +204,7 @@ int main()
 	TCCR1B = 0x4D;
 	TIMSK = 0x30;
 	TCNT1 = 0; //Nollställ timer
-	OCR1A = 0xFFFF; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
+	OCR1A = 0x0200; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
 
 
 

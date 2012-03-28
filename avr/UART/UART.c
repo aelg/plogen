@@ -4,10 +4,10 @@
 #include "../error/error.h"
 #include "UART.h"
 
-volatile uint8_t read_buff[UART_BUFFER_SIZE];
-volatile uint8_t write_buff[UART_BUFFER_SIZE];
-volatile uint8_t read_start, read_end, write_start, write_end;
-volatile uint8_t remaining_bytes, remaining_packets;
+volatile uint8_t uread_buff[UART_BUFFER_SIZE];
+volatile uint8_t uwrite_buff[UART_BUFFER_SIZE];
+volatile uint8_t uread_start, uread_end, uwrite_start, uwrite_end;
+volatile uint8_t uremaining_bytes, uremaining_packets;
 
 /**
  * TWI calculate address: make sure the address is within queue.
@@ -23,11 +23,11 @@ uint8_t UARTca(uint8_t addr){
  */
 ISR(USART_UDRE_vect){
 	// Is there more data to send.
-	if (write_start != write_end){
+	if (uwrite_start != uwrite_end){
 		// Write data to RXE to send it.
-		UDR = write_buff[write_start];
+		UDR = uwrite_buff[uwrite_start];
 		// Update buffer pointer.
-		write_start = UARTca(write_start+1);
+		uwrite_start = UARTca(uwrite_start+1);
 	}
 	else {
 	    // Disable UDRIE to stop sending data.
@@ -41,7 +41,7 @@ ISR(USART_UDRE_vect){
  */
 ISR(USART_RXC_vect){
 	// Is the buffer full?
-	if(read_start == UARTca(read_end+1)){
+	if(uread_start == UARTca(uread_end+1)){
 		error(UART_RXE_BUFFER_FULL);
 		// Read UDR to clear interrupt.
 		// FIXME: THIS BYTE WILL BE LOST AND WE WILL BE OUT OF SYNC WITH PACKETS.
@@ -49,15 +49,15 @@ ISR(USART_RXC_vect){
 	}
 	else{
 		// Copy UDR to read_buffer.
-		read_buff[read_end] = UDR;
+		uread_buff[uread_end] = UDR;
 		// Update pointer.
-		read_end = UARTca(read_end+1);
+		uread_end = UARTca(uread_end+1);
 	}
 }
 
 void UART_init(){
 	// Set buffer pointers to beginning of buffers.
-	read_start = read_end = write_start = write_end = 0;
+	uread_start = uread_end = uwrite_start = uwrite_end = 0;
 	// Init UCSRA just to make sure.
 	UCSRA = 0x0;
 	// Write to UCSRA; set Asyncronous, no parity, 8 databits.
@@ -83,20 +83,20 @@ uint8_t UART_write(uint8_t *s, uint8_t len){
 	// Temporary end to handle circular buffer.
 	uint8_t end;
 	// Make sure end always is bigger than write_start.
-	if(write_start > write_end){
-		end = write_end + UART_BUFFER_SIZE;
+	if(uwrite_start > uwrite_end){
+		end = uwrite_end + UART_BUFFER_SIZE;
 	}
-	else end = write_end;
+	else end = uwrite_end;
 	// Return false if the message doesn't fit in buffer.
-	if(len > UART_BUFFER_SIZE - 1 - (end - write_start)){
+	if(len > UART_BUFFER_SIZE - 2 - (end - uwrite_start)){
 		// TODO: signal buffer error.
 		return 0;
 	}
 
 	// Copy message to buffer.
 	for(int i = 0; i < len; ++i){
-		write_buff[write_end] = s[i];
-		write_end = UARTca(write_end+1);
+		uwrite_buff[uwrite_end] = s[i];
+		uwrite_end = UARTca(uwrite_end+1);
 	}
 	UART_start();
 	return 1;
@@ -109,24 +109,26 @@ uint8_t UART_write(uint8_t *s, uint8_t len){
  * Return value: Length of packet, 0 if no complete packet is in the buffer.
  */
 uint8_t UART_read(uint8_t* s){
-	if(read_start == read_end) return 0;
+	if(uread_start == uread_end) return 0;
 	// Temporary variable to handle circular list.
 	uint8_t end;
+	uint8_t start = uread_start;
 	// Calculate the length of the circular list.
-	if(read_end < read_start)
-		end = read_end + UART_BUFFER_SIZE;
-	else end = read_end;
+	if(uread_end < start)
+		end = uread_end + UART_BUFFER_SIZE;
+	else end = uread_end;
 	// Check if read_buff contains correct number of bytes.
-	if(end-read_start > 1){
+	if(end - start > 1){
 		// Read length byte from packet.
-		uint8_t len = read_buff[UARTca(read_start+1)]+2;
+		uint8_t len = uread_buff[UARTca(start+1)]+2;
 			// Check if correct number of bytes in read_buff
-			if(len <= end-read_start){
+			if(len <= end - start){
 				// Copy the bytes to the list s
 				for(uint8_t i = 0; i < len; i++){
-					s[i]=read_buff[read_start];
-					read_start =UARTca(read_start + 1);
+					s[i]=uread_buff[start];
+					start =UARTca(start + 1);
 					}
+				uread_start = start;
 				//return the length of the list
 				return len;
 			}

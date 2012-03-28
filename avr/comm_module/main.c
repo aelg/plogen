@@ -45,7 +45,7 @@ int main(void)
 			}
 		}
 		len = TWI_read(buff);
-		if(len){
+ 		if(len){
 			switch(buff[0]){
 			case CMD_SENSOR_DATA:
 				UART_write(buff, len);

@@ -12,10 +12,10 @@
 #define NACK 0x85 // 1   0  0   0   0  1  0   1
 #define RESET 0xc5// 1   1  0   0   0  1  0   1
 
-volatile uint8_t read_buff[TWI_BUFFER_SIZE];
-volatile uint8_t write_buff[TWI_BUFFER_SIZE];
-volatile uint8_t read_start, read_end, write_start, write_end,
-                 write_current, read_current, remaining_bytes;
+volatile uint8_t tread_buff[TWI_BUFFER_SIZE];
+volatile uint8_t twrite_buff[TWI_BUFFER_SIZE];
+volatile uint8_t tread_start, tread_end, twrite_start, twrite_end,
+                 twrite_current, tread_current, tremaining_bytes;
 
 /**
  * TWI calculate address: make sure the address is within queue.
@@ -35,24 +35,24 @@ ISR(TWI_vect){
 	switch(sr){
 	case 0x8: // Start sent.
 	case 0x10: // Repeated start sent.
-		// Copy write_start to current_start so we know what to send next,
-		// let write_start remain as is, in case of arbitration error.
-		write_current = write_start;
+		// Copy twrite_start to current_start so we know what to send next,
+		// let twrite_start remain as is, in case of arbitration error.
+		twrite_current = twrite_start;
 		// Read number of bytes in packet, assume there is a complete packet in the queue.
 		// Add 3 to count SLA+W, command, and length.
-		remaining_bytes = write_buff[TWIca(write_start+2)]+2;
+		tremaining_bytes = twrite_buff[TWIca(twrite_start+2)]+2;
 		// Load addressbyte, clear W/R to select write.
-		TWDR = write_buff[write_start] << 1;
+		TWDR = twrite_buff[twrite_current] << 1;
 		TWCR = SEND;
-		write_current = TWIca(write_current + 1);
+		twrite_current = TWIca(twrite_current + 1);
 		break;
 	case 0x18: // SLA+W has been sent, ACK received.
 	case 0x28: // Data has been sent, ACK received.
-		TWDR = write_buff[write_current];
+		TWDR = twrite_buff[twrite_current];
 		// Check if this is the last byte in transmission.
-		if(remaining_bytes == 0){
+		if(tremaining_bytes == 0){
 			// Check if there are more packets to be sent.
-			if(write_current == write_end){
+			if(twrite_current == twrite_end){
 				// Last byte, send STOP;
 				TWCR = STOP;
 			}
@@ -60,14 +60,14 @@ ISR(TWI_vect){
 				// More to send, send START
 				TWCR = START;
 			}
-			// Update start_write, there was no arbitration error.
-			write_start = TWIca(write_current);
+			// Update start_twrite, there was no arbitration error.
+			twrite_start = TWIca(twrite_current);
 		}
 		else {
 			// Send byte.
-			--remaining_bytes;
+			--tremaining_bytes;
 			TWCR = SEND;
-			write_current = TWIca(write_current+1);
+			twrite_current = TWIca(twrite_current+1);
 		}
 		break;
 	case 0x38: // Arbitration error.
@@ -77,13 +77,13 @@ ISR(TWI_vect){
 	case 0x20: // Not ACK received after SLA+W, unknown address.
 		error(TWI_UNKNOWN_ADDRESS);
 		// Remove current packet.
-		while(remaining_bytes--)
-			++write_current;
+		while(tremaining_bytes--)
+			++twrite_current;
 
-		write_start = TWIca(write_current);
+		twrite_start = TWIca(twrite_current);
 
 		// Check if there are more packets.
-		if(write_start == write_end){
+		if(twrite_start == twrite_end){
 			// No more packets, send STOP.
 			TWCR = STOP;
 		}
@@ -103,10 +103,10 @@ ISR(TWI_vect){
 	case 0x70: // General call address received.
 	case 0x78: // Arbitration lost in MR mode, general call address received, ACK returned.
 		// Read byte
-		//read_buff[read_current] = TWDR;
-		read_current = TWIca(read_end);
+		//tread_buff[tread_current] = TWDR;
+		tread_current = TWIca(tread_end);
 		// Check if buffer is full.
-		if(TWIca(read_current+1) == read_start){
+		if(TWIca(tread_current+1) == tread_start){
 			// Return NOT ACK.
 			TWCR = NACK;
 		}
@@ -117,10 +117,10 @@ ISR(TWI_vect){
 	case 0x80: // Data received, ACK sent. (Addressed)
 	case 0x90: // Data received, ACK sent. (General call)
 		// Read byte
-		read_buff[read_current] = TWDR;
-		read_current = TWIca(read_current+1);
+		tread_buff[tread_current] = TWDR;
+		tread_current = TWIca(tread_current+1);
 		// Check if buffer is full.
-		if(read_current == read_start){
+		if(tread_current == tread_start){
 			// Return NOT ACK.
 			TWCR = NACK;
 		}
@@ -135,9 +135,9 @@ ISR(TWI_vect){
 		error(TWI_READ_BUFFER_FULL);
 		break;
 	case 0xA0: // STOP received.
-		read_end = read_current;
+		tread_end = tread_current;
 		//Check if we want to send data.
-		if(write_start != write_end)
+		if(twrite_start != twrite_end)
 			TWCR = START;
 		else
 			TWCR = RESET;
@@ -158,6 +158,7 @@ void TWI_start(){
 }
 
 void TWI_init(uint8_t sla){
+	tread_start = tread_end = twrite_start = twrite_end = 0;
 	// Set correct bitrate.
 	TWBR = 0x0c;
 	// Set slave address and receive general calls.
@@ -172,22 +173,22 @@ void TWI_init(uint8_t sla){
 uint8_t TWI_write(uint8_t addr, uint8_t *s, uint8_t len){
 	// Temporary end to handle circular buffer.
 	uint8_t end;
-	// Make sure end always is bigger than write_start.
-	if(write_start > write_end){
-		end = write_end + TWI_BUFFER_SIZE;
+	// Make sure end always is bigger than twrite_start.
+	if(twrite_start > twrite_end){
+		end = twrite_end + TWI_BUFFER_SIZE;
 	}
-	else end = write_end;
+	else end = twrite_end;
 	// Return false if the message doesn't fit in buffer.
-	if(len > TWI_BUFFER_SIZE - 2 - (end - write_start)){
+	if(len + 1> TWI_BUFFER_SIZE - 1 -(end - twrite_start)){
 		// TODO: signal buffer error.
 		return 0;
 	}
-	write_buff[write_end] = addr;
-	write_end = TWIca(write_end+1);
+	twrite_buff[twrite_end] = addr;
+	twrite_end = TWIca(twrite_end+1);
 	// Copy message to buffer.
 	for(int i = 0; i < len; ++i){
-		write_buff[write_end] = s[i];
-		write_end = TWIca(write_end+1);
+		twrite_buff[twrite_end] = s[i];
+		twrite_end = TWIca(twrite_end+1);
 	}
 	TWI_start();
 	return 1;
@@ -197,19 +198,19 @@ uint8_t TWI_read(uint8_t* s){
 	// Temporary variable to handle circular list.
 	uint8_t end;
 	// Calculate the length of the circular list.
-	if(read_end < read_start)
-		end = read_end + TWI_BUFFER_SIZE;
-	else end = read_end;
-	// Check if read_buff contains correct number of bytes.
-	if(end-read_start >= 2){
+	if(tread_end < tread_start)
+		end = tread_end + TWI_BUFFER_SIZE;
+	else end = tread_end;
+	// Check if tread_buff contains correct number of bytes.
+	if(end-tread_start >= 2){
 		// Read length byte from packet.
-		uint8_t len = read_buff[TWIca(read_start+1)]+2;
+		uint8_t len = tread_buff[TWIca(tread_start+1)]+2;
 			// Check if correct number of bytes in read_buff
-			if(len <= end-read_start){
+			if(len <= end-tread_start){
 				// Copy the bytes to the list s
 				for(uint8_t i = 0; i < len; i++){
-					s[i]=read_buff[read_start];
-					read_start =TWIca(read_start + 1);
+					s[i]=tread_buff[tread_start];
+					tread_start =TWIca(tread_start + 1);
 					}
 				//return the length of the list
 				return len;

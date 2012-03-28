@@ -7,15 +7,14 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
+#define GYRO_TURN_LEFT -9999
+#define GYRO_TURN_RIGHT 9999
+
+
 
 uint16_t temp_count = 0;
 volatile uint8_t i = 7;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
-//	volatile int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett
-//	volatile int long_ir_2_value;//Värdet på den analoga spänning som lång avståndsmätare 2 gett
-//	volatile int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett
-//	volatile int short_ir_2_value;//Värdet på den analoga spänning som kort avståndsmätare 2 gett
-//	volatile int short_ir_3_value;//Värdet på den analoga spänning som kort avståndsmätare 3 gett
 volatile int gyro_value; //Värdet på den analoga spänning som gyrot gett
 volatile int gyro_sum; //Summan av gyrovärden. Används som integral. 
 volatile uint8_t gyro_mode = 0;
@@ -34,13 +33,18 @@ volatile uint8_t itr_short_ir_left = 0;
 volatile uint8_t itr_short_ir_right = 0;
 volatile uint8_t itr_short_ir_back = 0;
 
-
 //AD-omvandling klar. 
 ISR(ADC_vect){
 
 	if(gyro_mode){
-		gyro_value = ADCH;
+		gyro_sum += ADCH;		
 
+		if((gyro_sum >= GYRO_TURN_RIGHT) || (gyro_sum <= GYRO_TURN_LEFT)){ //Värde för fullbordad sväng
+			PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
+			gyro_mode = 0; //gå ur gyro_mode
+			gyro_sum = 0;
+		}
+		ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
 		ADCSRA = 0xCB;
 		return;
 	}
@@ -121,6 +125,7 @@ ISR (TIMER1_COMPA_vect){
 	tape_counter = 0; //Nollställ tape_counter då timern gått.
 }
 
+/* Behövs inte längre?
 //Interrupt för timer B. Används för att integrera gyrovärden.
 ISR (TIMER1_COMPB_vect){
 
@@ -131,7 +136,7 @@ ISR (TIMER1_COMPB_vect){
 
 		gyro_mode = 0; //gå ur gyro_mode
 	}
-}
+}*/
 
 //Subrutin för att plocka ut det minsta värdet av två stycken
 uint8_t min(uint8_t value_one, uint8_t value_two){
@@ -168,14 +173,8 @@ void tape_detected(int tape){
 	
 
 void init_gyro(){
-	ADMUX = 0b00110000;
-			
-	TCCR1A = 0x24; 
-	TCCR1B = 0x4D;
-	TIMSK = 0x28;
-	TCNT1 = 0; //Nollställ timer
-	OCR1B = 0xFFFF; //sätt in värde som ska trigga avbrott, intervallet för integration
 
+	ADMUX = 0b00110000;
 	gyro_initialize = 0;
 }
 

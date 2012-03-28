@@ -6,9 +6,10 @@ from Tkinter import * 	# GUI
 import time
 from gui import *
 
-socket_lock = threading.Semaphore() 	# Semaphore to handle different threads using the bluetooth-socket
+send_socket_lock = threading.Semaphore() 	# Semaphore to handle different threads using the bluetooth-socket
+recv_socket_lock = threading.Semaphore() 	# Semaphore to handle different threads using the bluetooth-socket
 
-bt = Cbt(BT_ADRESS, socket_lock) 	# Create bt-object
+bt = Cbt(BT_ADRESS, send_socket_lock = send_socket_lock, recv_socket_lock = recv_socket_lock) 	# Create bt-object
 
 robot = Crobot(bt) 	# Create robot-object
 

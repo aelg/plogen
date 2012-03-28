@@ -24,6 +24,7 @@ IRANGLE = chr(3)
 IRDIFF = chr(4)
 AUTO_MODE = chr(5)
 TAPE = chr(6)
+TAPE_VALUE = chr(7)
 
 #Control constants
 STOP = chr(0x10)
@@ -35,4 +36,4 @@ FORWARD = chr(0x0c)
 BACKWARD = chr(0x0d)
 
 debug_nobluetooth = 0
-debug = 2
+debug = 0

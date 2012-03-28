@@ -72,27 +72,6 @@ class Crobot(threading.Thread):
       if debug_nobluetooth: time.sleep(0.5) 	# Debug, runs to fast if not reading from bluetooth, easier to read messages if slow
       else:  time.sleep(0.01)			# No need to run faster than this
       
-      self.bt.sendcmd(CMD_SEND_NEXT, '') # Tell plogen to send next command
-      message = self.bt.readcmd()  # Read message from BT
-      while message != EMPTY :
-        if isinstance(message, str) : 	# If a string is returned
-          if debug == 2 : 
-            for i in range(0, len(message)): 
-              print "R: ", hex(ord(message[i])), " ", # Print to console
-            print
-          if message[0] == chr(CMD_SENSOR_DATA):
-            if not(len(message) % 2) :
-              print "Error illformed message from Plogen."
-              continue
-            for i in range(1, len(message)-1, 2):
-              if message[i] == IRLEFT:
-                self.IRLeft = ord(message[i+1])
-              if message[i] == IRRIGHT:
-                self.IRRight = ord(message[i+1])
-        elif isinstance(message, int) : print "E: ", hex(message) # We recieved an integer, something is wrong, output to console
-        else : print "Message.typ() == : ", type(message)
-        message = self.bt.readcmd()
-
   ##
   # Functions that returns data stored in this object.
   def getSpeed(self):
@@ -122,9 +101,9 @@ class Crobot(threading.Thread):
     self.lastsent = RIGHTFORW
     self.bt.sendcmd(CMD_MANUAL, RIGHTFORW)
   def forward(self):
-    if self.lastsent == STRAIGHT: return
-    self.lastsent = STRAIGHT
-    self.bt.sendcmd(CMD_MANUAL, STRAIGHT)
+    if self.lastsent == FORWARD: return
+    self.lastsent = FORWARD
+    self.bt.sendcmd(CMD_MANUAL, FORWARD)
   def left(self):
     if self.lastsent == LEFT: return
     self.lastsent = LEFT

@@ -1,9 +1,11 @@
 from Tkinter import * 	# GUI
 from thread_safe_label import ThreadSafeLabel
+import threading 	# Threading
+from constants import *
 ##
 # Objects which holds the GUI
 #
-class Capp:
+class Capp(threading.Thread):
 
   ##
   # Constructor
@@ -17,9 +19,11 @@ class Capp:
 
     self.robot=robot # Save robot-object
 
+    threading.Thread.__init__(self)
+
     self.frame = Frame(master, width=400, height=400) # Initiate main frame
     self.frame.grid()
-    master.title("FKUB")
+    master.title("Plogen")
 
     self.bRight = Button(self.frame, text="Right")  # Initiate "Right" button
     self.bRight.grid(column=2, row=1) 		# Where
@@ -203,3 +207,24 @@ class Capp:
   def setVars(self):
     self.robot.setAlgo((int(self.leftMult.get()), int(self.leftConst.get()), int(self.leftDiff.get()), int(self.rightMult.get()), int(self.rightConst.get()), int(self.rightDiff.get())))
     return
+
+  def run(self):
+
+    while self.robot.bt.error() != ERROR :
+      message = self.robot.bt.readcmd()
+      if isinstance(message, str) : 	# If a string is returned
+        if debug == 2 : 
+          for i in range(0, len(message)): 
+            print "R: ", hex(ord(message[i])), " ", # Print to console
+        if message[0] == chr(CMD_SENSOR_DATA):
+          if not(len(message) % 2) :
+            print "Error illformed message from Plogen."
+            continue
+          for i in range(1, len(message)-1, 2):
+            if message[i] == IRLEFT:
+              self.robot.IRLeft = ord(message[i+1])
+            if message[i] == IRRIGHT:
+              self.robot.IRRight = ord(message[i+1])
+      elif isinstance(message, int) : print "E: ", hex(message) # We recieved an integer, something is wrong, output to console
+      else : print "Message.typ() == : ", type(message)
+    print 'Exiting app thread!.'

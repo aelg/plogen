@@ -216,14 +216,8 @@ void tape_detected(int tape){
 	
 
 void init_gyro(){
-	ADMUX = 0b00110000;
-			
-//	TCCR1A = 0x24; 
-//	TCCR1B = 0x4D;
-//	TIMSK = 0x28;
-//	TCNT1 = 0; //Nollställ timer
-//	OCR1B = 0xFFFF; //sätt in värde som ska trigga avbrott, intervallet för integration
 
+	ADMUX = 0b00110000;
 	gyro_initialize = 0;
 }
 

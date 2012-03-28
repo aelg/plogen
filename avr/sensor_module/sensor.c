@@ -4,6 +4,10 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
+#define GYRO_TURN_LEFT -9999
+#define GYRO_TURN_RIGHT 9999
+
+
 
 	volatile uint8_t i = 7;
 	volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
@@ -12,7 +16,6 @@
 //	volatile int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett
 //	volatile int short_ir_2_value;//Värdet på den analoga spänning som kort avståndsmätare 2 gett
 //	volatile int short_ir_3_value;//Värdet på den analoga spänning som kort avståndsmätare 3 gett
-	volatile int gyro_value; //Värdet på den analoga spänning som gyrot gett
 	volatile int gyro_sum; //Summan av gyrovärden. Används som integral. 
 	volatile uint8_t gyro_mode = 0;
 	volatile uint8_t gyro_initialize = 0;
@@ -48,7 +51,14 @@ ISR(ADC_vect){
 	}
 
 	else {
-		gyro_value = ADCH;
+
+		gyro_sum += ADCH;		
+
+		if((gyro_sum >= GYRO_TURN_RIGHT) | (gyro_sum <= GYRO_TURN_LEFT)){ //Värde för fullbordad sväng
+			PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
+			gyro_mode = 0; //gå ur gyro_mode
+			gyro_sum = 0;
+		}
 	}
 
 	ADCSRA = 0xCB;
@@ -73,19 +83,6 @@ ISR (TIMER1_COMPA_vect){
 	tape_counter = 0; //Nollställ tape_counter då timern gått.
 }
 
-//Interrupt för timer B. Används för att integrera gyrovärden.
-ISR (TIMER1_COMPB_vect){
-
-	gyro_sum += gyro_value;
-
-	if((gyro_sum == 90) | (gyro_sum == -90)){ //Värde för fullbordad sväng
-		PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
-
-		gyro_mode = 0; //gå ur gyro_mode
-	}
-}
-
-
 
 
 //Subrutin för tejpdetektering
@@ -106,11 +103,11 @@ void tape_detected(int tape){
 void init_gyro(){
 	ADMUX = 0b00110000;
 			
-	TCCR1A = 0x24; 
-	TCCR1B = 0x4D;
-	TIMSK = 0x28;
-	TCNT1 = 0; //Nollställ timer
-	OCR1B = 0xFFFF; //sätt in värde som ska trigga avbrott, intervallet för integration
+//	TCCR1A = 0x24; 
+//	TCCR1B = 0x4D;
+//	TIMSK = 0x28;
+//	TCNT1 = 0; //Nollställ timer
+//	OCR1B = 0xFFFF; //sätt in värde som ska trigga avbrott, intervallet för integration
 
 	gyro_initialize = 0;
 }

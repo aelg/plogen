@@ -25,7 +25,6 @@
 //AD-omvandling klar. 
 ISR(ADC_vect){
 
-<<<<<<< HEAD
 	switch(i){
 		case 0: tape_value = ADCH;
 		break;

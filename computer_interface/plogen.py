@@ -16,6 +16,7 @@ root = Tk()		# Start GUI
 app = Capp(root, robot)
 
 robot.start()       # Start thread in robot
+app.start()         # Start thread in app
 
 pygame.init() 		# Initiate pygame
 

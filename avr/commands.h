@@ -2,7 +2,7 @@
 #define CMD_MANUAL 0x12
 #define CMD_SEND_NEXT 0x13
 #define CMD_END 0x14
-#define CMD_SENDOR_DATA 0x15
+#define CMD_SENSOR_DATA 0x15
 
 //Control constants
 #define LEFT 0x0A

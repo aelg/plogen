@@ -31,7 +31,7 @@ int main(void)
 
 	uint8_t buff[10];
 	while (1){
-				int len;
+				uint8_t len;
 				len = UART_read(buff);
 				if(len){
 					switch(buff[0]){

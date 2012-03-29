@@ -53,32 +53,37 @@ ISR(ADC_vect){
 		case 2:
 			// Spara värde från ad-omvandligen.
 			long_ir_right_values[itr_long_ir_right]= ADCH;
-			// Räkna upp iteratorn, maska för att undvika hålla sig i vektorn.
-			itr_long_ir_right = ++itr_long_ir_right & 0x03;
+			// Räkna upp iteratorn.
+      if(itr_long_ir_right > 2) ++itr_long_ir_right;
+      else itr_long_ir_right = 0;
 			break;
 		case 3:
 			// Spara värde från ad-omvandligen.
 			short_ir_left_values[itr_short_ir_left]= ADCH;
-			// Räkna upp iteratorn, maska för att undvika hålla sig i vektorn.
-			itr_short_ir_left = ++itr_short_ir_left & 0x03;
+			// Räkna upp iteratorn.
+			if(itr_short_ir_left > 2) ++itr_short_ir_left;
+      else itr_short_ir_left = 0;
 			break;
 		case 4:
 			// Spara värde från ad-omvandligen.
 			short_ir_right_values[itr_short_ir_right]= ADCH;
-			// Räkna upp iteratorn, maska för att undvika hålla sig i vektorn.
-			itr_short_ir_right = ++itr_short_ir_right & 0x03;
+			// Räkna upp iteratorn.
+			if(itr_short_ir_right > 2) ++itr_short_ir_right;
+      else itr_short_ir_right = 0;
 			break;
 		case 5:
 			// Spara värde från ad-omvandligen.
 			short_ir_back_values[itr_short_ir_back]= ADCH;
-			// Räkna upp iteratorn, maska för att undvika hålla sig i vektorn.
-			itr_short_ir_back = ++itr_short_ir_back & 0x03;
+			// Räkna upp iteratorn.
+			if(itr_short_ir_back > 2) ++itr_short_ir_back;
+      else itr_short_ir_back = 0;
 			break;
 		case 6:
 			// Spara värde från ad-omvandligen.
 			long_ir_left_values[itr_long_ir_left]= ADCH;
-			// Räkna upp iteratorn, maska för att undvika hålla sig i vektorn.
-			itr_long_ir_left = ++itr_long_ir_left & 0x03;
+			// Räkna upp iteratorn.
+			if(itr_long_ir_left > 2) ++itr_long_ir_left;
+      else itr_long_ir_left = 0;
 			break;
 		case 7: 
 			tape_value = ADCH;

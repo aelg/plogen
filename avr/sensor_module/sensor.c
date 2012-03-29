@@ -8,7 +8,7 @@
 //#include <stdlib.h>
 
 #define GYRO_TURN_LEFT -9999
-#define GYRO_TURN_RIGHT 9999
+#define GYRO_TURN_RIGHT 9999 //Tolkas de decimalt??
 
 
 
@@ -44,6 +44,8 @@ ISR(ADC_vect){
 			gyro_mode = 0; //gå ur gyro_mode
 			gyro_sum = 0;
 			ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
+			TIFR = 0b00010000; //Nollställ timer-interrupt så det inte blir interrupt direkt.
+			TIMSK = 0b00010000; //Enable interrupt on Output compare A
 		}
 	
 		ADCSRA = 0xCB;
@@ -114,7 +116,7 @@ ISR (TIMER1_COMPA_vect){
 
 	switch(tape){
 	case 0: 
-		PORTB = (PORTB & 0b11001111); //Nollställ PB4 och PB5
+		PORTB = (PORTB & 0b00001111); //Nollställ PB7-PB4
 		break;
 	case 1:
 		PORTB = (0b10010000 | (PORTB & 0b11001111)); //Ettställ PB7, PB4
@@ -130,6 +132,14 @@ ISR (TIMER1_COMPA_vect){
 	if (tape) send_tape(tape);
 	tape_counter = 0; //Nollställ tape_counter då timern gått.
 }
+
+
+//Interrupt som tar hand om overflow i timer1. Borde inte nånsin hamna här......
+ISR(TIMER1_OVF_vect){
+
+	TCNT1 = 0; //Nollställ räknaren.
+}
+
 
 
 //Subrutin för att plocka ut det minsta värdet av två stycken
@@ -170,6 +180,7 @@ void tape_detected(int tape){
 void init_gyro(){
 
 	ADMUX = 0b00110000;
+	TIMSK = 0b00000000; //Disable interrupt on Output compare A
 	gyro_initialize = 0;
 	gyro_sum = 0;
 }
@@ -194,9 +205,9 @@ int main()
 	DDRB = 0xFF; //utgångar, styr mux och signaler till styr
 
 	//Initiera timer
-	TCCR1A = 0x88; 
-	TCCR1B = 0x4D;
-	TIMSK = 0x30;
+	TCCR1A = 0b00000000; //Eventuellt 00001000 
+	TCCR1B = 0b00001101; // gammalt: 4D;
+	TIMSK = 0b00010000; //Enable interrupt on Output compare A
 	TCNT1 = 0; //Nollställ timer
 	OCR1A = 0x0200; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
 

@@ -34,4 +34,6 @@ void manual_right(void);
 void manual_forward(void);
 void manual_stop(void);
 void manual_reverse(void);
+void interrupts(void);
+
 

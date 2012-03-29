@@ -12,10 +12,16 @@
 #define NACK 0x85 // 1   0  0   0   0  1  0   1
 #define RESET 0xc5// 1   1  0   0   0  1  0   1
 
+// These are changed by ISRs and read by interuptable functions and should be volatile.
+// Dont't really think this is necessary.
 volatile uint8_t tread_buff[TWI_BUFFER_SIZE];
 volatile uint8_t twrite_buff[TWI_BUFFER_SIZE];
-volatile uint8_t tread_start, tread_end, twrite_start, twrite_end,
-                 twrite_current, tread_current, tremaining_bytes;
+volatile uint8_t tread_end, twrite_end;
+
+// These are never changed by ISRs only read, and shouldn't need to be volatile.
+uint8_t tread_start, twrite_end;
+// These are only used by interrupts.
+uint8_t twrite_current, tread_current, tremaining_bytes;
 
 /**
  * TWI calculate address: make sure the address is within queue.
@@ -171,15 +177,17 @@ void TWI_init(uint8_t sla){
 	
 
 uint8_t TWI_write(uint8_t addr, uint8_t *s, uint8_t len){
+  // Save start local variable in case it is changed by an ISR
+  uint8_t start = twrite_start;
 	// Temporary end to handle circular buffer.
 	uint8_t end;
-	// Make sure end always is bigger than twrite_start.
-	if(twrite_start > twrite_end){
-		end = twrite_end + TWI_BUFFER_SIZE;
+	// Make sure end always is bigger than start.
+	if(start > twrite_end){
+	  end = twrite_end + TWI_BUFFER_SIZE;
 	}
 	else end = twrite_end;
 	// Return false if the message doesn't fit in buffer.
-	if(len + 1> TWI_BUFFER_SIZE - 1 -(end - twrite_start)){
+	if(len + 1> TWI_BUFFER_SIZE - 1 -(end - start)){
 		// TODO: signal buffer error.
 		return 0;
 	}
@@ -198,9 +206,12 @@ uint8_t TWI_read(uint8_t* s){
 	// Temporary variable to handle circular list.
 	uint8_t end;
 	// Calculate the length of the circular list.
-	if(tread_end < tread_start)
-		end = tread_end + TWI_BUFFER_SIZE;
-	else end = tread_end;
+  // Make atomic so tread_end doesn't change.
+  ATMOIC_BLOCK{
+	  if(tread_end < tread_start)
+		  end = tread_end + TWI_BUFFER_SIZE;
+	  else end = tread_end;
+  }
 	// Check if tread_buff contains correct number of bytes.
 	if(end-tread_start >= 2){
 		// Read length byte from packet.

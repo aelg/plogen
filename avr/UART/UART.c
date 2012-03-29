@@ -4,10 +4,16 @@
 #include "../error/error.h"
 #include "UART.h"
 
+// These are changed by ISRs and read by interuptable functions and should be volatile.
+// Dont't really think this is necessary.
 volatile uint8_t uread_buff[UART_BUFFER_SIZE];
 volatile uint8_t uwrite_buff[UART_BUFFER_SIZE];
-volatile uint8_t uread_start, uread_end, uwrite_start, uwrite_end;
-volatile uint8_t uremaining_bytes, uremaining_packets;
+volatile uint8_t uread_end, uwrite_start;
+
+// These are never changed by ISRs only read, and shouldn't need to be volatile.
+uint8_t uread_start, uwrite_end;
+// These are only used by interrupts.
+uint8_t uremaining_bytes, uremaining_packets;
 
 /**
  * TWI calculate address: make sure the address is within queue.

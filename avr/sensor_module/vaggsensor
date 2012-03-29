@@ -1,0 +1,238 @@
+#include <avr/interrupt.h>
+#include <avr/io.h>
+#include <inttypes.h>
+//#include <avr/sleep.h>
+//#include <stdlib.h>
+
+	volatile uint8_t i = 3;
+	volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
+	volatile int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett(pinne 34/PA6)
+	volatile int long_ir_2_value;//Värdet på den analoga spänning som lång avståndsmätare 2 gett(pinne 38/PA2)
+	volatile int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett(pinne 37/PA3)
+	volatile int short_ir_2_value;//Värdet på den analoga spänning som kort avståndsmätare 2 gett(pinne 36/PA4)
+	volatile int short_ir_3_value;//Värdet på den analoga spänning som kort avståndsmätare 3 gett(pinne 35/PA5)
+	volatile int gyro_value; //Värdet på den analoga spänning som gyrot gett
+	volatile int itr_long_ir_1 = 0;
+	volatile int itr_long_ir_2 = 0;
+	volatile int itr_short_ir_1 = 0;
+	volatile int itr_short_ir_2 = 0;
+	volatile int itr_short_ir_3 = 0;
+	volatile int long_ir_1_values[4];
+	volatile int long_ir_2_values[4];
+	volatile int short_ir_1_values[4];
+	volatile int short_ir_2_values[4];
+	volatile int short_ir_3_values[4];
+
+	volatile uint8_t global_tape = 0;
+	volatile uint8_t tape_counter = 0;
+	volatile uint8_t timer = 0;
+/*
+//Referensvärden
+volatile uint8_t voltage_ref_long1[];
+volatile uint8_t distance_ref_long1=[10 15 20 25 28 30 32 35 40 45 50];
+volatile uint8_t voltage_ref_long2[];
+volatile uint8_t distance_ref_long2=[10 15 20 25 28 30 32 35 40 45 50];
+
+
+
+
+volatile uint8_t voltage_ref_short1[120 84 67 56 51 49 47 44 43 43 48]; //[10 15 20 25 28 30 32 35 40 45 50];
+volatile uint8_t distance_ref_short1=[0 16 32 48 57 64 71 70 96 112 127];
+
+volatile uint8_t voltage_ref_short2[112 81 63 52 51 48 44 41 36 32 33];
+volatile uint8_t distance_ref_short2[0 16 32 48 57 64 71 70 96 112 127];
+
+volatile uint8_t voltage_ref_short3[118 80 63 54 49 47 43 41 38 35 38];
+volatile uint8_t distance_ref_short3=[0 16 32 48 57 64 71 70 96 112 127];
+
+
+
+
+volatile uint8_t voltage_difference_short=[];// = short1 - short2, alltså växande
+volatile uint8_t difference_short=[128 144 160 176 192 208 224 240 255];//[-20 -15 -10 -5 -2 0 2 5 10 15 20], diff=128+dist1-dist2
+
+volatile uint8_t difference_long=[-20 -15 -10 -5 -2 0 2 5 10 15 20];
+
+*/
+//AD-omvandling klar. 
+ISR(ADC_vect){
+
+	switch(i){
+		case 0: tape_value = ADCH;
+		break;
+		case 2: 		
+		if (itr_long_ir_2 >= 3){
+		long_ir_2_values[itr_long_ir_2]= ADCH;
+		itr_long_ir_2 = 0;
+		}
+		else {
+		long_ir_2_values[itr_long_ir_2]= ADCH;
+		itr_long_ir_2++;
+		}
+		break;
+		case 3:
+		if (itr_short_ir_1 >= 3){
+		short_ir_1_values[itr_short_ir_1]= ADCH;
+		itr_short_ir_1 = 0;
+		}
+		else {
+		short_ir_1_values[itr_short_ir_1]= ADCH;
+		itr_short_ir_1++;
+		}
+		break;
+		case 4: 
+		if (itr_short_ir_2 >= 3){
+		short_ir_2_values[itr_short_ir_2]= ADCH;
+		itr_short_ir_2 = 0;
+		}
+		else {
+		short_ir_2_values[itr_short_ir_2]= ADCH;
+		itr_short_ir_2++;
+		}
+		break;
+		case 5: 
+		if (itr_short_ir_3 >= 3){
+		short_ir_3_values[itr_short_ir_3]= ADCH;
+		itr_short_ir_3 = 0;
+		}
+		else {
+		short_ir_3_values[itr_short_ir_3]= ADCH;
+		itr_short_ir_3++;
+		}
+		break;
+		case 6:
+		if (itr_long_ir_1 >= 3){
+		long_ir_1_values[itr_long_ir_1]= ADCH;
+		itr_long_ir_1 = 0;
+		}
+		else {
+		long_ir_1_values[itr_long_ir_1]= ADCH;
+		itr_long_ir_1++;
+		}
+		break;
+//		case 6: gyro_value = ADCH;
+//		break;
+	}
+
+	i++;
+	if(i == 6){
+	i = 3;}
+
+	ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
+	ADCSRA = 0xCB;//Interrupt-bit nollställs
+}
+
+
+//Subrutin som plockar ut det minsta värdet i arrayen
+uint8_t lowest_value(uint8_t *list)
+{
+	int minimum = list[0];
+	int itr=1;
+	for(itr=1;itr<4;itr++){
+		if(minimum>list[itr]){
+		minimum=list[itr];
+		}
+	}
+	return minimum;
+}
+/*
+//Differensfunktion
+uint8_t difference(uint8_t *vect1, uint8_t *vect2)
+{
+	diff_voltage = lowest_value(*vect1) - lowest_value(*vect2);
+	
+	int itr=1;
+	for(itr=1, itr<10,itr++){		
+	if(diff<voltage_difference_short[itr]{
+	i=itr;
+	}
+	
+	switch(i){
+
+	case 1:
+		int k1= ;
+		int m1= ;
+		diff_length=intervall(diff, k1, m1);
+		break;
+	case 2:
+		int k2= ;
+		int m2= ;
+		diff_length=intervall(diff, k2, m2);
+		break;
+	case 3:
+		int k3= ;
+		int m3= ;
+		diff_length=intervall(diff, k3, m3);
+		break;
+	case 4:
+		int k4= ;
+		int m4= ;
+		diff_length=intervall(diff, k4, m4);
+		break;
+	case 5:
+		int k5= ;
+		int m5= ;
+		diff_length=intervall(diff, k5, m5);
+		break;
+	case 6:
+		int k6= ;
+		int m6= ;
+		diff_length=intervall(diff, k6, m6);
+		break;
+	case 7:
+		int k7= ;
+		int m7= ;
+		diff_length=intervall(diff, k7, m7);
+		break;
+	case 8:
+		int k8= ;
+		int m8= ;
+		diff_length=intervall(diff, k8, m8);
+		break;
+	case 9:
+		int k9= ;
+		int m9= ;
+		diff_length=intervall(diff, k9, m9);
+		break;
+	case 10:
+		int k10= ;
+		int m10= ;
+		diff_length=intervall(diff, k10, m10);
+		break;
+	
+
+	return diff;
+}
+
+
+
+//Intervall
+uint8_t intervall(uint8_t d, uint8_t k, uint8_t m){
+//distance = k*d+m;
+return distance;
+}
+*/
+
+//Huvudprogram
+int main()
+{
+	//Initiering
+	MCUCR = 0x03;
+//	GICR = 0x40;
+	DDRA = 0x00;
+	DDRB = 0xFF;
+	DDRD = 0xFF; //PORTD som utgångar för timern. 
+
+volatile char c;
+	c=1;
+
+	//Starta AD-omvandling av insignalen på PA1 
+	ADMUX = 0x21;
+	ADCSRA = 0xCB; 
+	sei(); //tillåt interrupt
+
+	while(c) {
+	}
+
+	return 0;
+}

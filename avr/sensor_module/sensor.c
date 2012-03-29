@@ -37,14 +37,15 @@ volatile uint8_t itr_short_ir_back = 0;
 ISR(ADC_vect){
 
 	if(gyro_mode){
-		gyro_sum += ADCH;		
+		gyro_sum += (signed int)ADCH;		
 
 		if((gyro_sum >= GYRO_TURN_RIGHT) || (gyro_sum <= GYRO_TURN_LEFT)){ //Värde för fullbordad sväng
 			PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
 			gyro_mode = 0; //gå ur gyro_mode
 			gyro_sum = 0;
+			ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
 		}
-		ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
+	
 		ADCSRA = 0xCB;
 		return;
 	}
@@ -130,18 +131,6 @@ ISR (TIMER1_COMPA_vect){
 	tape_counter = 0; //Nollställ tape_counter då timern gått.
 }
 
-/* Behövs inte längre?
-//Interrupt för timer B. Används för att integrera gyrovärden.
-ISR (TIMER1_COMPB_vect){
-
-	gyro_sum += gyro_value;
-
-	if((gyro_sum == 90) | (gyro_sum == -90)){ //Värde för fullbordad sväng
-		PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
-
-		gyro_mode = 0; //gå ur gyro_mode
-	}
-}*/
 
 //Subrutin för att plocka ut det minsta värdet av två stycken
 uint8_t min(uint8_t value_one, uint8_t value_two){
@@ -159,6 +148,7 @@ uint8_t lowest_value(uint8_t *list)
 		if(minimum>list[itr])
 			minimum=list[itr];
 	}
+	return minimum;
 }
 
 //Subrutin för tejpdetektering
@@ -181,6 +171,7 @@ void init_gyro(){
 
 	ADMUX = 0b00110000;
 	gyro_initialize = 0;
+	gyro_sum = 0;
 }
 
 void init_sensor_buffers(){
@@ -200,8 +191,7 @@ int main()
 	MCUCR = 0x03;
 //	GICR = 0x40;
 	DDRA = 0x00;
-	DDRB = 0xFF;
-	DDRD = 0xFF; //PORTD som utgångar för timern. 
+	DDRB = 0xFF; //utgångar, styr mux och signaler till styr
 
 	//Initiera timer
 	TCCR1A = 0x88; 

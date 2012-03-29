@@ -7,6 +7,9 @@
 #include "motor.h"
 #include "../commands.h"
 
+uint8_t s[10];
+int x = 0;
+
 //Initialize interrupts
 void interrupts(void){
 	sei();
@@ -104,4 +107,4 @@ if(len){
 		}
 	}
 }
-}
+

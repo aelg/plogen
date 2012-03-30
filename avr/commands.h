@@ -47,7 +47,7 @@
 #define TAPE_VALUE 7
 #define IR_LONG_LEFT 8
 #define IR_LONG_RIGHT 9
-#define IR_BACK 10
+#define IR_SHORT_BACK 10
 
 // Styrdatakonstanter
 #define AUTO_MODE 1 // Vilket läge är vi i manuell, raksträcka, tejpsväng osv.

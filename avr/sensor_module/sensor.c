@@ -7,16 +7,17 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-#define GYRO_TURN_LEFT -9999
-#define GYRO_TURN_RIGHT 9999 //Tolkas de decimalt??
+#define GYRO_TURN_LEFT -0x7fffffff
+#define GYRO_TURN_RIGHT 0x7fffffff //Tolkas de decimalt??
 
 
 
-uint16_t temp_count = 0;
+uint16_t temp_count = 0; // Temporar fullosning
+uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 7;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
-volatile int gyro_value; //Värdet på den analoga spänning som gyrot gett
-volatile int gyro_sum; //Summan av gyrovärden. Används som integral. 
+volatile int32_t gyro_value; //Värdet på den analoga spänning som gyrot gett
+volatile int32_t gyro_sum; //Summan av gyrovärden. Används som integral. 
 volatile uint8_t gyro_mode = 0;
 volatile uint8_t gyro_initialize = 0;
 volatile uint8_t global_tape = 0;
@@ -33,16 +34,23 @@ volatile uint8_t itr_short_ir_left = 0;
 volatile uint8_t itr_short_ir_right = 0;
 volatile uint8_t itr_short_ir_back = 0;
 
+uint8_t lowest_value(uint8_t *list);
+
+ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
+	volatile uint8_t c;
+	while(1) ++c;
+}
+
 //AD-omvandling klar. 
 ISR(ADC_vect){
 
 	if(gyro_mode){
-		gyro_sum += (signed int)ADCH;		
+		gyro_sum += (int8_t)ADCH;		
 
 		if((gyro_sum >= GYRO_TURN_RIGHT) || (gyro_sum <= GYRO_TURN_LEFT)){ //Värde för fullbordad sväng
 			PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
 			gyro_mode = 0; //gå ur gyro_mode
-			gyro_sum = 0;
+			//gyro_sum = 0;
 			ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
 			TIFR = 0b00010000; //Nollställ timer-interrupt så det inte blir interrupt direkt.
 			TIMSK = 0b00010000; //Enable interrupt on Output compare A
@@ -57,36 +65,31 @@ ISR(ADC_vect){
 			// Spara värde från ad-omvandligen.
 			long_ir_right_values[itr_long_ir_right]= ADCH;
 			// Räkna upp iteratorn.
-      if(itr_long_ir_right > 2) ++itr_long_ir_right;
-      else itr_long_ir_right = 0;
+      		if(++itr_long_ir_right > 3) itr_long_ir_right = 0;
 			break;
 		case 3:
 			// Spara värde från ad-omvandligen.
 			short_ir_left_values[itr_short_ir_left]= ADCH;
 			// Räkna upp iteratorn.
-			if(itr_short_ir_left > 2) ++itr_short_ir_left;
-      else itr_short_ir_left = 0;
+			if(++itr_short_ir_left > 3) itr_short_ir_left = 0;
 			break;
 		case 4:
 			// Spara värde från ad-omvandligen.
 			short_ir_right_values[itr_short_ir_right]= ADCH;
 			// Räkna upp iteratorn.
-			if(itr_short_ir_right > 2) ++itr_short_ir_right;
-      else itr_short_ir_right = 0;
+			if(++itr_short_ir_right > 3) itr_short_ir_right = 0;
 			break;
 		case 5:
 			// Spara värde från ad-omvandligen.
 			short_ir_back_values[itr_short_ir_back]= ADCH;
 			// Räkna upp iteratorn.
-			if(itr_short_ir_back > 2) ++itr_short_ir_back;
-      else itr_short_ir_back = 0;
+			if(++itr_short_ir_back > 3) itr_short_ir_back = 0;
 			break;
 		case 6:
 			// Spara värde från ad-omvandligen.
 			long_ir_left_values[itr_long_ir_left]= ADCH;
 			// Räkna upp iteratorn.
-			if(itr_long_ir_left > 2) ++itr_long_ir_left;
-      else itr_long_ir_left = 0;
+			if(++itr_long_ir_left > 3) itr_long_ir_left = 0;
 			break;
 		case 7: 
 			tape_value = ADCH;
@@ -97,9 +100,14 @@ ISR(ADC_vect){
 			i = 2;
 		}
 
-		i = 7;
+		//i = 7;
 		if (temp_count++ > 0x0f00){
 			send_tape_value(tape_value);
+			send_sensor_values(lowest_value(long_ir_left_values),
+							  lowest_value(long_ir_right_values),
+							  lowest_value(short_ir_left_values),
+							  lowest_value(short_ir_right_values),
+							  lowest_value(short_ir_back_values));
 			temp_count = 0;
 		}
 
@@ -151,7 +159,7 @@ uint8_t min(uint8_t value_one, uint8_t value_two){
 }
 
 //Subrutin som plockar ut det minsta värdet i arrayen
-uint8_t lowest_value(uint8_t *list)
+uint8_t lowest_value(uint8_t list[])
 {
 	uint8_t minimum = list[0];
 	for(uint8_t itr = 1; itr < 4; ++itr){

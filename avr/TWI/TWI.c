@@ -1,5 +1,6 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <util/atomic.h>
 
 #include "../error/error.h"
 #include "TWI.h"
@@ -16,7 +17,7 @@
 // Dont't really think this is necessary.
 volatile uint8_t tread_buff[TWI_BUFFER_SIZE];
 volatile uint8_t twrite_buff[TWI_BUFFER_SIZE];
-volatile uint8_t tread_end, twrite_end;
+volatile uint8_t tread_end, twrite_start;
 
 // These are never changed by ISRs only read, and shouldn't need to be volatile.
 uint8_t tread_start, twrite_end;
@@ -207,7 +208,7 @@ uint8_t TWI_read(uint8_t* s){
 	uint8_t end;
 	// Calculate the length of the circular list.
   // Make atomic so tread_end doesn't change.
-  ATMOIC_BLOCK{
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 	  if(tread_end < tread_start)
 		  end = tread_end + TWI_BUFFER_SIZE;
 	  else end = tread_end;

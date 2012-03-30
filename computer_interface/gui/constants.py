@@ -18,13 +18,16 @@ SEND_NEXT = chr(CMD_SEND_NEXT) + chr(0)
 EMPTY = chr(CMD_END) + chr(0) 	# Message from plogen if end of queue
 
 #Sensor constants
-IRLEFT = chr(1)
-IRRIGHT = chr(2)
+IR_SHORT_LEFT = chr(1)
+IR_SHORT_RIGHT = chr(2)
 IRANGLE = chr(3)
 IRDIFF = chr(4)
 AUTO_MODE = chr(5)
 TAPE = chr(6)
 TAPE_VALUE = chr(7)
+IR_LONG_LEFT = chr(8)
+IR_LONG_RIGHT = chr(9)
+IR_SHORT_BACK = chr(10)
 
 #Control constants
 STOP = chr(0x10)
@@ -36,4 +39,4 @@ FORWARD = chr(0x0c)
 BACKWARD = chr(0x0d)
 
 debug_nobluetooth = 0
-debug = 0
+debug = 2

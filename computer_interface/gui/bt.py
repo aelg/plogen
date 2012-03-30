@@ -56,7 +56,7 @@ class Cbt:
     if debug :
       print 'readcmd'
     if debug_nobluetooth:
-      return str('' + chr(CMD_SENSOR_DATA)+IRLEFT+chr(23))   # Debug, we don't have a bluetooth-connection so pretend that everything is fine
+      return str('' + chr(CMD_SENSOR_DATA)+IR_LONG_LEFT+chr(23))   # Debug, we don't have a bluetooth-connection so pretend that everything is fine
 
     self.recv_socket_lock.acquire() 		# Lock socket
     if self.bt.fileno() == ERROR : # Connection down
@@ -68,7 +68,7 @@ class Cbt:
     data = ''
     while (ord(head[1]) > len(data)):
       data += self.bt.recv(ord(head[1]) - len(data))       # Recieve packet
-      self.recv_socket_lock.release() 	# Release lock
+    self.recv_socket_lock.release() 	# Release lock
     return head[0] + data                   # Strip length byte.
 
   ##

@@ -221,10 +221,16 @@ class Capp(threading.Thread):
             print "Error illformed message from Plogen."
             continue
           for i in range(1, len(message)-1, 2):
-            if message[i] == TAPE_VALUE: # FIXME so i don't need to change so much.
-              self.robot.IRLeft = ord(message[i+1])
-            if message[i] == IRRIGHT:
-              self.robot.IRRight = ord(message[i+1])
+            if message[i] == IR_LONG_LEFT:
+              self.robot.IRLongLeft = ord(message[i+1])
+            if message[i] == IR_LONG_RIGHT:
+              self.robot.IRLongRight = ord(message[i+1])
+            if message[i] == IR_SHORT_LEFT:
+              self.robot.IRShortLeft = ord(message[i+1])
+            if message[i] == IR_SHORT_RIGHT:
+              self.robot.IRShortRight = ord(message[i+1])
+            if message[i] == IR_SHORT_BACK:
+              self.robot.IRShortBack = ord(message[i+1])
             if message[i] == TAPE:
               self.robot.tape = ord(message[i+1])
       elif isinstance(message, int) : print "E: ", hex(message) # We recieved an integer, something is wrong, output to console

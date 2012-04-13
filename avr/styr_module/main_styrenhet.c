@@ -27,48 +27,48 @@ ISR(INT0_vect){
 int main(void)
 {
 
-setup_motor();
+	setup_motor();
 
-uint8_t TWI_read(uint8_t* s);
-void TWI_init(uint8_t sla);
-setup_motor();
-TWI_init(CONTROL_ADDRESS);
-sei();
-interrupts();
-uint8_t s[10];
+	uint8_t TWI_read(uint8_t* s);
+	void TWI_init(uint8_t sla);
+	setup_motor();
+	TWI_init(CONTROL_ADDRESS);
+	sei();
+	interrupts();
+	uint8_t s[10];
 
-// Loop
-while (1){
+	// Loop
+	while (1){
 
 
-	uint8_t len = TWI_read(s);
+		uint8_t len = TWI_read(s);
 
-if(len){
+	if(len){
 
-	if(x == 0){
+		if(x == 0){
 
-		switch(s[2]){
+			switch(s[2]){
 			case LEFT:
-			manual_left();
-			break;
+				manual_left();
+				break;
 			case RIGHT:
-			manual_right();
-			break;
+				manual_right();
+				break;
 			case FORWARD:
-			manual_forward();
-			break;
+				manual_forward();
+				break;
 			case REVERSE:
-			manual_reverse();
-			break;
+				manual_reverse();
+				break;
 			case ROTATE_LEFT:
-			rotate_left();
-			break;
+				rotate_left();
+				break;
 			case ROTATE_RIGHT:
-			rotate_right();
-			break;
+				rotate_right();
+				break;
 			case STOP:
-			manual_stop();
-			break;
+				manual_stop();
+				break;
 			}
 		}
 		else{

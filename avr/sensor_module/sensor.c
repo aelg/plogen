@@ -321,11 +321,11 @@ int main()
 		}
 		if (++temp_count > 0x0f00){
 			send_tape_value(tape_value);
-			send_sensor_values(lowest_value(long_ir_left_values),
-							  lowest_value(long_ir_right_values),
-							  lowest_value(short_ir_left_values),
-							  lowest_value(short_ir_right_values),
-							  lowest_value(short_ir_back_values));
+			send_sensor_values(lowest_value(long_ir_1_values),
+							  lowest_value(long_ir_2_values),
+							  lowest_value(short_ir_1_values),
+							  lowest_value(short_ir_2_values),
+							  lowest_value(short_ir_3_values));
 			temp_count = 0;
 		}
 	}

@@ -165,15 +165,6 @@ ISR(ADC_vect){
 		}
 
 		//i = 7;
-		if (temp_count++ > 0x0f00){
-			send_tape_value(tape_value);
-			send_sensor_values(lowest_value(long_ir_left_values),
-							  lowest_value(long_ir_right_values),
-							  lowest_value(short_ir_left_values),
-							  lowest_value(short_ir_right_values),
-							  lowest_value(short_ir_back_values));
-			temp_count = 0;
-		}
 
 		ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
 		ADCSRA = 0xCB;//Interrupt-bit nollställs
@@ -327,6 +318,15 @@ int main()
 						tape_detected(0);
 					}
 			break;	
+		}
+		if (++temp_count > 0x0f00){
+			send_tape_value(tape_value);
+			send_sensor_values(lowest_value(long_ir_left_values),
+							  lowest_value(long_ir_right_values),
+							  lowest_value(short_ir_left_values),
+							  lowest_value(short_ir_right_values),
+							  lowest_value(short_ir_back_values));
+			temp_count = 0;
 		}
 	}
 

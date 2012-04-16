@@ -96,8 +96,13 @@ int main(void)
 	setup_motor();
 	TWI_init(CONTROL_ADDRESS);
 	while(1){
-		if(x == 0)
-			manual_control();
+		if(x == 0){
+			//manual_control();
+			OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
+			OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
+			PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  	|(1<<PORTA1);//Right wheel direction - pin6
+		}
 		else auto_control();
 	}
 }

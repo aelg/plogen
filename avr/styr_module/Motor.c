@@ -29,7 +29,7 @@ void setup_motor(void)
 	TCNT1 = 0x0000;
 	ICR1 = 0x00FF;//Topvalue of counter
 	DDRA=0xFF;
-	DDRD=0xFF;
+	DDRD=0b11111011;
 
 	TCCR1A =(1<<COM1A1)|(0<<COM1A0)|(1<<COM1B1)|(0<<COM1B0)|(0<<FOC1A)|(0<<FOC1B)|(0<<WGM11)|(0<<WGM10); //PMW uses ICR1 as TOP-value.;//phase and frequency correct PMW
 	TCCR1B =(0<<ICNC1)|(0<<ICES1)|(1<<WGM13)|(0<<WGM12)|(0<<CS12)|(1<<CS11)|(1<<CS10);

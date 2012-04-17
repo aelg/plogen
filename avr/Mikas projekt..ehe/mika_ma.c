@@ -8,6 +8,9 @@
 
 uint8_t s[10];
 int x = 0;
+int k_p = 1;
+uint8_t difference;
+int pdreg_value = 0;
 
 void manual_control(void){
 	uint8_t len = TWI_read(s);
@@ -42,9 +45,39 @@ void manual_control(void){
 	}
 }
 
+void manual_control_test(void){
+	OCR1A =	0x0003;//sets the length of pulses, right side - pin7
+	OCR1B =	0x0003;//sets the length of pulses, left side - pin8
+
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
+}
+
+//Funktion för pd-reglering
+void pdreg(void){
+
+	pdreg_value = k_p*(difference - 0b10000000);	
+
+	if(pdreg_value < 0){
+
+		OCR1A =	0x00F0+pdreg_value;//sets the length of pulses, right side - pin7
+		OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+	}
+	else{
+		OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
+		OCR1B =	0x00F0-pdreg_value;//sets the length of pulses, left side - pin8
+	}
+	
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
+	
+	return;
+}
+
+
 //autonom 		
 void auto_control(void){
-	rotate_right();
+	pdreg();
 	return;
 }
 	
@@ -61,6 +94,7 @@ ISR(INT0_vect){
 	x = 1-x;
 	return;
 }
+	
 
 //MAIN
 int main(void)
@@ -69,10 +103,11 @@ int main(void)
 	setup_motor();
 	TWI_init(CONTROL_ADDRESS);
 	while(1){
-		if(x == 0)
-			manual_control();
-		else auto_control();
+		if(x == 0){
+			manual_control_test();
 		}
+		else auto_control();
+	}
 }
 
 

@@ -87,7 +87,7 @@ int main(void)
 				}
 			break;
 			case STRAIGHT:
-	//			run_straight(difference,direction);
+				run_straight(s[2]);
 				break;
 			case TURN:
 				switch(s[2]){

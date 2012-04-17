@@ -11,9 +11,6 @@
 #define GYRO_TURN_LEFT -0x7fffffff
 #define GYRO_TURN_RIGHT 0x7fffffff //Tolkas de decimalt??
 
-#define DIFFERENCE 0x00;
-
-
 
 uint16_t temp_count = 0; // Temporar fullosning
 uint16_t temp_ir_count = 0; // Temporar fullosning
@@ -141,7 +138,7 @@ ISR(ADC_vect){
 			short_ir_2_values[itr_short_ir_2]= ADCH;
 			// Räkna upp iteratorn.
 			if(++itr_short_ir_2 > 3) itr_short_ir_2 = 0;
-			TWI_write(DIFFERENCE, 3, difference());
+			TWI_write(STRAIGHT, 3, difference());
 			break;
 		case 5:
 			// Spara värde från ad-omvandligen.
@@ -232,8 +229,8 @@ uint8_t difference(){
 
 uint8_t diff;
 
-uint8_t short1 = lowest_value(short_ir_1_values),
-uint8_t short2 = lowest_value(short_ir_2_values);
+uint8_t short1 = distance_ref_short1[120 - lowest_value(short_ir_1_values)];
+uint8_t short2 = distance_ref_short2[120 - lowest_value(short_ir_2_values)];
 
 diff = 127 + short1 - short2;
 

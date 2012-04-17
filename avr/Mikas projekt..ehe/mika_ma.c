@@ -45,6 +45,13 @@ void manual_control(void){
 	}
 }
 
+void manual_control_test(void){
+	OCR1A =	0x0003;//sets the length of pulses, right side - pin7
+	OCR1B =	0x0003;//sets the length of pulses, left side - pin8
+
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
+}
 
 //Funktion för pd-reglering
 void pdreg(void){
@@ -53,12 +60,12 @@ void pdreg(void){
 
 	if(pdreg_value < 0){
 
-		OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
-		OCR1B =	0x00F0+pdreg_value;//sets the length of pulses, right side - pin8
+		OCR1A =	0x00F0+pdreg_value;//sets the length of pulses, right side - pin7
+		OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
 	}
 	else{
-		OCR1A =	0x00F0-pdreg_value;//sets the length of pulses, left side - pin7
-		OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
+		OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
+		OCR1B =	0x00F0-pdreg_value;//sets the length of pulses, left side - pin8
 	}
 	
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
@@ -97,11 +104,7 @@ int main(void)
 	TWI_init(CONTROL_ADDRESS);
 	while(1){
 		if(x == 0){
-			//manual_control();
-			OCR1A =	0x00F0;//sets the length of pulses, left side - pin7
-			OCR1B =	0x00F0;//sets the length of pulses, right side - pin8
-			PORTA =(1<<PORTA0)//Left wheel direction - pin5
-		  	|(1<<PORTA1);//Right wheel direction - pin6
+			manual_control_test();
 		}
 		else auto_control();
 	}

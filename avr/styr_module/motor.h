@@ -1,3 +1,6 @@
+#ifndef MOTOR_H
+#define MOTOR_H
+
 //Constants
 #define CROSSING 0x00 //onödig? väntläge tom mitten?
 #define CROSSING_LEFT 0x01
@@ -21,6 +24,8 @@
 
 #define ROTATION_COMPLETE 0x11 //onödig?
 
+#define K_P 1 //P-konstant i P-regulator
+
 void griparm(void);
 void setup_motor(void);
 void rotate_right(void);
@@ -35,5 +40,6 @@ void manual_forward(void);
 void manual_stop(void);
 void manual_reverse(void);
 void interrupts(void);
+void run_straight(uint8_t);
 
-
+#endif

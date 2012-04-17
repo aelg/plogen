@@ -26,15 +26,12 @@ ISR(INT0_vect){
 //MAIN
 int main(void)
 {
-
-	setup_motor();
-
-	uint8_t TWI_read(uint8_t* s);
-	void TWI_init(uint8_t sla);
+//	uint8_t TWI_read(uint8_t* s);
+//	void TWI_init(uint8_t sla);
+	interrupts();
 	setup_motor();
 	TWI_init(CONTROL_ADDRESS);
-	sei();
-	interrupts();
+
 	uint8_t s[10];
 
 	// Loop

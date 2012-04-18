@@ -45,3 +45,5 @@ void send_sensor_values(uint8_t ll, uint8_t lr,
 
 	TWI_write(COMM_ADDRESS, s, 12);
 }
+
+

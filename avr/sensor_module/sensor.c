@@ -130,15 +130,17 @@ diff = 0x0f + short1 - short2;
 return diff;
 }
 
-//Funktion för att skicka sensorvärden
-void send_difference(){
+//Funktion för att skicka differensen
+void send_difference(uint8_t diff){
 	uint8_t s[3];
 	s[0] = CMD_SENSOR_DATA;
 	s[1] = 1;
-	s[2] = difference();
+	s[2] = diff;
 
-	TWI_write(COMM_ADDRESS, s, 3);
+	TWI_write(CONTROL_ADDRESS, s, 3);
 }
+
+
 
 //AD-omvandling klar. 
 ISR(ADC_vect){
@@ -177,7 +179,7 @@ ISR(ADC_vect){
 			short_ir_2_values[itr_short_ir_2]= ADCH;
 			// Räkna upp iteratorn.
 			if(++itr_short_ir_2 > 3) itr_short_ir_2 = 0;
-			send_difference();
+			send_difference(difference());
 			break;
 		case 5:
 			// Spara värde från ad-omvandligen.

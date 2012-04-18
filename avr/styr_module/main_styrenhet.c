@@ -106,8 +106,8 @@ void auto_control(uint8_t* s){
 //MAIN
 int main(void)
 {
-	uint8_t TWI_read(uint8_t* s);
-	void TWI_init(uint8_t sla);
+	//uint8_t TWI_read(uint8_t* s);
+	//void TWI_init(uint8_t sla);
 	interrupts();
 	setup_motor();
 	TWI_init(CONTROL_ADDRESS);
@@ -148,6 +148,9 @@ int main(void)
 	}
 	*/
 			//	manual_control(s);
+		
+	OCR1A = 0x0003;//sets the length of pulses, right side - pin7
+	OCR1B = 0x0003;//sets the length of pulses, left side - pin8
 			}	
 			else{ 
 

@@ -138,14 +138,14 @@ void run_straight(uint8_t difference){
 	int pdreg_value = K_P*(difference - 0b10000000);	
 
 	if(pdreg_value < 0){
-		OCR1A =	0x00F0+pdreg_value;//sets the length of pulses, right side - pin7
-		OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+		OCR1A =	0x0080;//sets the length of pulses, right side - pin7
+		OCR1B =	0x0080+pdreg_value;//sets the length of pulses, left side - pin8
 
 	
 	}
 	else{
-		OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
-		OCR1B =	0x00F0-pdreg_value;//sets the length of pulses, left side - pin8
+		OCR1A =	0x0080-pdreg_value;//sets the length of pulses, right side - pin7
+		OCR1B =	0x0080;//sets the length of pulses, left side - pin8
 	
 	}
 	

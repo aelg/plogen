@@ -28,8 +28,11 @@ class Crobot(threading.Thread):
     self.bt = bt
     self.tape = 0
     self.speed = 0
-    self.IRLeft = 0
-    self.IRRight = 0
+    self.IRLongLeft = 0
+    self.IRLongRight = 0
+    self.IRShortLeft = 0
+    self.IRShortRight = 0
+    self.IRShortBack = 0
     self.IRDiff = 0
     self.IRAngle = 0
     self.autoMode = 0
@@ -76,10 +79,16 @@ class Crobot(threading.Thread):
   # Functions that returns data stored in this object.
   def getSpeed(self):
     return self.speed
-  def getIRLeft(self):
-    return self.IRLeft
-  def getIRRight(self):
-    return self.IRRight
+  def getIRLongLeft(self):
+    return self.IRLongLeft
+  def getIRLongRight(self):
+    return self.IRLongRight
+  def getIRShortLeft(self):
+    return self.IRShortLeft
+  def getIRShortRight(self):
+    return self.IRShortRight
+  def getIRShortBack(self):
+    return self.IRShortBack
   def getIRDiff(self):
     return self.IRDiff
   def getIRAngle(self):

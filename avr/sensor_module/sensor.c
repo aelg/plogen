@@ -2,7 +2,8 @@
 #include <avr/io.h>
 #include <inttypes.h>
 #include<avr/pgmspace.h>
-//#include<../styr_module/motor.h>
+#include"../sensor_module/sensor.h"
+#include"../styr_module/motor.h"
 #include "../TWI/TWI.h"
 #include "../utility/send.h"
 //#include <avr/sleep.h>
@@ -11,7 +12,6 @@
 #define GYRO_TURN_LEFT -0x7fffffff
 #define GYRO_TURN_RIGHT 0x7fffffff //Tolkas de decimalt??
 
-#define STRAIGHT 0x04;
 #define CMD_SENSOR_DATA 0x03;
 
 
@@ -96,9 +96,6 @@ volatile uint8_t distance_ref_short3[91] = {0, 0, 0,  1,  1,  1,  2,  2,  2,  3,
 //volatile uint8_t voltage_ref_long2[]; // Behöver endast en bransch!
 
 
-
-uint8_t lowest_value(uint8_t *list);
-
 ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 	volatile uint8_t c;
 	while(1) ++c;
@@ -134,7 +131,7 @@ short2 = distance_ref_short2[90];
 else
 short2 = distance_ref_short2[120 - lowest_value(short_ir_2_values)];
 
-diff = 0x0f + short1 - short2;
+diff = 0x7f + short1 - short2;
 
 return diff;
 }

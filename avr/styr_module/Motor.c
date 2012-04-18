@@ -7,7 +7,7 @@
 #include "motor.h"
 #include "../commands.h"
 
-uint8_t max_speed = 0x00f0;
+uint8_t max_speed = 0x0080;
 uint8_t turn_speed = 0x0040;
 uint8_t stop_speed = stop_speed;
 

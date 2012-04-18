@@ -14,7 +14,7 @@
 #define STRAIGHT 0x04;
 #define CMD_SENSOR_DATA 0x03;
 
-int send_data = 0;
+
 uint16_t temp_count = 0; // Temporar fullosning
 uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
@@ -176,7 +176,6 @@ ISR(ADC_vect){
 			short_ir_2_values[itr_short_ir_2]= ADCH;
 			// Räkna upp iteratorn.
 			if(++itr_short_ir_2 > 3) itr_short_ir_2 = 0;
-			send_data = 1;
 			break;
 		case 5:
 			// Spara värde från ad-omvandligen.
@@ -314,11 +313,7 @@ int main()
 	sei(); //tillåt interrupt
 
 	while(c) {
-	
-		if(send_data){
-		send_difference(difference());
-		send_data = 0;
-		}
+
 		switch(gyro_mode){
 			case 1: if(gyro_initialize == 1) 
 						init_gyro();
@@ -331,7 +326,8 @@ int main()
 					}
 			break;	
 		}
-		if (++temp_count > 0x0f00){
+		if (++temp_count > 0x2000){
+			send_difference(difference());
 			send_tape_value(tape_value);
 			send_sensor_values(lowest_value(long_ir_1_values),
 							  lowest_value(long_ir_2_values),

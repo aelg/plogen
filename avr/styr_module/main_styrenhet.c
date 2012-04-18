@@ -13,6 +13,7 @@
 
 uint8_t autonomous;
 uint8_t manual_command;
+uint8_t diff;
 
 //Initialize interrupts
 void interrupts(void){

@@ -106,23 +106,32 @@ void auto_control(uint8_t* s){
 //MAIN
 int main(void)
 {
-	uint8_t TWI_read(uint8_t* s);
-	void TWI_init(uint8_t sla);
 	interrupts();
 	setup_motor();
 	TWI_init(CONTROL_ADDRESS);
 
 	uint8_t s[10];
+  int8_t diff = 0;
 
 	// Loop
 	while (1){
 
 
 		len = TWI_read(s);
+				run_straight(s[2]);
 
 		if(len){
+			switch(s[0]){
+			case CMD_SENSOR_DATA:
+        for(uint8_t i = 2; i < len; i = i+2){
+          if(s[i] == DIFF){
+            diff = s[i+1];
+          }
+        }
+				break;
+
 			if(x == 0){
-		/*		switch(s[2]){
+				switch(s[2]){
 		case LEFT:
 			manual_left();
 			break;
@@ -151,35 +160,6 @@ int main(void)
 			}	
 			else{ 
 
-			switch(s[0]){
-			case STRAIGHT:
-				run_straight(s[2]);
-				break;
-			case CROSSING:
-				switch(s[2]){
-				case CROSSING_LEFT:
-					rotate_left();
-					break;
-				case CROSSING_RIGHT:
-					rotate_right();
-					break;
-				case CROSSING_FORWARD:
-					drive_forward();
-					break;
-				}
-				break;
-			case TURN:
-				switch(s[2]){
-				case TURN_LEFT:
-					turn_left();
-					break;
-				case TURN_RIGHT:
-					turn_right();
-					break;
-				case TURN_FORWARD:
-					turn_forward();
-					break;
-				}
 				break;
 			}
 

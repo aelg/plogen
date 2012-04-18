@@ -7,6 +7,10 @@
 #include "motor.h"
 #include "../commands.h"
 
+uint8_t max_speed = 0x00f0;
+uint8_t turn_speed = 0x0040;
+uint8_t stop_speed = stop_speed;
+
 //Functions
 
 //Griparmsfunktion
@@ -34,8 +38,8 @@ void setup_motor(void)
 	TCCR1A =(1<<COM1A1)|(0<<COM1A0)|(1<<COM1B1)|(0<<COM1B0)|(0<<FOC1A)|(0<<FOC1B)|(0<<WGM11)|(0<<WGM10); //PMW uses ICR1 as TOP-value.;//phase and frequency correct PMW
 	TCCR1B =(0<<ICNC1)|(0<<ICES1)|(1<<WGM13)|(0<<WGM12)|(0<<CS12)|(1<<CS11)|(1<<CS10);
 
-	OCR1A = 0x0003;//sets the length of pulses, right side - pin7
-	OCR1B = 0x0003;//sets the length of pulses, left side - pin8
+	OCR1A = stop_speed;//sets the length of pulses, right side - pin7
+	OCR1B = stop_speed;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
@@ -43,8 +47,8 @@ void setup_motor(void)
 //Rotera höger
 void rotate_right(void)
 {
-	OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
-	OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0) //Left wheel direction - pin5
 		  |(0<<PORTA1);//Right wheel direction - pin6
 }
@@ -52,8 +56,8 @@ void rotate_right(void)
 //Rotera vänster
 void rotate_left(void)
 {
-	OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
-	OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 	PORTA =(0<<PORTA0)//Left wheel direction - pin5
 	      |(1<<PORTA1);//Right wheel direction - pin6
 }
@@ -61,8 +65,8 @@ void rotate_left(void)
 //Köra framåt ur korsning
 void drive_forward(void)
 {
-	OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
-	OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
@@ -70,8 +74,8 @@ void drive_forward(void)
 //Rutin för vänstersväng
 void turn_left(void)
 {
-	OCR1A =	0x0040;//sets the length of pulses, right side - pin7
-	OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+	OCR1A =	turn_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
@@ -79,8 +83,8 @@ void turn_left(void)
 //Rutin för högersväng
 void turn_right(void)
 {
-	OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
-	OCR1B =	0x0040;//sets the length of pulses, left side - pin8
+	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	turn_speed;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
@@ -88,8 +92,8 @@ void turn_right(void)
 //Rutin för körning rakt fram
 void turn_forward(void)
 {
-	OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
-	OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
@@ -97,13 +101,13 @@ void turn_forward(void)
 void manual_left(void)
 {
 	OCR1A =	0x0030;//sets the length of pulses, right side - pin7
-	OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 void manual_right(void)
 {
-	OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
+	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
 	OCR1B =	0x0030;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
@@ -111,24 +115,24 @@ void manual_right(void)
 
 void manual_forward(void)
 {
-	OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
-	OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6	
 }
 
 void manual_stop(void)
 {
-	OCR1A =	0x0003;//sets the length of pulses, right side - pin7
-	OCR1B =	0x0003;//sets the length of pulses, left side - pin8
+	OCR1A =	stop_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	stop_speed;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6	
 }
 
 void manual_reverse(void)
 {
-	OCR1A =	0x00f0;//sets the length of pulses, right side - pin7
-	OCR1B =	0x00f0;//sets the length of pulses, left side - pin8
+	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 	PORTA =(0<<PORTA0)//Left wheel direction - pin5
 		  |(0<<PORTA1);//Right wheel direction - pin6	
 }
@@ -138,14 +142,14 @@ void run_straight(uint8_t difference){
 	int pdreg_value = K_P*(difference - 0b10000000);	
 
 	if(pdreg_value < 0){
-		OCR1A =	0x00F0+pdreg_value;//sets the length of pulses, right side - pin7
-		OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+		OCR1A =	max_speed+pdreg_value;//sets the length of pulses, right side - pin7
+		OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 
 	
 	}
 	else{
-		OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
-		OCR1B =	0x00F0-pdreg_value;//sets the length of pulses, left side - pin8
+		OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+		OCR1B =	max_speed-pdreg_value;//sets the length of pulses, left side - pin8
 	
 	}
 	

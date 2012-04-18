@@ -139,18 +139,6 @@ diff = 0x0f + short1 - short2;
 return diff;
 }
 
-//Funktion för att skicka differensen
-void send_difference(uint8_t diff){
-	uint8_t s[3];
-	s[0] = STRAIGHT;
-	s[1] = 1;
-	s[2] = diff;
-
-	TWI_write(CONTROL_ADDRESS, s, 3);
-}
-
-
-
 //AD-omvandling klar. 
 ISR(ADC_vect){
 

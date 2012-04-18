@@ -11,27 +11,28 @@
 #include "motor.h"
 #include "../commands.h"
 
-
-uint8_t s[10];
-int x = 0;
-uint8_t len;
+uint8_t autonomous;
+uint8_t manual_command;
 
 //Initialize interrupts
 void interrupts(void){
-	sei();
-	MCUCR |= (MCUCR & 0xfc) | ((0<<ISC00) | (1<<ISC01));
-    GICR |= (1<<INT0);
+  // Set interrupt on rising edge of INT0 pin
+	MCUCR = (MCUCR & 0xfc) | 0x03;
+  // Set INT0 as input pin.
+  DDRD = (DDRD & 0xfb) 
+  //Enable interrupts on INT0
+  GICR |= (1<<INT0);
 }
 
 //Interrupt routine
 ISR(INT0_vect){
-	x = 1-x;
+	autonomous = autonomous - 1;
 	return;
 }
 
 //Manuell körning
 void manual_control(uint8_t* s){
-	switch(s[2]){
+	switch(manual_command){
 		case LEFT:
 			manual_left();
 			break;
@@ -68,39 +69,33 @@ void jag_legger_det_har(void){
 
 
 //Autonom körning
-void auto_control(uint8_t* s){
+void auto_control(){
 
-	switch(s[0]){
-	case STRAIGHT:
-		run_straight(s[2]);
-		break;
-	case CROSSING:
-		switch(s[2]){
-		case CROSSING_LEFT:
-			rotate_left();
-			break;
-		case CROSSING_RIGHT:
-			rotate_right();
-			break;
-		case CROSSING_FORWARD:
-			drive_forward();
-			break;
-		}
-		break;
-	case TURN:
-		switch(s[2]){
-		case TURN_LEFT:
-			turn_left();
-			break;
-		case TURN_RIGHT:
-			turn_right();
-			break;
-		case TURN_FORWARD:
-			turn_forward();
-			break;
-		}
-		break;
-	}
+  if(mode == STRAIGHT){
+    run_straight(diff);
+  }
+}
+
+// Kontrollera meddelanden.
+void check_TWI(){
+	uint8_t s[10];
+  uint8_t len;
+  len = TWI_read(s);
+  if(len){
+    switch(s[0]){
+    case CMD_SENSOR_DATA:
+      for(uint8_t i = 2; i < len; i = i+2){
+        if(s[i] == DIFF){
+          diff = s[i+1];
+        }
+      }
+      break;
+    case CMD_MANUAL_CONTROL:
+      autonomous = 0;
+      manual_command = s[2];
+      break;
+    }
+  }
 }
 
 //MAIN
@@ -109,68 +104,20 @@ int main(void)
 	interrupts();
 	setup_motor();
 	TWI_init(CONTROL_ADDRESS);
-
-	uint8_t s[10];
-  int8_t diff = 0;
+	sei();
 
 	// Loop
 	while (1){
 
 
-		len = TWI_read(s);
-				run_straight(s[2]);
+    // Check TWI bus.
+    check_TWI();
 
-		if(len){
-			switch(s[0]){
-			case CMD_SENSOR_DATA:
-        for(uint8_t i = 2; i < len; i = i+2){
-          if(s[i] == DIFF){
-            diff = s[i+1];
-          }
-        }
-				break;
-
-			if(x == 0){
-				switch(s[2]){
-		case LEFT:
-			manual_left();
-			break;
-		case RIGHT:
-			manual_right();
-			break;
-		case FORWARD:
-			manual_forward();
-			break;
-		case REVERSE:
-			manual_reverse();
-			break;
-		case ROTATE_LEFT:
-			rotate_left();
-			break;
-		case ROTATE_RIGHT:
-			rotate_right();
-			break;
-		case STOP:
-			manual_stop();
-			break;
-		
-	}
-	*/
-			//	manual_control(s);
-			}	
-			else{ 
-
-				break;
-			}
-
-				//auto_control(s);
-			}	
-		}
-		
+    if(autonomous){
+      auto_control();
+    }
+    else {
+      manual_control();
+    }
 	}
 }
-	
-	
-	
-	
-	

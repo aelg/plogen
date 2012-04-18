@@ -133,7 +133,7 @@ return diff;
 //Funktion för att skicka differensen
 void send_difference(uint8_t diff){
 	uint8_t s[3];
-	s[0] = CMD_SENSOR_DATA;
+	s[0] = STRAIGHT;
 	s[1] = 1;
 	s[2] = diff;
 

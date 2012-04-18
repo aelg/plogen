@@ -30,18 +30,8 @@ ISR(INT0_vect){
 }
 
 //Manuell körning
-void manual_control(void){
-	OCR1A =	0x0003;//sets the length of pulses, right side - pin7
-	OCR1B =	0x0003;//sets the length of pulses, left side - pin8
-	
-	PORTA =(1<<PORTA0)//Left wheel direction - pin5
-		  |(1<<PORTA1);//Right wheel direction - pin6
-
-}
-
-void jag_legger_det_har(void){
-	if(len){
-		switch(s[2]){
+void manual_control(uint8_t* s){
+	switch(s[2]){
 		case LEFT:
 			manual_left();
 			break;
@@ -63,16 +53,23 @@ void jag_legger_det_har(void){
 		case STOP:
 			manual_stop();
 			break;
-		}
+		
 	}
+}
+
+void jag_legger_det_har(void){
+	OCR1A =	0x0003;//sets the length of pulses, right side - pin7
+	OCR1B =	0x0003;//sets the length of pulses, left side - pin8
+	
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
+	
 }
 
 
 //Autonom körning
-void auto_control(void){
+void auto_control(uint8_t* s){
 
-s[0] = 4;
-s[2] = 0b10000000;
 	switch(s[0]){
 	case STRAIGHT:
 		run_straight(s[2]);
@@ -123,11 +120,13 @@ int main(void)
 
 		len = TWI_read(s);
 
-		if(x == 0){
-			manual_control();
-		}
-		else{ 
-			auto_control();
+		if(len){
+			if(x == 0){
+				manual_control(s);
+			}	
+			else{ 
+				auto_control(s);
+			}
 		}
 	}
 }

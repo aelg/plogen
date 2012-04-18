@@ -35,7 +35,7 @@ void interrupts(void){
 ISR(INT0_vect){
 	autonomous = 1 - autonomous;
 	return;
-}
+ }
 
 //Manuell körning
 void manual_control(){
@@ -85,7 +85,7 @@ void auto_control(){
 
 // Kontrollera meddelanden.
 void check_TWI(){
-	uint8_t s[10];
+  uint8_t s[16];
   uint8_t len;
   len = TWI_read(s);
   if(len){
@@ -117,7 +117,7 @@ int main(void)
 	while (1){
 
 	    // Check TWI bus.
-	    check_TWI();
+ 	    check_TWI();
 
 	    if(autonomous){
 	      auto_control();

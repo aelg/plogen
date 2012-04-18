@@ -7,9 +7,9 @@
 #include "motor.h"
 #include "../commands.h"
 
-uint8_t max_speed = 0x0080;
-uint8_t turn_speed = 0x0040;
-uint8_t stop_speed = 0x0003;
+uint16_t max_speed = 0x0080;
+uint16_t turn_speed = 0x0040;
+uint16_t stop_speed = 0x0003;
 
 //Functions
 
@@ -139,18 +139,30 @@ void manual_reverse(void)
 
 void run_straight(uint8_t difference){
 
-	int pdreg_value = K_P*(difference - 0b10000000);	
+    int16_t diff = difference;
+
+	int16_t pdreg_value = K_P*(diff - 127);
+	
+	uint16_t left_speed;
+	uint16_t right_speed;
 
 	if(pdreg_value < 0){
-		OCR1A =	max_speed+pdreg_value;//sets the length of pulses, right side - pin7
+		if(max_speed+pdreg_value < stop_speed)
+			OCR1A = stop_speed;
+		else 
+			OCR1A =	max_speed+pdreg_value;//sets the length of pulses, right side - pin7
+
 		OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 
 	
 	}
 	else{
 		OCR1A =	max_speed;//sets the length of pulses, right side - pin7
-		OCR1B =	max_speed-pdreg_value;//sets the length of pulses, left side - pin8
-	
+
+		if(max_speed-pdreg_value < stop_speed)
+			OCR1B = stop_speed;
+		else
+			OCR1B =	max_speed-pdreg_value;//sets the length of pulses, left side - pin8
 	}
 	
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5

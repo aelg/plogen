@@ -11,28 +11,34 @@
 #include "motor.h"
 #include "../commands.h"
 
-uint8_t autonomous;
-uint8_t manual_command;
-uint8_t diff;
+uint8_t autonomous = 0;
+uint8_t manual_command = STOP;
+uint8_t diff = 127;
+uint8_t mode = STRAIGHT;
+
+ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
+	volatile uint8_t c;
+	while(1) ++c;
+}
 
 //Initialize interrupts
 void interrupts(void){
   // Set interrupt on rising edge of INT0 pin
-	MCUCR = (MCUCR & 0xfc) | 0x03;
+  MCUCR = (MCUCR & 0xfc) | 0x03;
   // Set INT0 as input pin.
-  DDRD = (DDRD & 0xfb) 
+  DDRD = (DDRD & 0xfb);
   //Enable interrupts on INT0
   GICR |= (1<<INT0);
 }
 
 //Interrupt routine
 ISR(INT0_vect){
-	autonomous = autonomous - 1;
+	autonomous = 1 - autonomous;
 	return;
 }
 
 //Manuell körning
-void manual_control(uint8_t* s){
+void manual_control(){
 	switch(manual_command){
 		case LEFT:
 			manual_left();
@@ -91,7 +97,7 @@ void check_TWI(){
         }
       }
       break;
-    case CMD_MANUAL_CONTROL:
+    case CMD_MANUAL:
       autonomous = 0;
       manual_command = s[2];
       break;
@@ -110,15 +116,14 @@ int main(void)
 	// Loop
 	while (1){
 
+	    // Check TWI bus.
+	    check_TWI();
 
-    // Check TWI bus.
-    check_TWI();
-
-    if(autonomous){
-      auto_control();
-    }
-    else {
-      manual_control();
-    }
+	    if(autonomous){
+	      auto_control();
+	    }
+	    else {
+	      manual_control();
+	    }
 	}
 }

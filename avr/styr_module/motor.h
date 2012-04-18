@@ -24,7 +24,7 @@
 
 #define ROTATION_COMPLETE 0x11 //onödig?
 
-#define K_P 2 //P-konstant i P-regulator
+#define K_P 1 //P-konstant i P-regulator
 
 void griparm(void);
 void setup_motor(void);

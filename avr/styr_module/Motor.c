@@ -9,7 +9,7 @@
 
 uint8_t max_speed = 0x0080;
 uint8_t turn_speed = 0x0040;
-uint8_t stop_speed = stop_speed;
+uint8_t stop_speed = 0x0003;
 
 //Functions
 

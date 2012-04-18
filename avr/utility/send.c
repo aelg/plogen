@@ -43,12 +43,12 @@ void send_sensor_values(uint8_t ll, uint8_t lr,
 
 //Funktion för att skicka differensen
 void send_difference(uint8_t diff){
-	uint8_t s[3];
+	uint8_t s[4];
 	s[0] = CMD_SENSOR_DATA;
 	s[1] = 2;
 	s[2] = DIFF;
-  s[3] = diff;
+ 	s[3] = diff;
 
-	TWI_write(CONTROL_ADDRESS, s, 3);
+	TWI_write(CONTROL_ADDRESS, s, 4);
 }
 

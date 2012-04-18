@@ -120,18 +120,24 @@ uint8_t difference(){
 uint8_t diff;
 uint8_t short1;
 uint8_t short2;
+uint8_t low_short1 = lowest_value(short_ir_1_values);
+uint8_t low_short2 = lowest_value(short_ir_2_values);
 
-if(lowest_value(short_ir_1_values) < 29)
+if(low_short1 < 30)
 short1 = distance_ref_short1[90];
+else if(low_short1 > 120)
+short1 = distance_ref_short1[0];
 else
-short1 = distance_ref_short1[120 - lowest_value(short_ir_1_values)];
+short1 = distance_ref_short1[120 - low_short1];
 
-if(lowest_value(short_ir_2_values) < 29)
+if(low_short2 < 30)
 short2 = distance_ref_short2[90];
+else if(low_short2 > 120)
+short2 = distance_ref_short2[0];
 else
-short2 = distance_ref_short2[120 - lowest_value(short_ir_2_values)];
+short2 = distance_ref_short2[120 - low_short2];
 
-diff = 0x7f + short1 - short2;
+diff = 127 + short1 - short2;
 
 return diff;
 }

@@ -2,7 +2,6 @@
 #include <avr/io.h>
 #include <inttypes.h>
 #include<avr/pgmspace.h>
-#include"../sensor_module/sensor.h"
 #include"../styr_module/motor.h"
 #include "../TWI/TWI.h"
 #include "../utility/send.h"
@@ -45,15 +44,8 @@ uint8_t short_ir_3_values[4];
 
 
 //Referensevärden
-volatile uint8_t voltage_ref_short1[91] = {120,	119,118,117,116,115,114,113,112,111,110,109,108,
-											107,106,105,104,103,102,101,100,99, 98,	97,	96,	95,	
-											94,	93,	92,	91,	90,	89,	88,	87,	86,	85,	84,	83,	82,	
-											81,	80,	79,	78,	77,	76,	75,	74,	73,	72,	71,	70,	69,	
-											68,	67,	66,	65,	64,	63,	62,	61,	60,	59,	58, 57,	56,	
-											55,	54,	53,	52,	51,	50,	49,	48,	47,	46,	45,	44,	43,	
-											42,	41,	40,	39,	38,	37,	36,	35,	34, 33,	32,	31,	30};
 
-volatile uint8_t distance_ref_short1[91] = {0, 0, 0,  1,  1,  1,  2,  2,  2,  3,  3, 3,  4, 
+/*const*/ uint8_t distance_ref_short1[91] = {0, 0, 0,  1,  1,  1,  2,  2,  2,  3,  3, 3,  4, 
 											4,	5,	5,  6,  6,  7,  7,  8,  8,  9,  9,  10, 10,    
 									 		11,11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17,  
 									 		18,19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 
@@ -61,15 +53,7 @@ volatile uint8_t distance_ref_short1[91] = {0, 0, 0,  1,  1,  1,  2,  2,  2,  3,
 											49,51, 53, 55, 57,	59,	61,	62,	64, 66,	69,	71,	74,
 									 		77,80,	83,	86,	90,	93,	96,	100,104,108,112,119,127};
 
-volatile uint8_t voltage_ref_short2[91] = {120,	119,118,117,116,115,114,113,112,111,110,109,108,	
-											107,106,105,104,103,102,101,100,99, 98,	97,	96,	95,	
-											94,	93,	92,	91,	90,	89,	88,	87,	86,	85,	84,	83,	82,	
-											81,	80,	79,	78,	77,	76,	75,	74,	73,	72,	71,	70,	69,	
-											68,	67,	66,	65,	64,	63,	62,	61,	60,	59,	58, 57,	56,	
-											55,	54,	53,	52,	51,	50,	49,	48,	47,	46,	45,	44,	43,	
-											42,	41,	40,	39,	38,	37,	36,	35,	34, 33,	32,	31,	30};
-
-volatile uint8_t distance_ref_short2[91] = {0,  0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  3,  4,
+const uint8_t distance_ref_short2[91] = {0,  0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  3,  4,
 											4,	5,	5,  6,  6,  7,  7,  8,  8,  9,  9,  10, 10,    
 									 		11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17,  
 									 		18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 
@@ -77,15 +61,8 @@ volatile uint8_t distance_ref_short2[91] = {0,  0,  0,  1,  1,  1,  2,  2,  2,  
 											49, 51, 53, 55, 57,	59,	61,	62,	64, 66,	69,	71,	74,
 									 		77, 80,	83,	86,	90,	93,	96,	100,104,108,112,119,127};
 
-volatile uint8_t voltage_ref_short3[91] = {120,	119,118,117,116,115,114,113,112,111,110,109,108,	
-											107,106,105,104,103,102,101,100,99, 98,	97,	96,	95,	
-											94,	93,	92,	91,	90,	89,	88,	87,	86,	85,	84,	83,	82,	
-											81,	80,	79,	78,	77,	76,	75,	74,	73,	72,	71,	70,	69,	
-											68,	67,	66,	65,	64,	63,	62,	61,	60,	59,	58, 57,	56,	
-											55,	54,	53,	52,	51,	50,	49,	48,	47,	46,	45,	44,	43,	
-											42,	41,	40,	39,	38,	37,	36,	35,	34, 33,	32,	31,	30};
 
-volatile uint8_t distance_ref_short3[91] = {0, 0, 0,  1,  1,  1,  2,  2,  2,  3,  3, 3,  4, 
+const uint8_t distance_ref_short3[91] = {0, 0, 0,  1,  1,  1,  2,  2,  2,  3,  3, 3,  4, 
 											4,	5,	5,  6,  6,  7,  7,  8,  8,  9,  9,  10, 10,    
 									 		11,11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17,  
 									 		18,19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 
@@ -117,29 +94,29 @@ uint8_t lowest_value(uint8_t *list)
 //Differensfunktion
 uint8_t difference(){
 
-uint8_t diff;
-uint8_t short1;
-uint8_t short2;
-uint8_t low_short1 = lowest_value(short_ir_1_values);
-uint8_t low_short2 = lowest_value(short_ir_2_values);
+	uint8_t diff;
+	uint8_t short1;
+	uint8_t short2;
+	uint8_t low_short1 = lowest_value(short_ir_1_values);
+	uint8_t low_short2 = lowest_value(short_ir_2_values);
 
-if(low_short1 < 30)
-short1 = distance_ref_short1[90];
-else if(low_short1 > 120)
-short1 = distance_ref_short1[0];
-else
-short1 = distance_ref_short1[120 - low_short1];
+	if(low_short1 < 30)
+		short1 = distance_ref_short1[90];
+	else if(low_short1 > 120)
+		short1 = distance_ref_short1[0];
+	else
+		short1 = distance_ref_short1[120 - low_short1];
 
-if(low_short2 < 30)
-short2 = distance_ref_short2[90];
-else if(low_short2 > 120)
-short2 = distance_ref_short2[0];
-else
-short2 = distance_ref_short2[120 - low_short2];
+	if(low_short2 < 30)
+		short2 = distance_ref_short2[90];
+	else if(low_short2 > 120)
+		short2 = distance_ref_short2[0];
+	else
+		short2 = distance_ref_short2[120 - low_short2];
 
-diff = 127 + short1 - short2;
+	diff = 127 + short1 - short2;
 
-return diff;
+	return diff;
 }
 
 //AD-omvandling klar. 
@@ -329,7 +306,7 @@ int main()
 					}
 			break;	
 		}
-		if (++temp_count > 0x2000){
+		if (++temp_count > 0xf000){
 			send_difference(difference());
 			send_tape_value(tape_value);
 			send_sensor_values(lowest_value(long_ir_1_values),

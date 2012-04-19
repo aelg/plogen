@@ -28,6 +28,15 @@
  * HÃ¤r anvÃ¤nds konstanterna under Styrdatakonstanter */
 #define CMD_CONTROL_DATA 0x17
 
+/*CMD_MODE anges för att beteckna ett meddelande som innehåller ett modeläge
+ *som används i sensorenheten.
+ */
+#define CMD_MODE 0x18
+
+//Olika modes för sensor och styrenhet
+#define COMPLETING_CROSSING 0x19
+#define FINISH 0x20
+
 // Manuell kontroll
 #define LEFT 0x0A
 #define RIGHT 0x0B

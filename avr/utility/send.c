@@ -66,3 +66,17 @@ void send_line_pos(uint8_t pos){
 
 }
 
+void send_long_ir_data(uint8_t long1, uint8_t long2){
+
+	uint8_t s[6];
+	s[0] = CMD_SENSOR_DATA;
+	s[1] = 4;
+	s[2] = IR_LONG_LEFT;
+	s[3] = long1;
+	s[4] = IR_LONG_RIGHT;
+	s[5] = long2;
+
+
+	TWI_write(CONTROL_ADDRESS, s, 6);
+	
+}

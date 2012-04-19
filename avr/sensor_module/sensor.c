@@ -5,15 +5,15 @@
 #include"../styr_module/motor.h"
 #include "../TWI/TWI.h"
 #include "../utility/send.h"
+#include "../commands.h"
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
 #define GYRO_TURN_LEFT -0x7fffffff
 #define GYRO_TURN_RIGHT 0x7fffffff //Tolkas de decimalt??
 
-#define CMD_SENSOR_DATA 0x03;
 
-
+uint8_t mode = STRAIGHT;
 uint16_t temp_count = 0; // Temporar fullosning
 uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
@@ -334,6 +334,38 @@ void init_sensor_buffers(){
 	itr_short_ir_3 = 0;
 }
 
+
+//Funktion som skickar all nödvändig data vid PD-reglering
+void send_straight_data(void){
+
+	if (++temp_count > 0x2000){
+
+		send_differences(difference(), rotation());
+		send_tape_value(tape_value);
+		send_sensor_values(lowest_value(long_ir_1_values),
+						  lowest_value(long_ir_2_values),
+						  lowest_value(short_ir_1_values),
+						  lowest_value(short_ir_2_values),
+						  lowest_value(short_ir_3_values));
+		temp_count = 0;
+	}
+}
+
+// Kontrollera meddelanden.
+void check_TWI(){
+  uint8_t s[16];
+  uint8_t len;
+  len = TWI_read(s);
+  if(len){
+    switch(s[0]){
+    case CMD_MODE:
+		mode = s[2];
+		break;
+
+    }
+  }
+}
+
 //Huvudprogram
 int main()
 {
@@ -367,8 +399,48 @@ int main()
 	ADCSRA = 0xCB; 
 	sei(); //tillåt interrupt
 
-	while(c) {
 
+	while(c) {
+			
+		check_TWI();
+
+		switch(mode){
+			case STRAIGHT:
+				send_straight_data();
+				if(tape_value > high_threshold){
+					tape_detected(1);
+				}
+				else if (tape_value < low_threshold){
+					tape_detected(0);
+				}
+				if((lowest_value(short_ir_1_values) < 20)|| (lowest_value(short_ir_2_values) < 20))
+					PORTB = (0b11010000 | (PORTB & 0b11001111));
+					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.
+				break;
+			case CROSSING:
+				send_long_ir_data(lowest_value(long_ir_1_values), lowest_value(long_ir_1_values));//´Skickar data från de långa sensorerna.
+				break;
+			case COMPLETING_CROSSING: // Läge under korsning. Efter korsningsrutin återgår mode till STRAIGHT
+				break;			
+			case TURN_RIGHT:
+				gyro_mode = 1;
+				gyro_initialize = 1;
+				break;
+			case TURN_LEFT:
+				gyro_mode = 1;
+				gyro_initialize = 1;
+				break;
+			case FORWARD:
+				break;
+			case FINISH:
+				if(++temp_count > 0x2000){
+				uint8_t pos = find_max();
+				send_line_pos(pos);
+				}		
+				break;
+			}
+						
+/*
 		switch(gyro_mode){
 			case 1: if(gyro_initialize == 1) 
 						init_gyro();
@@ -389,6 +461,7 @@ int main()
 			}
 		}
 		else if (++temp_count > 0x2000){
+
 			send_differences(difference(), rotation());
 			send_tape_value(tape_value);
 			send_sensor_values(lowest_value(long_ir_1_values),
@@ -401,6 +474,7 @@ int main()
 		//if(temp_count == 0x2000)
 		//	send_difference(difference());
 	}
-
+*/
+	}
 	return 0;
 }

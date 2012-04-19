@@ -142,9 +142,6 @@ void run_straight(uint8_t difference){
     int16_t diff = difference;
 
 	int16_t pdreg_value = K_P*(diff - 127);
-	
-	uint16_t left_speed;
-	uint16_t right_speed;
 
 	if(pdreg_value < 0){
 		if(max_speed+pdreg_value < stop_speed)

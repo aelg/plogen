@@ -6,7 +6,7 @@
 #include "error.h"
 
 void error(uint8_t e){
-	volatile c;
+	volatile int c;
 	++c;
 	return;
 }

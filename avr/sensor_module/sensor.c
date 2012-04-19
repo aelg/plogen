@@ -327,15 +327,16 @@ int main()
 		}
 		if (++temp_count > 0x4000){
 			send_difference(difference());
-			send_difference(difference());
-			/*send_tape_value(tape_value);
-			/*send_sensor_values(lowest_value(long_ir_1_values),
+			send_tape_value(tape_value);
+			send_sensor_values(lowest_value(long_ir_1_values),
 							  lowest_value(long_ir_2_values),
 							  lowest_value(short_ir_1_values),
 							  lowest_value(short_ir_2_values),
-							  lowest_value(short_ir_3_values));*/
+							  lowest_value(short_ir_3_values));
 			temp_count = 0;
 		}
+		//if(temp_count == 0x2000)
+		//	send_difference(difference());
 	}
 
 	return 0;

@@ -49,7 +49,7 @@ void send_differences(uint8_t diff, uint8_t rot){
 	s[1] = 4;
 	s[2] = IRDIFF;
 	s[3] = diff;
-	s[4] = IRANGLE;
+	s[4] = IRROT;
 	s[5] = rot;
 
 	TWI_write(CONTROL_ADDRESS, s, 6);

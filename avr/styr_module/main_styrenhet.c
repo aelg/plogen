@@ -15,6 +15,7 @@ uint8_t autonomous = 0;
 uint8_t manual_command = STOP;
 uint8_t diff = 127;
 uint8_t mode = STRAIGHT;
+uint8_t rot = 5;
 
 ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 	volatile uint8_t c;
@@ -92,8 +93,11 @@ void check_TWI(){
     switch(s[0]){
     case CMD_SENSOR_DATA:
       for(uint8_t i = 2; i < len; i = i+2){
-        if(s[i] == DIFF){
+        if(s[i] == IRDIFF){
           diff = s[i+1];
+        }
+		if(s[i] == IRROT){
+          rot = s[i+1];
         }
       }
       break;

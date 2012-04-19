@@ -41,7 +41,7 @@
 // Sensordata
 #define IR_SHORT_LEFT 1
 #define IR_SHORT_RIGHT 2
-#define IRANGLE 3
+#define IRROT 3
 #define IRDIFF 4
 #define TAPE 6
 #define TAPE_VALUE 7

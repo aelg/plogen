@@ -29,22 +29,18 @@ void send_sensor_values(uint8_t ll, uint8_t lr,
 	s[1] = 10;
 	s[2] = IR_LONG_LEFT;
 	s[3] = ll;
-	//s[3] = 3;
 	s[4] = IR_LONG_RIGHT;
 	s[5] = lr;
-	//s[5] = 5;
 	s[6] = IR_SHORT_LEFT;
 	s[7] = sl;
-	//s[7] = 7;
 	s[8] = IR_SHORT_RIGHT;
 	s[9] = sr;
-	//s[9] = 9;
 	s[10] = IR_SHORT_BACK;
 	s[11] = sb;
-	//s[11] = 11;
 
 	TWI_write(COMM_ADDRESS, s, 12);
 }
+
 
 //Funktion för att skicka differensen
 void send_differences(uint8_t diff, uint8_t rot){
@@ -67,5 +63,6 @@ void send_line_pos(uint8_t pos){
 	s[3] = pos;
 
 	TWI_write(COMM_ADDRESS, s, 4);
+
 }
 

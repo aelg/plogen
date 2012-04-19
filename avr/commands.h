@@ -50,6 +50,7 @@
 #define IR_SHORT_BACK 10
 #define LINE_POSITION 11
 
+
 // Styrdatakonstanter
 #define AUTO_MODE 1 // Vilket läge är vi i manuell, raksträcka, tejpsväng osv.
 #define MOTOR_LEFT 2

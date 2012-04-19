@@ -46,6 +46,19 @@ void send_sensor_values(uint8_t ll, uint8_t lr,
 	TWI_write(COMM_ADDRESS, s, 12);
 }
 
+//Funktion för att skicka differensen
+void send_differences(uint8_t diff, uint8_t rot){
+	uint8_t s[6];
+	s[0] = CMD_SENSOR_DATA;
+	s[1] = 4;
+	s[2] = IRDIFF;
+	s[3] = diff;
+	s[4] = IRANGLE;
+	s[5] = rot;
+
+	TWI_write(CONTROL_ADDRESS, s, 6);
+}
+
 void send_line_pos(uint8_t pos){
 	uint8_t s[4];
 	s[0] = CMD_SENSOR_DATA;

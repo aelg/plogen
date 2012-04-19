@@ -124,19 +124,19 @@ uint8_t lowest_value(uint8_t *list)
 //Differensfunktion
 uint8_t difference(){
 
-uint8_t diff;
-uint8_t short1;
-uint8_t short2;
+	uint8_t diff;
+	uint8_t short1;
+	uint8_t short2;
 
-if(lowest_value(short_ir_1_values) < 29)
-short1 = distance_ref_short1[90];
-else
-short1 = distance_ref_short1[120 - lowest_value(short_ir_1_values)];
+	if(lowest_value(short_ir_1_values) < 29)
+		short1 = distance_ref_short1[90];
+	else
+		short1 = distance_ref_short1[120 - lowest_value(short_ir_1_values)];
 
-if(lowest_value(short_ir_2_values) < 29)
-short2 = distance_ref_short2[90];
-else
-short2 = distance_ref_short2[120 - lowest_value(short_ir_2_values)];
+	if(lowest_value(short_ir_2_values) < 29)
+		short2 = distance_ref_short2[90];
+	else
+		short2 = distance_ref_short2[120 - lowest_value(short_ir_2_values)];
 
 diff = 0x0f + short1 - short2;
 
@@ -146,34 +146,25 @@ return diff;
 //Rotationsfunktion
 uint8_t rotation(){
 
-uint8_t rot;
-uint8_t short3;
-uint8_t short2;
+	uint8_t rot;
+	uint8_t short3;
+	uint8_t short2;
 
-if(lowest_value(short_ir_3_values) < 29)
-short3 = distance_ref_short1[90];
-else
-short3 = distance_ref_short3[120 - lowest_value(short_ir_3_values)];
+	if(lowest_value(short_ir_3_values) < 29)
+		short3 = distance_ref_short1[90];
+	else
+		short3 = distance_ref_short3[120 - lowest_value(short_ir_3_values)];
 
-if(lowest_value(short_ir_2_values) < 29)
-short2 = distance_ref_short2[90];
-else
-short2 = distance_ref_short2[120 - lowest_value(short_ir_2_values)];
+	if(lowest_value(short_ir_2_values) < 29)
+		short2 = distance_ref_short2[90];
+	else
+		short2 = distance_ref_short2[120 - lowest_value(short_ir_2_values)];
 
-rot = 0x0f + short3 - short2;
+	rot = 0x0f + short3 - short2;
 
-return rot;
+	return rot;
 }
 
-//Funktion för att skicka differensen
-void send_difference(uint8_t diff){
-	uint8_t s[3];
-	s[0] = STRAIGHT;
-	s[1] = 1;
-	s[2] = diff;
-
-	TWI_write(CONTROL_ADDRESS, s, 3);
-}
 
 
 
@@ -393,7 +384,7 @@ int main()
 			}
 		}
 		else if (++temp_count > 0x2000){
-			send_difference(difference());
+			send_differences(difference(), rotation());
 			send_tape_value(tape_value);
 			send_sensor_values(lowest_value(long_ir_1_values),
 							  lowest_value(long_ir_2_values),

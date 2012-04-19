@@ -24,7 +24,8 @@
 
 #define ROTATION_COMPLETE 0x11 //onödig?
 
-#define K_P 1 //P-konstant i P-regulator
+#define K_P 1 //P-konstant i PD-regulator
+#define K_D 4 //D-konstant i PD-regulator
 
 void griparm(void);
 void setup_motor(void);
@@ -40,6 +41,6 @@ void manual_forward(void);
 void manual_stop(void);
 void manual_reverse(void);
 void interrupts(void);
-void run_straight(uint8_t);
+void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d);
 
 #endif

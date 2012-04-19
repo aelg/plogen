@@ -66,3 +66,17 @@ void send_line_pos(uint8_t pos){
 
 }
 
+void send_reg_params(uint16_t p, uint16_t d){
+	uint8_t s[8];
+	s[0] = CMD_REG_PARAMS;
+	s[1] = 6;
+	s[2] = REG_P;
+	s[3] = p >> 8;
+	s[4] = p;
+	s[5] = REG_D;
+	s[6] = d >> 8;
+	s[7] = d;
+
+	TWI_write(COMM_ADDRESS, s, 8);
+}
+

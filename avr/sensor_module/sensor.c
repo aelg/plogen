@@ -160,7 +160,7 @@ uint8_t rotation(){
 	if(low_short2 > 117)
 		low_short2 = 117;
 	short3 = distance_ref_short3[low_short3];
-	short2 = distance_ref_short1[low_short2];
+	short2 = distance_ref_short2[low_short2];
 
 
 	rot = 127 + short3 - short2;

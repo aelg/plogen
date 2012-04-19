@@ -16,6 +16,8 @@ uint8_t manual_command = STOP;
 uint8_t diff = 127;
 uint8_t mode = STRAIGHT;
 uint8_t rot = 5;
+uint8_t k_p = REG_P;
+uint8_t k_d = REG_D;
 
 ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 	volatile uint8_t c;
@@ -80,7 +82,7 @@ void jag_legger_det_har(void){
 void auto_control(){
 
   if(mode == STRAIGHT){
-    run_straight(diff);
+    run_straight(diff, rot, k_p, k_d);
   }
 }
 
@@ -105,6 +107,15 @@ void check_TWI(){
       autonomous = 0;
       manual_command = s[2];
       break;
+	case CMD_REG_PARAMS:
+	  for(uint8_t i = 2; i < len; i = i+2){
+        if(s[i] == REG_P){
+          k_p = s[i+1];
+        }
+		if(s[i] == REG_D){
+          k_d = s[i+1];
+        }
+      }	
     }
   }
 }

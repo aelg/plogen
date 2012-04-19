@@ -28,6 +28,9 @@
  * Här används konstanterna under Styrdatakonstanter */
 #define CMD_CONTROL_DATA 0x17
 
+/* CMD_REG_PARAMS should be used in the same way as CMD_SENSOR_DATA*/
+#define CMD_REG_PARAMS 0x18
+
 // Manuell kontroll
 #define LEFT 0x0A
 #define RIGHT 0x0B
@@ -56,3 +59,6 @@
 #define MOTOR_LEFT 2
 #define MOTOR_RIGHT 3
 
+// Regulator constants
+#define REG_P 1
+#define REG_D 2

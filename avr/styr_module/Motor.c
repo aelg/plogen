@@ -6,10 +6,14 @@
 
 #include "motor.h"
 #include "../commands.h"
+#include "../utility/send.h"
 
-uint16_t max_speed = 0x0080;
-uint16_t turn_speed = 0x0040;
-uint16_t stop_speed = 0x0003;
+int16_t max_speed = 0x0080;
+int16_t turn_speed = 0x0040;
+int16_t stop_speed = 0x0003;
+
+uint16_t delay = 0;
+
 
 //Functions
 
@@ -137,17 +141,29 @@ void manual_reverse(void)
 		  |(0<<PORTA1);//Right wheel direction - pin6	
 }
 
-void run_straight(uint8_t difference){
+void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d){
 
-    int16_t diff = difference;
+	int16_t difference = diff;
+	int16_t rotation = rot;
 
-	int16_t pdreg_value = K_P*(diff - 127);
+	int16_t p = k_p*(difference - 127);
+	int16_t d = k_d*(rotation - 127);
 
-	if(pdreg_value < 0){
+	/*if(++delay > 0xf000){
+		send_reg_params(p, d);
+		delay = 0;
+	}*/
+	
+	//if (!(delay & 0x00ff)){ // Don't run to often.
+	int16_t pdreg_value = p + d;
+
+	//if((uint16_t)pdreg_value > max_speed) pdreg_value = max_speed;
+
+	if((int16_t)pdreg_value < 0){
 		if(max_speed+pdreg_value < stop_speed)
 			OCR1A = stop_speed;
 		else 
-			OCR1A =	max_speed+pdreg_value;//sets the length of pulses, right side - pin7
+			OCR1A =	(uint16_t) max_speed+pdreg_value;//sets the length of pulses, right side - pin7
 
 		OCR1B =	max_speed;//sets the length of pulses, left side - pin8
 
@@ -159,11 +175,12 @@ void run_straight(uint8_t difference){
 		if(max_speed-pdreg_value < stop_speed)
 			OCR1B = stop_speed;
 		else
-			OCR1B =	max_speed-pdreg_value;//sets the length of pulses, left side - pin8
+			OCR1B =	(uint16_t) max_speed-pdreg_value;//sets the length of pulses, left side - pin8
 	}
 	
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
+	//}
 	
 	return;
 }

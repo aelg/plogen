@@ -27,6 +27,10 @@ volatile uint8_t global_tape = 0;
 volatile uint8_t tape_counter = 0;
 volatile uint8_t timer = 0;
 
+volatile uint8_t line_following = 0;
+int diod_iterator = 0;
+uint8_t diod[11];
+
 volatile int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett(pinne 34/PA6)
 volatile int long_ir_2_value;//Värdet på den analoga spänning som lång avståndsmätare 2 gett(pinne 38/PA2)
 volatile int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett(pinne 37/PA3)
@@ -139,6 +143,28 @@ diff = 0x0f + short1 - short2;
 return diff;
 }
 
+//Rotationsfunktion
+uint8_t rotation(){
+
+uint8_t rot;
+uint8_t short3;
+uint8_t short2;
+
+if(lowest_value(short_ir_3_values) < 29)
+short3 = distance_ref_short1[90];
+else
+short3 = distance_ref_short3[120 - lowest_value(short_ir_3_values)];
+
+if(lowest_value(short_ir_2_values) < 29)
+short2 = distance_ref_short2[90];
+else
+short2 = distance_ref_short2[120 - lowest_value(short_ir_2_values)];
+
+rot = 0x0f + short3 - short2;
+
+return rot;
+}
+
 //Funktion för att skicka differensen
 void send_difference(uint8_t diff){
 	uint8_t s[3];
@@ -161,13 +187,20 @@ ISR(ADC_vect){
 			PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
 			gyro_mode = 0; //gå ur gyro_mode
 			//gyro_sum = 0;
-			ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
+			ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal. //ska det vara i här?
 			TIFR = 0b00010000; //Nollställ timer-interrupt så det inte blir interrupt direkt.
 			TIMSK = 0b00010000; //Enable interrupt on Output compare A
 		}
 	
 		ADCSRA = 0xCB;
 		return;
+	} 
+	else if(line_following){
+		//To do // räkna upp mux
+		diod[diod_iterator] = ADCH;// lägg ADCH i arrayen
+		if(diod_iterator < 10) ++diod_iterator; // räkna upp iteratorn
+		else diod_iterator = 0;
+		ADCSRA = 0xCB;//Interrupt-bit nollställs
 	}
 	else{	
 		switch(i){
@@ -259,6 +292,20 @@ uint8_t min(uint8_t value_one, uint8_t value_two){
 }
 
 
+
+//Hittar positionen för dioden med högsta värdet 
+uint8_t find_max(){
+	uint8_t max_value = 0, max_pos = 0;
+	for(uint8_t i = 0; i < 10; ++i){
+		if (max_value < diod[i]){
+			max_pos = i;
+			max_value = diod[i];
+		}
+	}
+	return max_pos;
+}
+
+
 //Subrutin för tejpdetektering
 void tape_detected(int tape){
 
@@ -268,12 +315,13 @@ void tape_detected(int tape){
 	TCNT1 = 0x0000;} //Nollställ timer
 
 
-	//Målområdeskörning
-	//if(tape_counter == 7){
-		//PORTB |= 0b11000000; // Ettställ PB7, PB6
-	//}
+	//Till Målområdeskörning
+	if(tape_counter == 7){
+		PORTB |= 0b11000000; // Ettställ PB7, PB6
+	}
 }
 	
+
 
 void init_gyro(){
 
@@ -338,7 +386,13 @@ int main()
 					}
 			break;	
 		}
-		if (++temp_count > 0x2000){
+		if (line_following){
+		    if(++temp_count > 0x2000){
+				uint8_t pos = find_max();
+				send_line_pos(pos);
+			}
+		}
+		else if (++temp_count > 0x2000){
 			send_difference(difference());
 			send_tape_value(tape_value);
 			send_sensor_values(lowest_value(long_ir_1_values),

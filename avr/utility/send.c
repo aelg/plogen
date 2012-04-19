@@ -46,4 +46,13 @@ void send_sensor_values(uint8_t ll, uint8_t lr,
 	TWI_write(COMM_ADDRESS, s, 12);
 }
 
+void send_line_pos(uint8_t pos){
+	uint8_t s[4];
+	s[0] = CMD_SENSOR_DATA;
+	s[1] = 2;
+	s[2] = LINE_POSITION;
+	s[3] = pos;
+
+	TWI_write(COMM_ADDRESS, s, 4);
+}
 

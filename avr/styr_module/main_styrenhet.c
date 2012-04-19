@@ -103,6 +103,26 @@ void auto_control(uint8_t* s){
 	}
 }
 
+// Målområdeskörning
+uint8_t tape_position = TWI_read(s);
+
+void line_following(tape_position){
+	switch(tape_position){
+	case tape_position<5:
+		turn_left();
+		break;
+	case tape_position=5: turn_forward();
+		break;
+	case tape_position>5:
+		turn_right();
+		break;
+	}
+}
+
+
+
+
+
 //MAIN
 int main(void)
 {

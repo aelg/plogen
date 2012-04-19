@@ -14,7 +14,8 @@
 #define STRAIGHT 0x04;
 #define CMD_SENSOR_DATA 0x03;
 
-
+uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
 uint16_t temp_count = 0; // Temporar fullosning
 uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
@@ -296,6 +297,17 @@ uint8_t find_max(){
 	return max_pos;
 }
 
+//Hittar tejpen i slutet av linjeföljningen
+uint8_t the_end_of_the_line(){
+uint8_t number_of_diods = 0;
+
+	for(i=0;i<10;i++){ 
+		if(diod[i] > high_threshold){
+			number_of_diods++;
+		}
+	}
+	return number_of_diods;
+}
 
 //Subrutin för tejpdetektering
 void tape_detected(int tape){
@@ -350,8 +362,7 @@ int main()
 
 
 
-	uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
-	uint8_t low_threshold = 20;
+
 	uint8_t diod = 0b00001000;//Anger vilken diod som vi skriver/läser till i diodbryggan	
 	PORTB = diod; //tänd diod
 

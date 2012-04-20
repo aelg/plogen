@@ -98,7 +98,7 @@ void check_TWI(){
         if(s[i] == IRDIFF){
           diff = s[i+1];
         }
-		if(s[i] == IRROT){
+		    if(s[i] == IRROT){
           rot = s[i+1];
         }
       }
@@ -107,15 +107,19 @@ void check_TWI(){
       autonomous = 0;
       manual_command = s[2];
       break;
-	case CMD_REG_PARAMS:
-	  for(uint8_t i = 2; i < len; i = i+2){
+	  case CMD_REG_PARAMS:
+	    for(uint8_t i = 2; i < len; i = i+2){
         if(s[i] == REG_P){
           k_p = s[i+1];
         }
-		if(s[i] == REG_D){
+		    if(s[i] == REG_D){
           k_d = s[i+1];
         }
-      }	
+      }
+      break;
+	  case CMD_AUTO_ON:
+      autonomous = 1;
+      break;
     }
   }
 }

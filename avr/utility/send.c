@@ -52,7 +52,7 @@ void send_differences(uint8_t diff, uint8_t rot){
 	s[4] = IRROT;
 	s[5] = rot;
 
-	TWI_write(CONTROL_ADDRESS, s, 6);
+	TWI_write(GENERAL_CALL, s, 6);
 }
 
 void send_line_pos(uint8_t pos){

@@ -40,6 +40,8 @@ int main(void)
 				UART_write(end, 2);
 				break;
 			case CMD_MANUAL:
+			case CMD_SET_REG_PARAMS:
+      case CMD_AUTO_ON:
 				TWI_write(CONTROL_ADDRESS, buff, len);
 				break;
 			}
@@ -48,6 +50,7 @@ int main(void)
  		if(len){
 			switch(buff[0]){
 			case CMD_SENSOR_DATA:
+      case CMD_REG_PARAMS:
 				UART_write(buff, len);
 				break;
 			}

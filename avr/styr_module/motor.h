@@ -2,9 +2,9 @@
 #define MOTOR_H
 
 //Constants
-#define CROSSING 0x00 //onödig? väntläge tom mitten?
-#define CROSSING_LEFT 0x01
-#define CROSSING_RIGHT 0x02
+#define CROSSING 0x08 //onödig? väntläge tom mitten?
+#define CROSSING_LEFT 0x00
+#define CROSSING_RIGHT 0x01
 #define CROSSING_FORWARD 0x03
 
 #define STRAIGHT 0x04

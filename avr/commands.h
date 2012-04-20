@@ -31,6 +31,12 @@
 /* CMD_REG_PARAMS should be used in the same way as CMD_SENSOR_DATA*/
 #define CMD_REG_PARAMS 0x18
 
+#define CMD_AUTO_ON 0x19
+
+/* CMD_SET_REG_PARAMS set regulator params on the robot with this command
+ * use as CMD_SENSOR_DATA but with the REG_xxx */
+#define CMD_SET_REG_PARAMS 0x20
+
 // Manuell kontroll
 #define LEFT 0x0A
 #define RIGHT 0x0B
@@ -53,7 +59,6 @@
 #define IR_SHORT_BACK 10
 #define LINE_POSITION 11
 
-
 // Styrdatakonstanter
 #define AUTO_MODE 1 // Vilket läge är vi i manuell, raksträcka, tejpsväng osv.
 #define MOTOR_LEFT 2
@@ -62,3 +67,4 @@
 // Regulator constants
 #define REG_P 1
 #define REG_D 2
+#define REG_SPEED 3

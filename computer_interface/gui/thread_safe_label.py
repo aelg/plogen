@@ -30,6 +30,10 @@ class ThreadSafeLabel(Label):
         "\nIR Long Right: " + str(self.robot.getIRLongRight()) + \
         "\nIR Short Left: " + str(self.robot.getIRShortLeft()) + \
         "\nIR Short Right: " + str(self.robot.getIRShortRight()) + \
-        "\nIR Short Back: " + str(self.robot.getAutoMode()) + \
+        "\nIR Short Back: " + str(self.robot.getIRShortBack()) + \
+        "\nIR Angle: " + str(self.robot.getIRAngle()) + \
+        "\nIR Diff: " + str(self.robot.getIRDiff()) + \
+        "\nReg P: " + str(self.robot.getRegP()) + \
+        "\nReg D: " + str(self.robot.getRegD()) + \
         "\nSpeed: " + str(self.robot.getSpeed()))
     self.after(100, self.updateData) # Request to be called again after 100 milliseconds

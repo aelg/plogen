@@ -1,5 +1,6 @@
 from constants import *
 from bluetooth import *
+import time
 
 ERROR = -1
 IN = 11 		# In-queue in the BT
@@ -56,6 +57,7 @@ class Cbt:
     if debug :
       print 'readcmd'
     if debug_nobluetooth:
+      time.sleep(1)
       return str('' + chr(CMD_SENSOR_DATA)+IR_LONG_LEFT+chr(23))   # Debug, we don't have a bluetooth-connection so pretend that everything is fine
 
 #    self.recv_socket_lock.acquire() 		# Lock socket

@@ -28,6 +28,7 @@
  * H√§r anv√§nds konstanterna under Styrdatakonstanter */
 #define CMD_CONTROL_DATA 0x17
 
+
 /*CMD_MODE anges fˆr att beteckna ett meddelande som innehÂller ett model‰ge
  *som anv‰nds i sensorenheten.
  */
@@ -53,6 +54,14 @@
 #define COMPLETING_CROSSING 0x19
 #define FINISH 0x20
 
+/* CMD_REG_PARAMS should be used in the same way as CMD_SENSOR_DATA*/
+#define CMD_REG_PARAMS 0x18
+
+#define CMD_AUTO_ON 0x19
+
+/* CMD_SET_REG_PARAMS set regulator params on the robot with this command
+ * use as CMD_SENSOR_DATA but with the REG_xxx */
+#define CMD_SET_REG_PARAMS 0x20
 
 // Manuell kontroll
 #define LEFT 0x0A
@@ -75,10 +84,14 @@
 #define IR_LONG_RIGHT 9
 #define IR_SHORT_BACK 10
 #define LINE_POSITION 11
-
+#define DIOD 12
 
 // Styrdatakonstanter
 #define AUTO_MODE 1 // Vilket l√§ge √§r vi i manuell, rakstr√§cka, tejpsv√§ng osv.
 #define MOTOR_LEFT 2
 #define MOTOR_RIGHT 3
 
+// Regulator constants
+#define REG_P 1
+#define REG_D 2
+#define REG_SPEED 3

@@ -16,11 +16,17 @@ uint8_t autonomous = 0;
 uint8_t manual_command = STOP;
 uint8_t diff = 127;
 uint8_t mode = STRAIGHT;
+uint8_t tape_position = 5;
+uint8_t num_diods = 0;
+uint8_t way_home[1]; //här sparas hur vi har kört på väg in i labyrinten
+
 uint8_t rot = 5;
 uint8_t crossing_counter = 0;
 uint8_t ir_long_left = 0;
 uint8_t ir_long_right = 0;
 
+uint8_t k_p = REG_P;
+uint8_t k_d = REG_D;
 
 ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 	volatile uint8_t c;
@@ -156,6 +162,8 @@ void auto_control(){
 	}
 }
 
+
+
 // Kontrollera meddelanden.
 void check_TWI(){
   uint8_t s[16];
@@ -168,7 +176,13 @@ void check_TWI(){
         if(s[i] == IRDIFF){
           diff = s[i+1];
         }
-		if(s[i] == IRROT){
+		    if(s[i] == LINE_POSITION){
+          tape_position = s[i+1];
+        }
+		    if(s[i] == DIOD){
+          num_diods = s[i+1];
+		    }
+		    if(s[i] == IRROT){
           rot = s[i+1];
         }
 		if(s[i] == IR_LONG_LEFT){
@@ -183,9 +197,52 @@ void check_TWI(){
       autonomous = 0;
       manual_command = s[2];
       break;
+	  case CMD_REG_PARAMS:
+	    for(uint8_t i = 2; i < len; i = i+2){
+        if(s[i] == REG_P){
+          k_p = s[i+1];
+        }
+		    if(s[i] == REG_D){
+          k_d = s[i+1];
+        }
+      }
+      break;
+	  case CMD_AUTO_ON:
+      autonomous = 1;
+      break;
     }
   }
 }
+
+// Målområdeskörning
+
+void end_of_the_line(){
+	if(num_diods > 4){
+		OCR1A = 0x0003;//sets the length of pulses, right side - pin7
+		OCR1B = 0x0003;//sets the length of pulses, left side - pin8
+		griparm();
+	}
+	else if(tape_position<4){
+		turn_left();
+	}
+	else if(tape_position>=4 && tape_position<=6){
+		turn_forward();
+	}
+	else {
+		turn_right();
+	}	
+}
+
+
+
+
+//Autonom körning
+void auto_control(){
+    end_of_the_line();
+}
+
+
+
 
 //MAIN
 int main(void)

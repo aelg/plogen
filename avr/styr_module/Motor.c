@@ -9,7 +9,7 @@
 #include "../utility/send.h"
 
 int16_t max_speed = 0x0080;
-int16_t turn_speed = 0x0040;
+int16_t turn_speed = 0x0003;
 int16_t stop_speed = 0x0003;
 
 uint16_t delay = 0;

@@ -48,7 +48,7 @@ void send_number_of_diods(uint8_t diod){
 	s[2]= DIOD;
 	s[3]= diod;
 
-	TWI_write(CONTROL_ADDRESS,s,2);
+	TWI_write(CONTROL_ADDRESS,s,4);
 }
 
 
@@ -72,7 +72,7 @@ void send_line_pos(uint8_t pos){
 	s[2] = LINE_POSITION;
 	s[3] = pos;
 
-	TWI_write(COMM_ADDRESS, s, 4);
+	TWI_write(GENERAL_CALL, s, 4);
 
 }
 

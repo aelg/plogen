@@ -146,8 +146,8 @@ void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d){
 	int16_t difference = diff;
 	int16_t rotation = rot;
 
-	int16_t p = k_p*(difference - 127);
-	int16_t d = k_d*(rotation - 127);
+	int16_t p = k_p*(difference - 127) >> REGULATOR_CORR;
+	int16_t d = k_d*(rotation - 127) >> REGULATOR_CORR;
 
 	/*if(++delay > 0xf000){
 		send_reg_params(p, d);

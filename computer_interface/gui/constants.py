@@ -46,5 +46,5 @@ REG_P = 1
 REG_D = 2
 REG_SPEED = 3
 
-debug_nobluetooth = 1
+debug_nobluetooth = 0
 debug = 2

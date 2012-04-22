@@ -248,7 +248,7 @@ ISR(ADC_vect){
 //Timern har räknat klart, interrupt skickas, nu kommer ingen mer tejp.
 ISR (TIMER1_COMPA_vect){
 
-	volatile uint8_t tape = tape_counter/2; //Ger antalet tejpar
+	volatile uint8_t tape = tape_counter >> 1; //Ger antalet tejpar
 
 	switch(tape){
 	case 0: 

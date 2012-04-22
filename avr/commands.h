@@ -31,11 +31,28 @@
 /*CMD_MODE anges för att beteckna ett meddelande som innehåller ett modeläge
  *som används i sensorenheten.
  */
-#define CMD_MODE 0x18
+#define CMD_SENSOR_MODE 0x18
+
+
+//Används för att identifiera att ett nytt sensormode kommer
+#define SENSOR_MODE 0x21
 
 //Olika modes för sensor och styrenhet
-#define COMPLETING_CROSSING 0x19
-#define FINISH 0x20
+#define CROSSING_LEFT 0x00
+#define CROSSING_RIGHT 0x01
+#define CROSSING_FORWARD 0x02
+
+#define STRAIGHT 0x03
+
+#define TURN 0x04 // onödig?
+#define TURN_LEFT 0x05
+#define TURN_RIGHT 0x06
+#define TURN_FORWARD 0x07
+//#define CROSSING 0x08 //onödig? väntläge tom mitten?
+
+/*#define COMPLETING_CROSSING 0x19
+#define FINISH 0x20*/
+
 
 // Manuell kontroll
 #define LEFT 0x0A

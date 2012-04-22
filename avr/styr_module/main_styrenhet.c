@@ -10,6 +10,7 @@
 #include "../TWI/TWI.h"
 #include "motor.h"
 #include "../commands.h"
+#include "../utility/send.h"
 
 uint8_t autonomous = 0;
 uint8_t manual_command = STOP;
@@ -27,7 +28,7 @@ void interrupts(void){
   // Set interrupt on rising edge of INT0 pin
   MCUCR = (MCUCR & 0xfc) | 0x03;
   // Set INT0 as input pin.
-  DDRD = (DDRD & 0xfb);
+  DDRD = (DDRD & 0xf3);
   //Enable interrupts on INT0
   GICR |= (1<<INT0);
 }
@@ -36,7 +37,41 @@ void interrupts(void){
 ISR(INT0_vect){
 	autonomous = 1 - autonomous;
 	return;
- }
+}
+
+//Interrupt routine for changing sensormode on interrupt from sensor
+ISR(INT1_vect){
+
+	mode = PORTB & 0b00000111;
+	
+	switch(mode){
+		case CROSSING_LEFT:
+			send_sensor_mode(CROSSING_LEFT);
+			break;
+		case CROSSING_RIGHT:
+			send_sensor_mode(CROSSING_RIGHT);
+			break;
+		case CROSSING_FORWARD:
+			send_sensor_mode(CROSSING_FORWARD);
+			break;
+		case STRAIGHT:
+			send_sensor_mode(STRAIGHT);
+			break;
+		case TURN:
+			send_sensor_mode(TURN);
+			break;
+		case TURN_LEFT:
+			send_sensor_mode(TURN_LEFT);
+			break;
+		case TURN_RIGHT:
+			send_sensor_mode(TURN_RIGHT);
+			break;
+		case TURN_FORWARD:
+			send_sensor_mode(TURN_FORWARD);
+			break;
+	}
+}
+
 
 //Manuell körning
 void manual_control(){
@@ -66,18 +101,35 @@ void manual_control(){
 	}
 }
 
-void jag_legger_det_har(void){
-	OCR1A =	0x0003;//sets the length of pulses, right side - pin7
-	OCR1B =	0x0003;//sets the length of pulses, left side - pin8
-	
-	PORTA =(1<<PORTA0)//Left wheel direction - pin5
-		  |(1<<PORTA1);//Right wheel direction - pin6
-	
-}
-
 
 //Autonom körning
 void auto_control(){
+
+	switch(mode){
+		case CROSSING_LEFT:
+			send_sensor_mode(CROSSING_LEFT);
+			break;
+		case CROSSING_RIGHT:
+			send_sensor_mode(CROSSING_RIGHT);
+			break;
+		case CROSSING_FORWARD:
+			send_sensor_mode(CROSSING_FORWARD);
+			break;
+		case STRAIGHT:
+			send_sensor_mode(STRAIGHT);
+			break;
+		case TURN:
+			send_sensor_mode(TURN);
+			break;
+		case TURN_LEFT:
+			send_sensor_mode(TURN_LEFT);
+			break;
+		case TURN_RIGHT:
+			send_sensor_mode(TURN_RIGHT);
+			break;
+		case TURN_FORWARD:
+			send_sensor_mode(TURN_FORWARD);
+			break;
 
   if(mode == STRAIGHT){
     run_straight(diff);

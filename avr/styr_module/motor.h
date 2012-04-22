@@ -1,8 +1,8 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
-//Constants
-#define CROSSING 0x08 //onödig? väntläge tom mitten?
+//Constants, LIGGER NU I COMMANDS_H..
+/*#define CROSSING 0x08 //onödig? väntläge tom mitten?
 #define CROSSING_LEFT 0x00
 #define CROSSING_RIGHT 0x01
 #define CROSSING_FORWARD 0x03
@@ -12,7 +12,7 @@
 #define TURN 0x05 // onödig?
 #define TURN_LEFT 0x06
 #define TURN_RIGHT 0x07
-#define TURN_FORWARD 0x08
+#define TURN_FORWARD 0x08*/  
 
 #define LEFT 0x0A
 #define RIGHT 0x0B

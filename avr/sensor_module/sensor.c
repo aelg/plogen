@@ -13,7 +13,8 @@
 
 #define CMD_SENSOR_DATA 0x03;
 
-
+uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
 uint16_t temp_count = 0; // Temporar fullosning
 uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
@@ -26,7 +27,7 @@ volatile uint8_t global_tape = 0;
 volatile uint8_t tape_counter = 0;
 volatile uint8_t timer = 0;
 
-volatile uint8_t line_following = 0;
+volatile uint8_t line_following = 1;
 int diod_iterator = 0;
 uint8_t diod[11];
 
@@ -46,6 +47,7 @@ uint8_t short_ir_1_values[4];
 uint8_t short_ir_2_values[4];
 uint8_t short_ir_3_values[4];
 
+uint8_t test_pos;
 
 //Referensevärden
 
@@ -168,10 +170,6 @@ uint8_t rotation(){
 	return rot;
 }
 
-
-
-
-
 //AD-omvandling klar. 
 ISR(ADC_vect){
 
@@ -191,11 +189,12 @@ ISR(ADC_vect){
 		return;
 	} 
 	else if(line_following){
-		//To do // räkna upp mux
-		diod[diod_iterator] = ADCH;// lägg ADCH i arrayen
+		if(diod_iterator == 0) diod[10] = ADCH;
+		else diod[diod_iterator-1] = ADCH;// lägg ADCH i arrayen
+		ADCSRA = 0xCB;//Interrupt-bit nollställs
 		if(diod_iterator < 10) ++diod_iterator; // räkna upp iteratorn
 		else diod_iterator = 0;
-		ADCSRA = 0xCB;//Interrupt-bit nollställs
+		PORTB = (PORTB & 0xf0) | (10-diod_iterator);
 	}
 	else{	
 		switch(i){
@@ -300,6 +299,18 @@ uint8_t find_max(){
 	return max_pos;
 }
 
+//Antalet dioder som ser en tejp vid linjeföljningen
+uint8_t tape_detections(){
+uint8_t number_of_diods = 0;
+
+	for(i=0;i<10;i++){ 
+
+		if(diod[i] > high_threshold){
+			number_of_diods++;
+		}
+	}
+	return number_of_diods;
+}
 
 //Subrutin för tejpdetektering
 void tape_detected(int tape){
@@ -354,8 +365,7 @@ int main()
 
 
 
-	uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
-	uint8_t low_threshold = 20;
+
 	uint8_t diod = 0b00001000;//Anger vilken diod som vi skriver/läser till i diodbryggan	
 	PORTB = diod; //tänd diod
 
@@ -385,7 +395,10 @@ int main()
 		if (line_following){
 		    if(++temp_count > 0x2000){
 				uint8_t pos = find_max();
+				test_pos = pos;
 				send_line_pos(pos);
+				uint8_t num_diods = tape_detections();
+				send_number_of_diods(num_diods);
 			}
 		}
 		else if (++temp_count > 0x2000){

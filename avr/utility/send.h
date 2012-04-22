@@ -6,4 +6,4 @@ void send_sensor_values(uint8_t ll, uint8_t lr,
 void send_line_pos(uint8_t pos);
 void send_differences(uint8_t diff, uint8_t rot);
 void send_reg_params(uint16_t p, uint16_t d);
-
+void send_number_of_diods(uint8_t diod);

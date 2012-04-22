@@ -41,5 +41,8 @@ void manual_stop(void);
 void manual_reverse(void);
 void interrupts(void);
 void run_straight(uint8_t);
+void crossing_right(void);
+void crossing_left(void);
+void crossing_forward(void);
 
 #endif

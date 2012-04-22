@@ -17,6 +17,10 @@ uint8_t manual_command = STOP;
 uint8_t diff = 127;
 uint8_t mode = STRAIGHT;
 uint8_t rot = 5;
+uint8_t crossing_counter = 0;
+uint8_t ir_long_left = 0;
+uint8_t ir_long_right = 0;
+
 
 ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 	volatile uint8_t c;
@@ -25,12 +29,12 @@ ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 
 //Initialize interrupts
 void interrupts(void){
-  // Set interrupt on rising edge of INT0 pin
-  MCUCR = (MCUCR & 0xfc) | 0x03;
-  // Set INT0 as input pin.
+  // Set interrupt on rising edge of INT0 and INT1 pin
+  MCUCR = (MCUCR & 0xf0) | 0x0f;
+  // Set INT0 and INT1 as input pins.
   DDRD = (DDRD & 0xf3);
-  //Enable interrupts on INT0
-  GICR |= (1<<INT0);
+  //Enable interrupts on INT0 and INT1
+  GICR |= 0b11000000;
 }
 
 //Interrupt routine
@@ -42,7 +46,7 @@ ISR(INT0_vect){
 //Interrupt routine for changing sensormode on interrupt from sensor
 ISR(INT1_vect){
 
-	mode = PORTB & 0b00000111;
+	mode = PORTB & 0b00001111;
 	
 	switch(mode){
 		case CROSSING_LEFT:
@@ -69,9 +73,25 @@ ISR(INT1_vect){
 		case TURN_FORWARD:
 			send_sensor_mode(TURN_FORWARD);
 			break;
+		case CROSSING:
+			send_sensor_mode(CROSSING);
+			break;
 	}
 }
 
+//Routine to verify a crossing and decide which way to turn.
+void check_crossing(void){
+
+	//Kolla alla sensorer flera gånger för att verifiera en sväng.
+	if(crossing_counter < 0xff){
+	
+	//använd	ir_long_left och ir_long_right
+	}
+	++crossing_counter;
+		
+}
+
+	
 
 //Manuell körning
 void manual_control(){
@@ -107,33 +127,33 @@ void auto_control(){
 
 	switch(mode){
 		case CROSSING_LEFT:
-			send_sensor_mode(CROSSING_LEFT);
+			crossing_left();
 			break;
 		case CROSSING_RIGHT:
-			send_sensor_mode(CROSSING_RIGHT);
+			crossing_right();
 			break;
 		case CROSSING_FORWARD:
-			send_sensor_mode(CROSSING_FORWARD);
+			crossing_forward();
 			break;
 		case STRAIGHT:
-			send_sensor_mode(STRAIGHT);
+			run_straight(diff);
 			break;
 		case TURN:
-			send_sensor_mode(TURN);
 			break;
 		case TURN_LEFT:
-			send_sensor_mode(TURN_LEFT);
+			turn_left();
 			break;
 		case TURN_RIGHT:
-			send_sensor_mode(TURN_RIGHT);
+			turn_right();
 			break;
 		case TURN_FORWARD:
-			send_sensor_mode(TURN_FORWARD);
+			turn_forward();
+			break;
+		case CROSSING:
+			check_crossing();
 			break;
 
-  if(mode == STRAIGHT){
-    run_straight(diff);
-  }
+	}
 }
 
 // Kontrollera meddelanden.
@@ -150,6 +170,12 @@ void check_TWI(){
         }
 		if(s[i] == IRROT){
           rot = s[i+1];
+        }
+		if(s[i] == IR_LONG_LEFT){
+          ir_long_left = s[i+1];
+        }
+		if(s[i] == IR_LONG_RIGHT){
+          ir_long_right = s[i+1];
         }
       }
       break;

@@ -31,7 +31,7 @@
 /*CMD_MODE anges för att beteckna ett meddelande som innehåller ett modeläge
  *som används i sensorenheten.
  */
-#define CMD_SENSOR_MODE 0x18
+#define CMD_MODE 0x18
 
 
 //Används för att identifiera att ett nytt sensormode kommer
@@ -48,10 +48,10 @@
 #define TURN_LEFT 0x05
 #define TURN_RIGHT 0x06
 #define TURN_FORWARD 0x07
-//#define CROSSING 0x08 //onödig? väntläge tom mitten?
+#define CROSSING 0x08 //onödig? väntläge tom mitten? Kan ju verifiera sväng
 
-/*#define COMPLETING_CROSSING 0x19
-#define FINISH 0x20*/
+#define COMPLETING_CROSSING 0x19
+#define FINISH 0x20
 
 
 // Manuell kontroll

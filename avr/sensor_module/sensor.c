@@ -169,6 +169,12 @@ uint8_t rotation(){
 }
 
 
+//Skickar interrupt till styrenheten
+void send_interrupt(uint8_t mode){
+
+	PORTD = 0b0001000 | mode;
+}
+
 
 
 
@@ -252,16 +258,16 @@ ISR (TIMER1_COMPA_vect){
 
 	switch(tape){
 	case 0: 
-		PORTB = (PORTB & 0b00001111); //Nollställ PB7-PB4
+		send_interrupt(STRAIGHT);
 		break;
 	case 1:
-		PORTB = (0b10010000 | (PORTB & 0b11001111)); //Ettställ PB7, PB4
+		send_interrupt(TURN_FORWARD);
 		break;
 	case 2: 
-		PORTB = (0b10100000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 
+		send_interrupt(TURN_RIGHT);
 		break;
 	case 3: 
-		PORTB = (0b10110000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 och PB4
+		send_interrupt(TURN_LEFT);
 		break;
 	}
 
@@ -366,41 +372,47 @@ void check_TWI(){
   }
 }
 
-//Huvudprogram
-int main()
-{
-	TWI_init(SENSOR_ADDRESS);
-	init_sensor_buffers();
-	//Initiering
+//Initera uppstart, datariktningar
+void init(void){
 	MCUCR = 0x03;
-//	GICR = 0x40;
 	DDRA = 0x00;
-	DDRB = 0xFF; //utgångar, styr mux och signaler till styr
+	DDRB = 0xFF; //utgångar, styr mux 
+	DDRD = 0xFF; //utgångar, styr interruptsignaler till styr
 
-	//Initiera timer
+}
+
+//Initiera timer för tejpdetektorn
+void init_timer(void){
+	
 	TCCR1A = 0b00000000; //Eventuellt 00001000 
 	TCCR1B = 0b00001101; // gammalt: 4D;
 	TIMSK = 0b00010000; //Enable interrupt on Output compare A
 	TCNT1 = 0; //Nollställ timer
 	OCR1A = 0x0200; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
+}
 
-
+//Huvudprogram
+int main()
+{
+	TWI_init(SENSOR_ADDRESS);
+	init_sensor_buffers();
+	//Initiera interrupt, datariktningar 
+	init();
+	
+	//Initiera timer
+	init_timer();
 
 	uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 	uint8_t low_threshold = 20;
 	uint8_t diod = 0b00001000;//Anger vilken diod som vi skriver/läser till i diodbryggan	
 	PORTB = diod; //tänd diod
 
-	volatile char c;
-	c=1;
-
 	//Starta AD-omvandling av insignalen på PA0 
 	ADMUX = 0x27;
 	ADCSRA = 0xCB; 
 	sei(); //tillåt interrupt
 
-
-	while(c) {
+	while(1) {
 			
 		check_TWI();
 
@@ -414,7 +426,7 @@ int main()
 					tape_detected(0);
 				}
 				if((lowest_value(short_ir_1_values) < 20)|| (lowest_value(short_ir_2_values) < 20))
-					PORTB = (0b11010000 | (PORTB & 0b11001111));
+					send_interrupt(CROSSING);
 					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.
 				break;
 			case CROSSING:

@@ -49,6 +49,7 @@
 #define IR_LONG_RIGHT 9
 #define IR_SHORT_BACK 10
 #define LINE_POSITION 11
+#define DIOD 12
 
 // Styrdatakonstanter
 #define AUTO_MODE 1 // Vilket läge är vi i manuell, raksträcka, tejpsväng osv.

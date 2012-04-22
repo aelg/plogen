@@ -28,7 +28,7 @@ volatile uint8_t global_tape = 0;
 volatile uint8_t tape_counter = 0;
 volatile uint8_t timer = 0;
 
-volatile uint8_t line_following = 0;
+volatile uint8_t line_following = 1;
 int diod_iterator = 0;
 uint8_t diod[11];
 
@@ -48,6 +48,7 @@ uint8_t short_ir_1_values[4];
 uint8_t short_ir_2_values[4];
 uint8_t short_ir_3_values[4];
 
+uint8_t test_pos;
 
 //Referensevärden
 volatile uint8_t voltage_ref_short1[91] = {120,	119,118,117,116,115,114,113,112,111,110,109,108,
@@ -167,8 +168,6 @@ uint8_t rotation(){
 }
 
 
-
-
 //AD-omvandling klar. 
 ISR(ADC_vect){
 
@@ -188,11 +187,12 @@ ISR(ADC_vect){
 		return;
 	} 
 	else if(line_following){
-		//To do // räkna upp mux
-		diod[diod_iterator] = ADCH;// lägg ADCH i arrayen
+		if(diod_iterator == 0) diod[10] = ADCH;
+		else diod[diod_iterator-1] = ADCH;// lägg ADCH i arrayen
+		ADCSRA = 0xCB;//Interrupt-bit nollställs
 		if(diod_iterator < 10) ++diod_iterator; // räkna upp iteratorn
 		else diod_iterator = 0;
-		ADCSRA = 0xCB;//Interrupt-bit nollställs
+		PORTB = (PORTB & 0xf0) | (10-diod_iterator);
 	}
 	else{	
 		switch(i){
@@ -297,11 +297,12 @@ uint8_t find_max(){
 	return max_pos;
 }
 
-//Hittar tejpen i slutet av linjeföljningen
-uint8_t the_end_of_the_line(){
+//Antalet dioder som ser en tejp vid linjeföljningen
+uint8_t tape_detections(){
 uint8_t number_of_diods = 0;
 
 	for(i=0;i<10;i++){ 
+
 		if(diod[i] > high_threshold){
 			number_of_diods++;
 		}
@@ -391,7 +392,10 @@ int main()
 		if (line_following){
 		    if(++temp_count > 0x2000){
 				uint8_t pos = find_max();
+				test_pos = pos;
 				send_line_pos(pos);
+				uint8_t num_diods = tape_detections();
+				send_number_of_diods(num_diods);
 			}
 		}
 		else if (++temp_count > 0x2000){

@@ -11,27 +11,39 @@
 #include "motor.h"
 #include "../commands.h"
 
+uint8_t autonomous = 0;
+uint8_t manual_command = STOP;
+uint8_t diff = 127;
+uint8_t mode = STRAIGHT;
+uint8_t tape_position = 5;
+uint8_t num_diods = 0;
+uint8_t way_home[1]; //här sparas hur vi har kört på väg in i labyrinten
 
-uint8_t s[10];
-int x = 0;
-uint8_t len;
+
+ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
+	volatile uint8_t c;
+	while(1) ++c;
+}
 
 //Initialize interrupts
 void interrupts(void){
-	sei();
-	MCUCR |= (MCUCR & 0xfc) | ((0<<ISC00) | (1<<ISC01));
-    GICR |= (1<<INT0);
+  // Set interrupt on rising edge of INT0 pin
+  MCUCR = (MCUCR & 0xfc) | 0x03;
+  // Set INT0 as input pin.
+  DDRD = (DDRD & 0xfb);
+  //Enable interrupts on INT0
+  GICR |= (1<<INT0);
 }
 
 //Interrupt routine
 ISR(INT0_vect){
-	x = 1-x;
+	autonomous = 1 - autonomous;
 	return;
-}
+ }
 
 //Manuell körning
-void manual_control(uint8_t* s){
-	switch(s[2]){
+void manual_control(){
+	switch(manual_command){
 		case LEFT:
 			manual_left();
 			break;
@@ -66,59 +78,91 @@ void jag_legger_det_har(void){
 	
 }
 
-
+/*
 //Autonom körning
-void auto_control(uint8_t* s){
+void auto_control(){
 
-	switch(s[0]){
-	case STRAIGHT:
-		run_straight(s[2]);
-		break;
-	case CROSSING:
-		switch(s[2]){
-		case CROSSING_LEFT:
-			rotate_left();
-			break;
-		case CROSSING_RIGHT:
-			rotate_right();
-			break;
-		case CROSSING_FORWARD:
-			drive_forward();
-			break;
+  if(mode == STRAIGHT){
+    run_straight(diff);
+  }
+
+}
+*/
+
+
+
+
+
+// Kontrollera meddelanden.
+void check_TWI(){
+  uint8_t s[16];
+  uint8_t len;
+  len = TWI_read(s);
+  if(len){
+    switch(s[0]){
+    case CMD_SENSOR_DATA:
+      for(uint8_t i = 2; i < len; i = i+2){
+        if(s[i] == IRDIFF){
+          diff = s[i+1];
+        }
+		if(s[i] == LINE_POSITION){
+          tape_position = s[i+1];
+        }
+		if(s[i] == DIOD){
+          num_diods = s[i+1];
 		}
-		break;
-	case TURN:
-		switch(s[2]){
-		case TURN_LEFT:
-			turn_left();
-			break;
-		case TURN_RIGHT:
-			turn_right();
-			break;
-		case TURN_FORWARD:
-			turn_forward();
-			break;
-		}
-		break;
-	}
+      }
+      break;
+    case CMD_MANUAL:
+      autonomous = 0;
+      manual_command = s[2];
+      break;
+    }
+  }
 }
 
 // Målområdeskörning
-uint8_t tape_position = TWI_read(s);
 
-void line_following(tape_position){
-	switch(tape_position){
-	case tape_position<5:
+/*
+void line_following(int tape_position){
+	if(tape_position<5){
 		turn_left();
-		break;
-	case tape_position=5: turn_forward();
-		break;
-	case tape_position>5:
-		turn_right();
-		break;
 	}
+		else if(tape_position = 5){
+		turn_forward();
+		}
+		else {
+		turn_right();
+		}	
 }
 
+*/
+
+
+void end_of_the_line(){
+	if(num_diods > 4){
+		OCR1A = 0x0003;//sets the length of pulses, right side - pin7
+		OCR1B = 0x0003;//sets the length of pulses, left side - pin8
+		griparm();
+	}
+	else if(tape_position<4){
+		turn_left();
+	}
+	else if(tape_position>=4 && tape_position<=6){
+		turn_forward();
+	}
+	else {
+		turn_right();
+	}	
+}
+
+
+
+
+//Autonom körning
+void auto_control(){
+    end_of_the_line();
+}
 
 
 
@@ -126,94 +170,22 @@ void line_following(tape_position){
 //MAIN
 int main(void)
 {
-	//uint8_t TWI_read(uint8_t* s);
-	//void TWI_init(uint8_t sla);
 	interrupts();
 	setup_motor();
 	TWI_init(CONTROL_ADDRESS);
-
-	uint8_t s[10];
+	sei();
 
 	// Loop
 	while (1){
 
+	    // Check TWI bus.
+ 	    check_TWI();
 
-		len = TWI_read(s);
-
-		if(len){
-			if(x == 0){
-		/*		switch(s[2]){
-		case LEFT:
-			manual_left();
-			break;
-		case RIGHT:
-			manual_right();
-			break;
-		case FORWARD:
-			manual_forward();
-			break;
-		case REVERSE:
-			manual_reverse();
-			break;
-		case ROTATE_LEFT:
-			rotate_left();
-			break;
-		case ROTATE_RIGHT:
-			rotate_right();
-			break;
-		case STOP:
-			manual_stop();
-			break;
-		
-	}
-	*/
-			//	manual_control(s);
-		
-	OCR1A = 0x0003;//sets the length of pulses, right side - pin7
-	OCR1B = 0x0003;//sets the length of pulses, left side - pin8
-			}	
-			else{ 
-
-			switch(s[0]){
-			case STRAIGHT:
-				run_straight(s[2]);
-				break;
-			case CROSSING:
-				switch(s[2]){
-				case CROSSING_LEFT:
-					rotate_left();
-					break;
-				case CROSSING_RIGHT:
-					rotate_right();
-					break;
-				case CROSSING_FORWARD:
-					drive_forward();
-					break;
-				}
-				break;
-			case TURN:
-				switch(s[2]){
-				case TURN_LEFT:
-					turn_left();
-					break;
-				case TURN_RIGHT:
-					turn_right();
-					break;
-				case TURN_FORWARD:
-					turn_forward();
-					break;
-				}
-				break;
-			}
-
-				//auto_control(s);
-			}	
-		}
-		
+	    if(autonomous){
+	      auto_control();
+	    }
+	    else {
+	      manual_control();
+	    }
 	}
 }
-	
-	
-	
-	
-	

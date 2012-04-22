@@ -70,8 +70,8 @@ void drive_forward(void)
 //Rutin för vänstersväng
 void turn_left(void)
 {
-	OCR1A =	0x0040;//sets the length of pulses, right side - pin7
-	OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+	OCR1A =	0x0000;//sets the length of pulses, right side - pin7
+	OCR1B =	0x0050;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
@@ -79,8 +79,8 @@ void turn_left(void)
 //Rutin för högersväng
 void turn_right(void)
 {
-	OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
-	OCR1B =	0x0040;//sets the length of pulses, left side - pin8
+	OCR1A =	0x0050;//sets the length of pulses, right side - pin7
+	OCR1B =	0x0000;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
@@ -88,8 +88,8 @@ void turn_right(void)
 //Rutin för körning rakt fram
 void turn_forward(void)
 {
-	OCR1A =	0x00F0;//sets the length of pulses, right side - pin7
-	OCR1B =	0x00F0;//sets the length of pulses, left side - pin8
+	OCR1A =	0x0050;//sets the length of pulses, right side - pin7
+	OCR1B =	0x0050;//sets the length of pulses, left side - pin8
 	PORTA =(1<<PORTA0)//Left wheel direction - pin5
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }

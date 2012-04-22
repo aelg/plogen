@@ -46,6 +46,17 @@ void send_sensor_values(uint8_t ll, uint8_t lr,
 	TWI_write(COMM_ADDRESS, s, 12);
 }
 
+void send_number_of_diods(uint8_t diod){
+	uint8_t s[4];
+	s[0]= CMD_SENSOR_DATA;
+	s[1]= 2;
+	s[2]= DIOD;
+	s[3]= diod;
+
+	TWI_write(CONTROL_ADDRESS,s,2);
+}
+
+
 //Funktion för att skicka differensen
 void send_differences(uint8_t diff, uint8_t rot){
 	uint8_t s[6];

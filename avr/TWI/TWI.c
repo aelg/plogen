@@ -167,7 +167,7 @@ void TWI_start(){
 void TWI_init(uint8_t sla){
 	tread_start = tread_end = twrite_start = twrite_end = 0;
 	// Set correct bitrate.
-	TWBR = 0x0c;
+	TWBR = 0x40;//0x0c;
 	// Set slave address and receive general calls.
 	TWAR = (sla << 1) | 0x01;
 	// Just to make sure.

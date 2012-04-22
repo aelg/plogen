@@ -28,10 +28,16 @@ class Crobot(threading.Thread):
     self.bt = bt
     self.tape = 0
     self.speed = 0
-    self.IRLeft = 0
-    self.IRRight = 0
+    self.IRLongLeft = 0
+    self.IRLongRight = 0
+    self.IRShortLeft = 0
+    self.IRShortRight = 0
+    self.IRShortBack = 0
     self.IRDiff = 0
     self.IRAngle = 0
+    self.regP = 0;
+    self.regD = 0;
+    self.speed = 0;
     self.autoMode = 0
     self.lastsent = 0	# Keeps tracks of last sent command to avoid sending commands when unnecessary
     self.button_pressed = 0 # Fix for not send stop while a button is pressed
@@ -76,14 +82,26 @@ class Crobot(threading.Thread):
   # Functions that returns data stored in this object.
   def getSpeed(self):
     return self.speed
-  def getIRLeft(self):
-    return self.IRLeft
-  def getIRRight(self):
-    return self.IRRight
+  def getIRLongLeft(self):
+    return self.IRLongLeft
+  def getIRLongRight(self):
+    return self.IRLongRight
+  def getIRShortLeft(self):
+    return self.IRShortLeft
+  def getIRShortRight(self):
+    return self.IRShortRight
+  def getIRShortBack(self):
+    return self.IRShortBack
   def getIRDiff(self):
     return self.IRDiff
   def getIRAngle(self):
     return self.IRAngle
+  def getRegP(self):
+    return self.regP
+  def getRegD(self):
+    return self.regD
+  def getSpeed(self):
+    return self.speed
   def getAutoMode(self):
     return self.autoMode
   def getTape(self):
@@ -127,25 +145,13 @@ class Crobot(threading.Thread):
   def setButtonPressed(self, pressed):
     if pressed: self.button_pressed = 1
     else: self.button_pressed = 0
+
   ##
-  # Calibration
-  def calibrateLeft(self, value=DEFAULT):
-    self.bt.sendcmd(CALIBRATELEFT + chr(value))
-  def calibrateCenter(self, value=DEFAULT):
-    self.bt.sendcmd(CALIBRATECENTER + chr(value))
-  def calibrateRight(self, value=DEFAULT):
-    self.bt.sendcmd(CALIBRATERIGHT + chr(value))
-  def calibrateSwitch(self):
-    self.bt.sendcmd(CALIBRATELEFT + chr(self.right_area))
-    self.bt.sendcmd(CALIBRATERIGHT + chr(self.left_area))
-  def nextLF(self, value=DEFAULT): 
-    self.bt.sendcmd(NEXTLF + chr(value))
-  def setMargin(self, value):
-    self.bt.sendcmd(SETMARGIN + chr(value))
-  def setAlgo(self, values):     # This function is used for storing data in the BT 
-    message = SETALGO         # Data sent with this function can be accessed in the BT code
-    for i in values :         # and used for, as an example, calibrate the LF-algorithm without reprogramming the BT
-      if i+50 == 0 : 
-        message = message + chr(0xff)
-      else: message = message + chr(i + 50) 
-    self.bt.sendcmd(message)
+  # Turn on autonomous mode.
+  def enableAuto(self):
+    self.bt.sendcmd(CMD_AUTO_ON, '')
+
+  ##
+  # Send Regulator Params
+  def sendRegParams(self, p, d, speed):
+    self.bt.sendcmd(CMD_SET_REG_PARAMS, chr(REG_P) + chr(p) + chr(REG_D) + chr(d) + chr(REG_SPEED) + chr(speed))

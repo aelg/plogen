@@ -28,6 +28,15 @@
  * Här används konstanterna under Styrdatakonstanter */
 #define CMD_CONTROL_DATA 0x17
 
+/* CMD_REG_PARAMS should be used in the same way as CMD_SENSOR_DATA*/
+#define CMD_REG_PARAMS 0x18
+
+#define CMD_AUTO_ON 0x19
+
+/* CMD_SET_REG_PARAMS set regulator params on the robot with this command
+ * use as CMD_SENSOR_DATA but with the REG_xxx */
+#define CMD_SET_REG_PARAMS 0x20
+
 // Manuell kontroll
 #define LEFT 0x0A
 #define RIGHT 0x0B
@@ -41,7 +50,7 @@
 // Sensordata
 #define IR_SHORT_LEFT 1
 #define IR_SHORT_RIGHT 2
-#define IRANGLE 3
+#define IRROT 3
 #define IRDIFF 4
 #define TAPE 6
 #define TAPE_VALUE 7
@@ -56,3 +65,7 @@
 #define MOTOR_LEFT 2
 #define MOTOR_RIGHT 3
 
+// Regulator constants
+#define REG_P 1
+#define REG_D 2
+#define REG_SPEED 3

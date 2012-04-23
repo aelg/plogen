@@ -126,6 +126,21 @@ uint8_t lowest_value(uint8_t *list)
 	return minimum;
 }
 
+//Subrutin som plockar ut det högsta värdet i arrayen
+uint8_t highest_value(uint8_t *list)
+{
+	int maximum = list[0];
+	int itr;
+	for(itr=1;itr<4;itr++){
+		if(maximum<list[itr]){
+		maximum=list[itr];
+		}
+	}
+	return maximum;
+}
+
+
+
 //Differensfunktion
 uint8_t difference(){
 
@@ -381,7 +396,7 @@ void check_TWI(){
   if(len){
     switch(s[0]){
     case CMD_MODE:
-		mode = s[2];
+		mode = s[3];
 		break;
 
     }
@@ -440,13 +455,17 @@ int main()
 				else if (tape_value < low_threshold){
 					tape_detected(0);
 				}
-				if((lowest_value(short_ir_1_values) < 20)|| (lowest_value(short_ir_2_values) < 20))
-					send_interrupt(CROSSING);
+				else if(highest_value(short_ir_1_values) < 20){
+					send_interrupt(CROSSING_LEFT);
+				}
+				else if(highest_value(short_ir_2_values) < 20){
+					send_interrupt(CROSSING_RIGHT);
+				}
 					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.
 				break;
 			case CROSSING:
 				send_long_ir_data(lowest_value(long_ir_1_values), lowest_value(long_ir_1_values));//´Skickar data från de långa sensorerna.
-				break;
+				break;				
 			case COMPLETING_CROSSING: // Läge under korsning. Efter korsningsrutin återgår mode till STRAIGHT
 				break;			
 			case TURN_RIGHT:

@@ -207,6 +207,9 @@ void check_TWI(){
 	    if(s[i] == REG_D){
           k_d = s[i+1];
         }
+	    if(s[i] == REG_SPEED){
+          set_speed(s[i+1], 3, 3);
+        }
       }
       break;
 	  case CMD_AUTO_ON:

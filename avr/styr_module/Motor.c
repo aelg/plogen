@@ -205,3 +205,9 @@ void line_follow(uint8_t num_diods, uint8_t tape_position){
 		turn_left();
 	}	
 }
+
+void set_speed(int16_t max, int16_t turn, int16_t stop){
+  max_speed = max;
+  turn_speed = turn;
+  stop_speed = stop;
+}

@@ -13,7 +13,7 @@
 
 
 
-uint8_t mode = STRAIGHT;
+uint8_t mode = MODE_STRAIGHT;
 
 uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
@@ -30,7 +30,7 @@ volatile uint8_t global_tape = 0;
 volatile uint8_t tape_counter = 0;
 volatile uint8_t timer = 0;
 
-volatile uint8_t line_following = 1;
+volatile uint8_t line_following = 0;
 int diod_iterator = 0;
 uint8_t diod[11];
 
@@ -192,7 +192,8 @@ uint8_t rotation(){
 //Skickar interrupt till styrenheten
 void send_interrupt(uint8_t mode){
 
-	PORTB = 0b00001000 | mode;
+	PORTD = 0b00010000 | mode;
+	PORTD = mode;
 }
 
 
@@ -277,16 +278,16 @@ ISR (TIMER1_COMPA_vect){
 
 	switch(tape){
 	case 0: 
-		send_interrupt(STRAIGHT);
+		//send_interrupt(MODE_STRAIGHT);
 		break;
 	case 1:
-		send_interrupt(TURN_FORWARD);
+		send_interrupt(MODE_TURN_FORWARD);
 		break;
 	case 2: 
-		send_interrupt(TURN_RIGHT);
+		send_interrupt(MODE_TURN_RIGHT);
 		break;
 	case 3: 
-		send_interrupt(TURN_LEFT);
+		send_interrupt(MODE_TURN_LEFT);
 		break;
 	}
 
@@ -349,7 +350,7 @@ void tape_detected(int tape){
 
 	//Till Målområdeskörning
 	if(tape_counter == 7){
-		PORTB |= 0b11000000; // Ettställ PB7, PB6
+		send_interrupt(MODE_LINE_FOLLOW);
 	}
 }
 	
@@ -447,7 +448,7 @@ int main()
 		check_TWI();
 
 		switch(mode){
-			case STRAIGHT:
+			case MODE_STRAIGHT:
 				send_straight_data();
 				if(tape_value > high_threshold){
 					tape_detected(1);
@@ -455,30 +456,28 @@ int main()
 				else if (tape_value < low_threshold){
 					tape_detected(0);
 				}
-				else if(highest_value(short_ir_1_values) < 30){
-					send_interrupt(CROSSING_LEFT);
+				if(highest_value(short_ir_1_values) < 40){
+					send_interrupt(MODE_CROSSING_LEFT);
 				}
-				else if(highest_value(short_ir_2_values) < 30){
-					send_interrupt(CROSSING_RIGHT);
+				else if(highest_value(short_ir_2_values) < 40){
+					send_interrupt(MODE_CROSSING_RIGHT);
 				}
 					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.
 				break;
-			case CROSSING:
+			case MODE_CROSSING:
 				send_long_ir_data(lowest_value(long_ir_1_values), lowest_value(long_ir_1_values));//´Skickar data från de långa sensorerna.
 				break;				
-			case COMPLETING_CROSSING: // Läge under korsning. Efter korsningsrutin återgår mode till STRAIGHT
+			case MODE_COMPLETING_CROSSING: // Läge under korsning. Efter korsningsrutin återgår mode till STRAIGHT
 				break;			
-			case TURN_RIGHT:
+			case MODE_TURN_RIGHT:
 				gyro_mode = 1;
 				gyro_initialize = 1;
 				break;
-			case TURN_LEFT:
+			case MODE_TURN_LEFT:
 				gyro_mode = 1;
 				gyro_initialize = 1;
 				break;
-			case FORWARD:
-				break;
-			case FINISH:
+			case MODE_FINISH:
 				if(++temp_count > 0x2000){
 				uint8_t pos = find_max();
 				send_line_pos(pos);

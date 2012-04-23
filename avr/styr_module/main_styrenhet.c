@@ -15,7 +15,7 @@
 uint8_t autonomous = 0;
 uint8_t manual_command = STOP;
 uint8_t diff = 127;
-uint8_t mode = STRAIGHT;
+uint8_t mode = MODE_STRAIGHT;
 uint8_t tape_position = 5;
 uint8_t num_diods = 0;
 uint8_t way_home[1]; //här sparas hur vi har kört på väg in i labyrinten
@@ -52,35 +52,35 @@ ISR(INT0_vect){
 //Interrupt routine for changing sensormode on interrupt from sensor
 ISR(INT1_vect){
 
-	mode = PORTB & 0b00001111;
+	mode = PINB & 0b00001111;
 	
 	switch(mode){
-		case CROSSING_LEFT:
-			//send_sensor_mode(CROSSING_LEFT);
+		case MODE_CROSSING_LEFT:
+			//send_sensor_mode(MODE_CROSSING_LEFT);
 			break;
-		case CROSSING_RIGHT:
-			//send_sensor_mode(CROSSING_RIGHT);
+		case MODE_CROSSING_RIGHT:
+			//send_sensor_mode(MODE_CROSSING_RIGHT);
 			break;
-		case CROSSING_FORWARD:
-			send_sensor_mode(CROSSING_FORWARD);
+		case MODE_CROSSING_FORWARD:
+			send_sensor_mode(MODE_CROSSING_FORWARD);
 			break;
-		case STRAIGHT:
-			send_sensor_mode(STRAIGHT);
+		case MODE_STRAIGHT:
+			send_sensor_mode(MODE_STRAIGHT);
 			break;
-		case TURN:
-			send_sensor_mode(TURN);
+		case MODE_TURN:
+			send_sensor_mode(MODE_TURN);
 			break;
-		case TURN_LEFT:
-			send_sensor_mode(TURN_LEFT);
+		case MODE_TURN_LEFT:
+			send_sensor_mode(MODE_TURN_LEFT);
 			break;
-		case TURN_RIGHT:
-			send_sensor_mode(TURN_RIGHT);
+		case MODE_TURN_RIGHT:
+			send_sensor_mode(MODE_TURN_RIGHT);
 			break;
-		case TURN_FORWARD:
-			send_sensor_mode(TURN_FORWARD);
+		case MODE_TURN_FORWARD:
+			send_sensor_mode(MODE_TURN_FORWARD);
 			break;
-		case CROSSING:
-			send_sensor_mode(CROSSING);
+		case MODE_CROSSING:
+			send_sensor_mode(MODE_CROSSING);
 			break;
 	}
 }
@@ -96,8 +96,6 @@ void check_crossing(void){
 	++crossing_counter;
 		
 }
-
-	
 
 //Manuell körning
 void manual_control(){
@@ -127,41 +125,41 @@ void manual_control(){
 	}
 }
 
-
 //Autonom körning
 void auto_control(){
 
 	switch(mode){
-		case CROSSING_LEFT:
+		case MODE_CROSSING_LEFT:
 			rotate_left();
 			break;
-		case CROSSING_RIGHT:
+		case MODE_CROSSING_RIGHT:
 			rotate_right();
 			break;
-		case CROSSING_FORWARD:
+		case MODE_CROSSING_FORWARD:
 			crossing_forward();
 			break;
-		case STRAIGHT:
+		case MODE_STRAIGHT:
 			run_straight(diff, rot, k_p, k_d);
 			break;
-		case TURN:
+		case MODE_TURN:
 			break;
-		case TURN_LEFT:
+		case MODE_TURN_LEFT:
 			turn_left();
 			break;
-		case TURN_RIGHT:
+		case MODE_TURN_RIGHT:
 			turn_right();
 			break;
-		case TURN_FORWARD:
+		case MODE_TURN_FORWARD:
 			turn_forward();
 			break;
-		case CROSSING:
+		case MODE_CROSSING:
 			check_crossing();
 			break;
-
+        case MODE_LINE_FOLLOW:
+			line_follow(num_diods, tape_position);
+			break;
 	}
 }
-
 
 
 // Kontrollera meddelanden.
@@ -197,12 +195,12 @@ void check_TWI(){
       autonomous = 0;
       manual_command = s[2];
       break;
-	  case CMD_REG_PARAMS:
-	    for(uint8_t i = 2; i < len; i = i+2){
+	case CMD_SET_REG_PARAMS:
+	  for(uint8_t i = 2; i < len; i = i+2){
         if(s[i] == REG_P){
           k_p = s[i+1];
         }
-		    if(s[i] == REG_D){
+	    if(s[i] == REG_D){
           k_d = s[i+1];
         }
       }
@@ -213,36 +211,6 @@ void check_TWI(){
     }
   }
 }
-
-// Målområdeskörning
-
-void end_of_the_line(){
-	if(num_diods > 4){
-		OCR1A = 0x0003;//sets the length of pulses, right side - pin7
-		OCR1B = 0x0003;//sets the length of pulses, left side - pin8
-		griparm();
-	}
-	else if(tape_position<4){
-		turn_left();
-	}
-	else if(tape_position>=4 && tape_position<=6){
-		turn_forward();
-	}
-	else {
-		turn_right();
-	}	
-}
-
-
-
-
-//Autonom körning
-//void auto_control(){
-//    end_of_the_line();
-//}
-
-
-
 
 //MAIN
 int main(void)

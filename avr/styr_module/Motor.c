@@ -9,7 +9,7 @@
 #include "../utility/send.h"
 
 int16_t max_speed = 0x0080;
-int16_t turn_speed = 0x0040;
+int16_t turn_speed = 0x0003;
 int16_t stop_speed = 0x0003;
 
 uint16_t delay = 0;
@@ -143,18 +143,17 @@ void manual_reverse(void)
 
 void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d){
 
-	int16_t difference = diff;
-	int16_t rotation = rot;
+	int16_t difference = (diff - 127) << REGULATOR_CORR;
+	int16_t rotation = (rot - 127) << REGULATOR_CORR;
 
-	int16_t p = k_p*(difference - 127) >> REGULATOR_CORR;
-	int16_t d = k_d*(rotation - 127) >> REGULATOR_CORR;
+	int16_t p = (k_p*difference) >> REGULATOR_CORR;
+	int16_t d = (k_d*rotation) >> REGULATOR_CORR;
 
-	/*if(++delay > 0xf000){
+	if(++delay > 0x1000){
 		send_reg_params(p, d);
 		delay = 0;
-	}*/
+	}
 	
-	//if (!(delay & 0x00ff)){ // Don't run to often.
 	int16_t pdreg_value = p + d;
 
 	//if((uint16_t)pdreg_value > max_speed) pdreg_value = max_speed;
@@ -185,8 +184,24 @@ void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d){
 	return;
 }
 
-
-
 void crossing_right(void){}
 void crossing_left(void){}
 void crossing_forward(void){}
+
+// Målområdeskörning
+void line_follow(uint8_t num_diods, uint8_t tape_position){
+	if(num_diods > 4){
+		OCR1A = 0x0003;//sets the length of pulses, right side - pin7
+		OCR1B = 0x0003;//sets the length of pulses, left side - pin8
+		griparm();
+	}
+	else if(tape_position<4){
+		turn_right();
+	}
+	else if(tape_position>=4 && tape_position<=6){
+		turn_forward();
+	}
+	else {
+		turn_left();
+	}	
+}

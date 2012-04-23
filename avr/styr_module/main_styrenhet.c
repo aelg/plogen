@@ -142,7 +142,7 @@ void auto_control(){
 			crossing_forward();
 			break;
 		case STRAIGHT:
-			run_straight(diff);
+			run_straight(diff, rot, K_P, K_D);
 			break;
 		case TURN:
 			break;
@@ -237,9 +237,9 @@ void end_of_the_line(){
 
 
 //Autonom körning
-void auto_control(){
-    end_of_the_line();
-}
+//void auto_control(){
+//    end_of_the_line();
+//}
 
 
 

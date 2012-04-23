@@ -8,6 +8,7 @@
 #define CROSSING_FORWARD 0x03
 
 #define STRAIGHT 0x04
+#define LINE_FOLLOW 0x05
 
 #define TURN 0x05 // onödig?
 #define TURN_LEFT 0x06
@@ -44,5 +45,6 @@ void manual_stop(void);
 void manual_reverse(void);
 void interrupts(void);
 void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d);
+void line_follow(uint8_t num_diods, uint8_t tape_position);
 
 #endif

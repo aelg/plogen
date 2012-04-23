@@ -42,7 +42,8 @@ void interrupts(void){
 ISR(INT0_vect){
 	autonomous = 1 - autonomous;
 	return;
- }
+}
+
 
 //Manuell körning
 void manual_control(){
@@ -81,14 +82,17 @@ void jag_legger_det_har(void){
 	
 }
 
-/*
+
 //Autonom körning
 void auto_control(){
 
   if(mode == STRAIGHT){
     run_straight(diff, rot, k_p, k_d);
   }
-}*/
+  if(mode == LINE_FOLLOW){
+  	line_follow(num_diods, tape_position);
+  }
+}
 
 
 // Kontrollera meddelanden.
@@ -118,12 +122,12 @@ void check_TWI(){
       autonomous = 0;
       manual_command = s[2];
       break;
-	  case CMD_REG_PARAMS:
-	    for(uint8_t i = 2; i < len; i = i+2){
+	case CMD_SET_REG_PARAMS:
+	  for(uint8_t i = 2; i < len; i = i+2){
         if(s[i] == REG_P){
           k_p = s[i+1];
         }
-		    if(s[i] == REG_D){
+	    if(s[i] == REG_D){
           k_d = s[i+1];
         }
       }
@@ -134,35 +138,6 @@ void check_TWI(){
     }
   }
 }
-
-// Målområdeskörning
-
-void end_of_the_line(){
-	if(num_diods > 4){
-		OCR1A = 0x0003;//sets the length of pulses, right side - pin7
-		OCR1B = 0x0003;//sets the length of pulses, left side - pin8
-		griparm();
-	}
-	else if(tape_position<4){
-		turn_left();
-	}
-	else if(tape_position>=4 && tape_position<=6){
-		turn_forward();
-	}
-	else {
-		turn_right();
-	}	
-}
-
-
-
-
-//Autonom körning
-void auto_control(){
-    end_of_the_line();
-}
-
-
 
 
 //MAIN

@@ -27,7 +27,7 @@ volatile uint8_t global_tape = 0;
 volatile uint8_t tape_counter = 0;
 volatile uint8_t timer = 0;
 
-volatile uint8_t line_following = 1;
+volatile uint8_t line_following = 0;
 int diod_iterator = 0;
 uint8_t diod[11];
 

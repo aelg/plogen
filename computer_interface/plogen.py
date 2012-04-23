@@ -24,8 +24,7 @@ pygame.init() 		# Initiate pygame
 root.mainloop()		# Start mainloop of GUI
 
 robot.stop()
-app.setAuto()	# Start Line Following-algorithm before quiting
 bt.shutdown()		# Shutdown bluetooth
 
-time.sleep(1)		# Wait for some unexplained reason
+time.sleep(0.01)		# Wait for some unexplained reason
 

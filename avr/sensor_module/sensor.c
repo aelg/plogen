@@ -192,7 +192,7 @@ uint8_t rotation(){
 //Skickar interrupt till styrenheten
 void send_interrupt(uint8_t mode){
 
-	PORTD = 0b0001000 | mode;
+	PORTB = 0b00001000 | mode;
 }
 
 
@@ -455,10 +455,10 @@ int main()
 				else if (tape_value < low_threshold){
 					tape_detected(0);
 				}
-				else if(highest_value(short_ir_1_values) < 20){
+				else if(highest_value(short_ir_1_values) < 30){
 					send_interrupt(CROSSING_LEFT);
 				}
-				else if(highest_value(short_ir_2_values) < 20){
+				else if(highest_value(short_ir_2_values) < 30){
 					send_interrupt(CROSSING_RIGHT);
 				}
 					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.

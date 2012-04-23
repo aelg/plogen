@@ -142,7 +142,7 @@ void auto_control(){
 			crossing_forward();
 			break;
 		case STRAIGHT:
-			run_straight(diff, rot, K_P, K_D);
+			run_straight(diff, rot, k_p, k_d);
 			break;
 		case TURN:
 			break;

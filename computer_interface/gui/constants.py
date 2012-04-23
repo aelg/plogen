@@ -15,6 +15,7 @@ CMD_SENSOR_DATA = 0x15
 CMD_REG_PARAMS = 0x18
 CMD_AUTO_ON = 0x19
 CMD_SET_REG_PARAMS = 0x20
+CMD_SET_MODE = 0x21
 
 # Messages
 SEND_NEXT = chr(CMD_SEND_NEXT) + chr(0)
@@ -42,9 +43,11 @@ FORWARD = chr(0x0c)
 BACKWARD = chr(0x0d)
 
 #Regulator constants
-REG_P = 1
-REG_D = 2
-REG_SPEED = 3
+REG_P = chr(1)
+REG_D = chr(2)
+REG_SPEED = chr(3)
+
+#Constants for setMode
 
 debug_nobluetooth = 0
-debug = 2
+debug = 0

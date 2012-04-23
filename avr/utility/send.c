@@ -76,6 +76,33 @@ void send_line_pos(uint8_t pos){
 
 }
 
+void send_long_ir_data(uint8_t long1, uint8_t long2){
+
+	uint8_t s[6];
+	s[0] = CMD_SENSOR_DATA;
+	s[1] = 4;
+	s[2] = IR_LONG_LEFT;
+	s[3] = long1;
+	s[4] = IR_LONG_RIGHT;
+	s[5] = long2;
+
+
+	TWI_write(CONTROL_ADDRESS, s, 6);
+	
+}
+
+void send_sensor_mode(uint8_t mode){
+
+	uint8_t s[4];
+	s[0] = CMD_MODE;
+	s[1] = 2;
+	s[2] = SENSOR_MODE;
+	s[3] = mode;
+
+	TWI_write(SENSOR_ADDRESS, s, 4);
+
+}
+
 void send_reg_params(uint16_t p, uint16_t d){
 	uint8_t s[8];
 	s[0] = CMD_REG_PARAMS;
@@ -89,4 +116,3 @@ void send_reg_params(uint16_t p, uint16_t d){
 
 	TWI_write(COMM_ADDRESS, s, 8);
 }
-

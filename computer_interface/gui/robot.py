@@ -80,8 +80,6 @@ class Crobot(threading.Thread):
       
   ##
   # Functions that returns data stored in this object.
-  def getSpeed(self):
-    return self.speed
   def getIRLongLeft(self):
     return self.IRLongLeft
   def getIRLongRight(self):
@@ -154,4 +152,8 @@ class Crobot(threading.Thread):
   ##
   # Send Regulator Params
   def sendRegParams(self, p, d, speed):
-    self.bt.sendcmd(CMD_SET_REG_PARAMS, chr(REG_P) + chr(p) + chr(REG_D) + chr(d) + chr(REG_SPEED) + chr(speed))
+    self.bt.sendcmd(CMD_SET_REG_PARAMS, REG_P + chr(int(p)) + REG_D + chr(int(d)) + REG_SPEED + chr(int(speed)))
+
+  def setMode(self, mode):
+    self.bt.sendcmd(CMD_SET_MODE, '' + chr(mode))
+

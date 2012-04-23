@@ -28,6 +28,12 @@
  * HÃ¤r anvÃ¤nds konstanterna under Styrdatakonstanter */
 #define CMD_CONTROL_DATA 0x17
 
+
+/*CMD_MODE anges för att beteckna ett meddelande som innehåller ett modeläge
+ *som används i sensorenheten.
+ */
+#define CMD_MODE 0x18
+
 /* CMD_REG_PARAMS should be used in the same way as CMD_SENSOR_DATA*/
 #define CMD_REG_PARAMS 0x18
 
@@ -36,6 +42,26 @@
 /* CMD_SET_REG_PARAMS set regulator params on the robot with this command
  * use as CMD_SENSOR_DATA but with the REG_xxx */
 #define CMD_SET_REG_PARAMS 0x20
+
+//Används för att identifiera att ett nytt sensormode kommer
+#define SENSOR_MODE 0x21
+
+//Olika modes för sensor och styrenhet
+#define MODE_CROSSING_LEFT 0x00
+#define MODE_CROSSING_RIGHT 0x01
+#define MODE_CROSSING_FORWARD 0x02
+
+#define MODE_STRAIGHT 0x03
+
+#define MODE_TURN 0x04 // onödig?
+#define MODE_TURN_LEFT 0x05
+#define MODE_TURN_RIGHT 0x06
+#define MODE_TURN_FORWARD 0x07
+#define MODE_CROSSING 0x08 //onödig? väntläge tom mitten? Kan ju verifiera sväng
+
+#define MODE_COMPLETING_CROSSING 0x09
+#define MODE_FINISH 0x0a
+#define MODE_LINE_FOLLOW 0x0b
 
 // Manuell kontroll
 #define LEFT 0x0A

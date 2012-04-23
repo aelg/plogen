@@ -29,7 +29,7 @@ int main(void)
 	uint8_t end[2] = {CMD_END, 0};
 	
 
-	uint8_t buff[10];
+	uint8_t buff[16];
 
 	while (1){
 		uint8_t len;
@@ -41,7 +41,7 @@ int main(void)
 				break;
 			case CMD_MANUAL:
 			case CMD_SET_REG_PARAMS:
-      case CMD_AUTO_ON:
+            case CMD_AUTO_ON:
 				TWI_write(CONTROL_ADDRESS, buff, len);
 				break;
 			}

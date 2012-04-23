@@ -2,20 +2,27 @@
 #include <avr/io.h>
 #include <inttypes.h>
 #include<avr/pgmspace.h>
-#include"../styr_module/motor.h"
 #include "../TWI/TWI.h"
 #include "../utility/send.h"
+#include "../commands.h"
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
 #define GYRO_TURN_LEFT -0x7fffffff
 #define GYRO_TURN_RIGHT 0x7fffffff //Tolkas de decimalt??
 
-#define CMD_SENSOR_DATA 0x03;
+
+
+uint8_t mode = MODE_STRAIGHT;
 
 uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
+<<<<<<< HEAD
 volatile uint16_t temp_count = 0; // Temporar fullosning
+=======
+
+uint16_t temp_count = 0; // Temporar fullosning
+>>>>>>> 1621a9f31ad633e22b7220b2ef15b6ac94324a96
 uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
@@ -27,7 +34,7 @@ volatile uint8_t global_tape = 0;
 volatile uint8_t tape_counter = 0;
 volatile uint8_t timer = 0;
 
-volatile uint8_t line_following = 1;
+volatile uint8_t line_following = 0;
 int diod_iterator = 0;
 uint8_t diod[11];
 
@@ -123,6 +130,21 @@ uint8_t lowest_value(uint8_t *list)
 	return minimum;
 }
 
+//Subrutin som plockar ut det högsta värdet i arrayen
+uint8_t highest_value(uint8_t *list)
+{
+	int maximum = list[0];
+	int itr;
+	for(itr=1;itr<4;itr++){
+		if(maximum<list[itr]){
+		maximum=list[itr];
+		}
+	}
+	return maximum;
+}
+
+
+
 //Differensfunktion
 uint8_t difference(){
 
@@ -169,6 +191,15 @@ uint8_t rotation(){
 
 	return rot;
 }
+
+
+//Skickar interrupt till styrenheten
+void send_interrupt(uint8_t mode){
+
+	PORTD = 0b00010000 | mode;
+	PORTD = mode;
+}
+
 
 //AD-omvandling klar. 
 ISR(ADC_vect){
@@ -247,20 +278,20 @@ ISR(ADC_vect){
 //Timern har räknat klart, interrupt skickas, nu kommer ingen mer tejp.
 ISR (TIMER1_COMPA_vect){
 
-	volatile uint8_t tape = tape_counter/2; //Ger antalet tejpar
+	volatile uint8_t tape = tape_counter >> 1; //Ger antalet tejpar
 
 	switch(tape){
 	case 0: 
-		PORTB = (PORTB & 0b00001111); //Nollställ PB7-PB4
+		//send_interrupt(MODE_STRAIGHT);
 		break;
 	case 1:
-		PORTB = (0b10010000 | (PORTB & 0b11001111)); //Ettställ PB7, PB4
+		send_interrupt(MODE_TURN_FORWARD);
 		break;
 	case 2: 
-		PORTB = (0b10100000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 
+		send_interrupt(MODE_TURN_RIGHT);
 		break;
 	case 3: 
-		PORTB = (0b10110000 | (PORTB & 0b11001111)); //Ettställ PB7, PB5 och PB4
+		send_interrupt(MODE_TURN_LEFT);
 		break;
 	}
 
@@ -323,7 +354,7 @@ void tape_detected(int tape){
 
 	//Till Målområdeskörning
 	if(tape_counter == 7){
-		PORTB |= 0b11000000; // Ettställ PB7, PB6
+		send_interrupt(MODE_LINE_FOLLOW);
 	}
 }
 	
@@ -345,40 +376,120 @@ void init_sensor_buffers(){
 	itr_short_ir_3 = 0;
 }
 
-//Huvudprogram
-int main()
-{
-	TWI_init(SENSOR_ADDRESS);
-	init_sensor_buffers();
-	//Initiering
-	MCUCR = 0x03;
-//	GICR = 0x40;
-	DDRA = 0x00;
-	DDRB = 0xFF; //utgångar, styr mux och signaler till styr
 
-	//Initiera timer
+//Funktion som skickar all nödvändig data vid PD-reglering
+void send_straight_data(void){
+
+	if (++temp_count > 0x2000){
+
+		send_differences(difference(), rotation());
+		send_tape_value(tape_value);
+		send_sensor_values(lowest_value(long_ir_1_values),
+						  lowest_value(long_ir_2_values),
+						  lowest_value(short_ir_1_values),
+						  lowest_value(short_ir_2_values),
+						  lowest_value(short_ir_3_values));
+		temp_count = 0;
+	}
+}
+
+// Kontrollera meddelanden.
+void check_TWI(){
+  uint8_t s[16];
+  uint8_t len;
+  len = TWI_read(s);
+  if(len){
+    switch(s[0]){
+    case CMD_MODE:
+		mode = s[3];
+		break;
+
+    }
+  }
+}
+
+//Initera uppstart, datariktningar
+void init(void){
+	MCUCR = 0x03;
+	DDRA = 0x00;
+	DDRB = 0xFF; //utgångar, styr mux 
+	DDRD = 0xFF; //utgångar, styr interruptsignaler till styr
+
+}
+
+//Initiera timer för tejpdetektorn
+void init_timer(void){
+	
 	TCCR1A = 0b00000000; //Eventuellt 00001000 
 	TCCR1B = 0b00001101; // gammalt: 4D;
 	TIMSK = 0b00010000; //Enable interrupt on Output compare A
 	TCNT1 = 0; //Nollställ timer
 	OCR1A = 0x0200; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
+}
 
-
+//Huvudprogram
+int main()
+{
+	TWI_init(SENSOR_ADDRESS);
+	init_sensor_buffers();
+	//Initiera interrupt, datariktningar 
+	init();
+	
+	//Initiera timer
+	init_timer();
 
 
 	uint8_t diod = 0b00001000;//Anger vilken diod som vi skriver/läser till i diodbryggan	
 	PORTB = diod; //tänd diod
-
-	volatile char c;
-	c=1;
 
 	//Starta AD-omvandling av insignalen på PA0 
 	ADMUX = 0x27;
 	ADCSRA = 0xCB; 
 	sei(); //tillåt interrupt
 
-	while(c) {
+	while(1) {
+			
+		check_TWI();
 
+		switch(mode){
+			case MODE_STRAIGHT:
+				send_straight_data();
+				if(tape_value > high_threshold){
+					tape_detected(1);
+				}
+				else if (tape_value < low_threshold){
+					tape_detected(0);
+				}
+				if(highest_value(short_ir_1_values) < 40){
+					send_interrupt(MODE_CROSSING_LEFT);
+				}
+				else if(highest_value(short_ir_2_values) < 40){
+					send_interrupt(MODE_CROSSING_RIGHT);
+				}
+					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.
+				break;
+			case MODE_CROSSING:
+				send_long_ir_data(lowest_value(long_ir_1_values), lowest_value(long_ir_1_values));//´Skickar data från de långa sensorerna.
+				break;				
+			case MODE_COMPLETING_CROSSING: // Läge under korsning. Efter korsningsrutin återgår mode till STRAIGHT
+				break;			
+			case MODE_TURN_RIGHT:
+				gyro_mode = 1;
+				gyro_initialize = 1;
+				break;
+			case MODE_TURN_LEFT:
+				gyro_mode = 1;
+				gyro_initialize = 1;
+				break;
+			case MODE_FINISH:
+				if(++temp_count > 0x2000){
+				uint8_t pos = find_max();
+				send_line_pos(pos);
+				}		
+				break;
+			}
+						
+/*
 		switch(gyro_mode){
 			case 1: if(gyro_initialize == 1) 
 						init_gyro();
@@ -403,6 +514,7 @@ int main()
 			}
 		}
 		else if (++temp_count > 0x2000){
+
 			send_differences(difference(), rotation());
 			send_tape_value(tape_value);
 			send_sensor_values(lowest_value(long_ir_1_values),
@@ -415,6 +527,7 @@ int main()
 		//if(temp_count == 0x2000)
 		//	send_difference(difference());
 	}
-
+*/
+	}
 	return 0;
 }

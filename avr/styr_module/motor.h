@@ -1,18 +1,19 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
-//Constants
-#define CROSSING 0x00 //onödig? väntläge tom mitten?
-#define CROSSING_LEFT 0x01
-#define CROSSING_RIGHT 0x02
+//Constants, LIGGER NU I COMMANDS_H..
+/*#define CROSSING 0x08 //onödig? väntläge tom mitten?
+#define CROSSING_LEFT 0x00
+#define CROSSING_RIGHT 0x01
 #define CROSSING_FORWARD 0x03
 
 #define STRAIGHT 0x04
+#define LINE_FOLLOW 0x05
 
 #define TURN 0x05 // onödig?
 #define TURN_LEFT 0x06
 #define TURN_RIGHT 0x07
-#define TURN_FORWARD 0x08
+#define TURN_FORWARD 0x08*/  
 
 #define LEFT 0x0A
 #define RIGHT 0x0B
@@ -43,6 +44,10 @@ void manual_forward(void);
 void manual_stop(void);
 void manual_reverse(void);
 void interrupts(void);
+void crossing_right(void);
+void crossing_left(void);
+void crossing_forward(void);
 void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d);
+void line_follow(uint8_t num_diods, uint8_t tape_position);
 
 #endif

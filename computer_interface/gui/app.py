@@ -47,10 +47,20 @@ class Capp(threading.Thread):
     self.bBackward.bind("<ButtonRelease-1>", self.up)
 
     self.bLock = Button(self.frame, text="Start Auto", command=self.setAuto)
-    self.bLock.grid(column=3, row=2)
+    self.bLock.grid(column=3, row=0)
 
     self.bPlot = Button(self.frame, text="Start Reg Plot", command=self.startPlot)
-    self.bPlot.grid(column=3, row=3)
+    self.bPlot.grid(column=3, row=1)
+
+    self.bChooseMode = Button(self.frame, text="Set Mode", command=self.setMode)
+    self.bChooseMode.grid(column=3, row=2)
+
+    self.lbMode = Listbox(self.frame, selectmode=SINGLE)
+    self.lbMode.grid(column=3, row=4)
+    self.lbMode.insert(END, "Manual")
+    self.lbMode.insert(END, "Line Follow")
+    self.lbMode.insert(END, "PD-reg")
+    self.lbMode.insert(END, "Auto")
 
     self.input = StringVar()      # Text-field used to read input from user
     self.input.set("")
@@ -115,6 +125,16 @@ class Capp(threading.Thread):
   def startPlot(self):
     self.plot = Plot(self.robot)
     self.plot.start()
+  def setMode(self):
+    cur = self.lbMode.curselection()
+    if cur == 0:
+      self.robot.setMode(MODE_MANUAL)
+    elif cur == 1:
+      self.robot.setMode(MODE_LINE_FOLLOW)
+    elif cur == 2:
+      self.robot.setMode(MODE_PD)
+    elif cur == 2:
+      self.robot.setMode(MODE_AUTO)
 
   def sendRegParams(self):
     self.robot.sendRegParams(self.sRegP.get(), self.sRegD.get(), speed = self.sSpeed.get())
@@ -154,12 +174,19 @@ class Capp(threading.Thread):
             print "Error illformed message from Plogen."
             continue
           for i in range(1, len(message)-1, 3):
+            print i
             if message[i] == REG_P:
-              self.robot.regP = (ord(message[i+1]) << 8) + ord(message[i+2])
+              self.robot.regP = (ord(message[i+1]) * 256) + ord(message[i+2])
+              if self.robot.regP > (1 << 8) : 
+                self.robot.regP -= (1 << 16) 
             if message[i] == REG_D:
-              self.robot.regD = (ord(message[i+1]) << 8) + ord(message[i+2])
+              self.robot.regD = (ord(message[i+1]) * 256) + ord(message[i+2])
+              if self.robot.regD > (1 << 8) : 
+                self.robot.regD -= (1 << 16) 
             if message[i] == REG_SPEED:
-              self.robot.speed = (ord(message[i+1]) << 8) + ord(message[i+2])
+              self.robot.speed = (ord(message[i+1]) * 256) + ord(message[i+2])
+              if self.robot.speed > (1 << 8) : 
+                self.robot.speed -= (1 << 16) 
           
       elif isinstance(message, int) : print "E: ", hex(message) # We recieved an integer, something is wrong, output to console
       else : print "Message.typ() == : ", type(message)

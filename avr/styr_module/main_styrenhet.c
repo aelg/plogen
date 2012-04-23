@@ -10,16 +10,21 @@
 #include "../TWI/TWI.h"
 #include "motor.h"
 #include "../commands.h"
+#include "../utility/send.h"
 
 uint8_t autonomous = 0;
 uint8_t manual_command = STOP;
 uint8_t diff = 127;
-uint8_t mode = STRAIGHT;
+uint8_t mode = MODE_STRAIGHT;
 uint8_t tape_position = 5;
 uint8_t num_diods = 0;
 uint8_t way_home[1]; //här sparas hur vi har kört på väg in i labyrinten
 
 uint8_t rot = 5;
+uint8_t crossing_counter = 0;
+uint8_t ir_long_left = 0;
+uint8_t ir_long_right = 0;
+
 uint8_t k_p = REG_P;
 uint8_t k_d = REG_D;
 
@@ -30,19 +35,67 @@ ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 
 //Initialize interrupts
 void interrupts(void){
-  // Set interrupt on rising edge of INT0 pin
-  MCUCR = (MCUCR & 0xfc) | 0x03;
-  // Set INT0 as input pin.
-  DDRD = (DDRD & 0xfb);
-  //Enable interrupts on INT0
-  GICR |= (1<<INT0);
+  // Set interrupt on rising edge of INT0 and INT1 pin
+  MCUCR = (MCUCR & 0xf0) | 0x0f;
+  // Set INT0 and INT1 as input pins.
+  DDRD = (DDRD & 0xf3);
+  //Enable interrupts on INT0 and INT1
+  GICR |= 0b11000000;
 }
 
 //Interrupt routine
 ISR(INT0_vect){
 	autonomous = 1 - autonomous;
 	return;
- }
+}
+
+//Interrupt routine for changing sensormode on interrupt from sensor
+ISR(INT1_vect){
+
+	mode = PINB & 0b00001111;
+	
+	switch(mode){
+		case MODE_CROSSING_LEFT:
+			//send_sensor_mode(MODE_CROSSING_LEFT);
+			break;
+		case MODE_CROSSING_RIGHT:
+			//send_sensor_mode(MODE_CROSSING_RIGHT);
+			break;
+		case MODE_CROSSING_FORWARD:
+			send_sensor_mode(MODE_CROSSING_FORWARD);
+			break;
+		case MODE_STRAIGHT:
+			send_sensor_mode(MODE_STRAIGHT);
+			break;
+		case MODE_TURN:
+			send_sensor_mode(MODE_TURN);
+			break;
+		case MODE_TURN_LEFT:
+			send_sensor_mode(MODE_TURN_LEFT);
+			break;
+		case MODE_TURN_RIGHT:
+			send_sensor_mode(MODE_TURN_RIGHT);
+			break;
+		case MODE_TURN_FORWARD:
+			send_sensor_mode(MODE_TURN_FORWARD);
+			break;
+		case MODE_CROSSING:
+			send_sensor_mode(MODE_CROSSING);
+			break;
+	}
+}
+
+//Routine to verify a crossing and decide which way to turn.
+void check_crossing(void){
+
+	//Kolla alla sensorer flera gånger för att verifiera en sväng.
+	if(crossing_counter < 0xff){
+	
+	//använd	ir_long_left och ir_long_right
+	}
+	++crossing_counter;
+		
+}
 
 //Manuell körning
 void manual_control(){
@@ -72,23 +125,41 @@ void manual_control(){
 	}
 }
 
-void jag_legger_det_har(void){
-	OCR1A =	0x0003;//sets the length of pulses, right side - pin7
-	OCR1B =	0x0003;//sets the length of pulses, left side - pin8
-	
-	PORTA =(1<<PORTA0)//Left wheel direction - pin5
-		  |(1<<PORTA1);//Right wheel direction - pin6
-	
-}
-
-/*
 //Autonom körning
 void auto_control(){
 
-  if(mode == STRAIGHT){
-    run_straight(diff, rot, k_p, k_d);
-  }
-}*/
+	switch(mode){
+		case MODE_CROSSING_LEFT:
+			rotate_left();
+			break;
+		case MODE_CROSSING_RIGHT:
+			rotate_right();
+			break;
+		case MODE_CROSSING_FORWARD:
+			crossing_forward();
+			break;
+		case MODE_STRAIGHT:
+			run_straight(diff, rot, k_p, k_d);
+			break;
+		case MODE_TURN:
+			break;
+		case MODE_TURN_LEFT:
+			turn_left();
+			break;
+		case MODE_TURN_RIGHT:
+			turn_right();
+			break;
+		case MODE_TURN_FORWARD:
+			turn_forward();
+			break;
+		case MODE_CROSSING:
+			check_crossing();
+			break;
+        case MODE_LINE_FOLLOW:
+			line_follow(num_diods, tape_position);
+			break;
+	}
+}
 
 
 // Kontrollera meddelanden.
@@ -112,18 +183,24 @@ void check_TWI(){
 		    if(s[i] == IRROT){
           rot = s[i+1];
         }
+		if(s[i] == IR_LONG_LEFT){
+          ir_long_left = s[i+1];
+        }
+		if(s[i] == IR_LONG_RIGHT){
+          ir_long_right = s[i+1];
+        }
       }
       break;
     case CMD_MANUAL:
       autonomous = 0;
       manual_command = s[2];
       break;
-	  case CMD_REG_PARAMS:
-	    for(uint8_t i = 2; i < len; i = i+2){
+	case CMD_SET_REG_PARAMS:
+	  for(uint8_t i = 2; i < len; i = i+2){
         if(s[i] == REG_P){
           k_p = s[i+1];
         }
-		    if(s[i] == REG_D){
+	    if(s[i] == REG_D){
           k_d = s[i+1];
         }
       }
@@ -134,36 +211,6 @@ void check_TWI(){
     }
   }
 }
-
-// Målområdeskörning
-
-void end_of_the_line(){
-	if(num_diods > 4){
-		OCR1A = 0x0003;//sets the length of pulses, right side - pin7
-		OCR1B = 0x0003;//sets the length of pulses, left side - pin8
-		griparm();
-	}
-	else if(tape_position<4){
-		turn_left();
-	}
-	else if(tape_position>=4 && tape_position<=6){
-		turn_forward();
-	}
-	else {
-		turn_right();
-	}	
-}
-
-
-
-
-//Autonom körning
-void auto_control(){
-    end_of_the_line();
-}
-
-
-
 
 //MAIN
 int main(void)

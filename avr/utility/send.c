@@ -72,7 +72,7 @@ void send_line_pos(uint8_t pos){
 	s[2] = LINE_POSITION;
 	s[3] = pos;
 
-	TWI_write(COMM_ADDRESS, s, 4);
+	TWI_write(GENERAL_CALL, s, 4);
 
 }
 

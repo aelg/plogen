@@ -17,8 +17,12 @@ uint8_t mode = MODE_STRAIGHT;
 
 uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
+<<<<<<< HEAD
+volatile uint16_t temp_count = 0; // Temporar fullosning
+=======
 
 uint16_t temp_count = 0; // Temporar fullosning
+>>>>>>> 1621a9f31ad633e22b7220b2ef15b6ac94324a96
 uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
@@ -500,7 +504,8 @@ int main()
 		}
 
 		if (line_following){
-		    if(++temp_count > 0x2000){
+		    if(++temp_count > 0x0100){
+				temp_count = 0;
 				uint8_t pos = find_max();
 				test_pos = pos;
 				send_line_pos(pos);

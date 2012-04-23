@@ -2,7 +2,6 @@
 #include <avr/io.h>
 #include <inttypes.h>
 #include<avr/pgmspace.h>
-#include"../styr_module/motor.h"
 #include "../TWI/TWI.h"
 #include "../utility/send.h"
 #include "../commands.h"

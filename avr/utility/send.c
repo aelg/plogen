@@ -93,13 +93,12 @@ void send_long_ir_data(uint8_t long1, uint8_t long2){
 
 void send_sensor_mode(uint8_t mode){
 
-	uint8_t s[4];
-	s[0] = CMD_MODE;
-	s[1] = 2;
-	s[2] = SENSOR_MODE;
-	s[3] = mode;
+	uint8_t s[3];
+	s[0] = CMD_SENSOR_MODE;
+	s[1] = 1;
+	s[2] = mode;
 
-	TWI_write(SENSOR_ADDRESS, s, 4);
+	TWI_write(SENSOR_ADDRESS, s, 3);
 
 }
 

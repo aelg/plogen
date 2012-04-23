@@ -71,16 +71,20 @@ ISR(INT1_vect){
 			send_sensor_mode(MODE_TURN);
 			break;
 		case MODE_TURN_LEFT:
-			send_sensor_mode(MODE_TURN_LEFT);
+			send_sensor_mode(MODE_GYRO);
 			break;
 		case MODE_TURN_RIGHT:
-			send_sensor_mode(MODE_TURN_RIGHT);
+			send_sensor_mode(MODE_GYRO);
 			break;
 		case MODE_TURN_FORWARD:
 			send_sensor_mode(MODE_TURN_FORWARD);
 			break;
 		case MODE_CROSSING:
 			send_sensor_mode(MODE_CROSSING);
+			break;
+		case MODE_GYRO_COMPLETE:
+			send_sensor_mode(MODE_STRAIGHT);
+			mode = MODE_STRAIGHT;
 			break;
 	}
 }
@@ -144,10 +148,10 @@ void auto_control(){
 		case MODE_TURN:
 			break;
 		case MODE_TURN_LEFT:
-			turn_left();
+			rotate_left();
 			break;
 		case MODE_TURN_RIGHT:
-			turn_right();
+			rotate_right();
 			break;
 		case MODE_TURN_FORWARD:
 			turn_forward();
@@ -208,6 +212,7 @@ void check_TWI(){
 	  case CMD_AUTO_ON:
       autonomous = 1;
       break;
+
     }
   }
 }

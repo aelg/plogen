@@ -44,7 +44,7 @@
 #define CMD_SET_REG_PARAMS 0x20
 
 //Används för att identifiera att ett nytt sensormode kommer
-#define SENSOR_MODE 0x21
+#define CMD_SENSOR_MODE 0x21
 
 //Olika modes för sensor och styrenhet
 #define MODE_CROSSING_LEFT 0x00
@@ -62,6 +62,8 @@
 #define MODE_COMPLETING_CROSSING 0x09
 #define MODE_FINISH 0x0a
 #define MODE_LINE_FOLLOW 0x0b
+#define MODE_GYRO_COMPLETE 0x0c
+#define MODE_GYRO 0x10
 
 // Manuell kontroll
 #define LEFT 0x0A

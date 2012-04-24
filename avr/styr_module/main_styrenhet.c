@@ -124,7 +124,7 @@ void manual_control(){
 			rotate_right();
 			break;
 		case STOP:
-			manual_stop();
+			stop();
 			break;
 		
 	}
@@ -135,9 +135,11 @@ void auto_control(){
 
 	switch(mode){
 		case MODE_CROSSING_LEFT:
+			stop();
 			rotate_left();
 			break;
 		case MODE_CROSSING_RIGHT:
+			stop();
 			rotate_right();
 			break;
 		case MODE_CROSSING_FORWARD:

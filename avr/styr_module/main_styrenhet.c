@@ -56,10 +56,10 @@ ISR(INT1_vect){
 	
 	switch(mode){
 		case MODE_CROSSING_LEFT:
-			//send_sensor_mode(MODE_CROSSING_LEFT);
+			send_sensor_mode(MODE_GYRO);
 			break;
 		case MODE_CROSSING_RIGHT:
-			//send_sensor_mode(MODE_CROSSING_RIGHT);
+			send_sensor_mode(MODE_GYRO);
 			break;
 		case MODE_CROSSING_FORWARD:
 			send_sensor_mode(MODE_CROSSING_FORWARD);
@@ -83,6 +83,7 @@ ISR(INT1_vect){
 			send_sensor_mode(MODE_CROSSING);
 			break;
 		case MODE_GYRO_COMPLETE:
+			drive_forward();
 			send_sensor_mode(MODE_STRAIGHT);
 			mode = MODE_STRAIGHT;
 			break;
@@ -140,7 +141,7 @@ void auto_control(){
 			rotate_right();
 			break;
 		case MODE_CROSSING_FORWARD:
-			crossing_forward();
+			turn_forward();
 			break;
 		case MODE_STRAIGHT:
 			run_straight(diff, rot, k_p, k_d);

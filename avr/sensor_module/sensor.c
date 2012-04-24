@@ -15,12 +15,8 @@ uint8_t mode = MODE_STRAIGHT;
 
 uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
-<<<<<<< HEAD
-volatile uint16_t temp_count = 0; // Temporar fullosning
-=======
 
-uint16_t temp_count = 0; // Temporar fullosning
->>>>>>> 1621a9f31ad633e22b7220b2ef15b6ac94324a96
+volatile uint16_t temp_count = 0; // Temporar fullosning
 uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
@@ -460,19 +456,14 @@ int main()
 				else if (tape_value < low_threshold){
 					tape_detected(0);
 				}
-				if(highest_value(short_ir_1_values) < 20){
-				//	send_interrupt(MODE_CROSSING_LEFT);
+				if(highest_value(long_ir_1_values) < 20){
+				send_interrupt(MODE_CROSSING_LEFT);
 				}
-				else if(highest_value(short_ir_2_values) < 20){
-				//	send_interrupt(MODE_CROSSING_RIGHT);
+				else if(highest_value(long_ir_2_values) < 20){
+				send_interrupt(MODE_CROSSING_RIGHT);
 				}
 					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.
-				break;
-			case MODE_CROSSING:
-				send_long_ir_data(lowest_value(long_ir_1_values), lowest_value(long_ir_1_values));//´Skickar data från de långa sensorerna.
-				break;				
-			case MODE_COMPLETING_CROSSING: // Läge under korsning. Efter korsningsrutin återgår mode till STRAIGHT
-				break;			
+				break;					
 			case MODE_TURN_RIGHT:
 				gyro_mode = 1;
 				gyro_initialize = 1;

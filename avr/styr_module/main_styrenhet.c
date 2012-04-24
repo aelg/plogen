@@ -23,7 +23,7 @@ uint8_t way_home[1]; //här sparas hur vi har kört på väg in i labyrinten
 uint8_t last_tape_detected = 0; //Sparar senaste tejpmarkering
 
 uint8_t rot = 5;
-uint16_t crossing_counter = 0;
+uint32_t crossing_counter = 0;
 uint8_t ir_long_left = 0;
 uint8_t ir_long_right = 0;
 
@@ -85,6 +85,7 @@ ISR(INT1_vect){
 			send_sensor_mode(MODE_TURN_FORWARD);
 			break;
 		case MODE_CROSSING:
+			crossing_counter = 0;
 			break;
 		case MODE_GYRO_COMPLETE:
 			mode = MODE_CROSSING_FORWARD;
@@ -95,11 +96,11 @@ ISR(INT1_vect){
 
 //Routine to verify a crossing and decide which way to turn.
 void check_crossing(void){
-
+	manual_forward();
+	++crossing_counter;
 	//Kolla alla sensorer flera gånger för att verifiera en sväng.
-	if(crossing_counter > 0x7f00){
-		manual_stop();
-		if((PINB & 0b00001111) == 0){
+	if(crossing_counter > 0x80000000){
+		if((PINB & 0b00001111) == MODE_STRAIGHT){
 			mode = MODE_STRAIGHT; //Om vi inte var i korsning, fortsätt i MODE_STRAIGHT;
 			return;
 		}
@@ -133,7 +134,6 @@ void check_crossing(void){
 			return;
 		}
 	}
-	++crossing_counter;
 		
 }
 
@@ -171,22 +171,19 @@ void auto_control(){
 
 	switch(mode){
 		case MODE_CROSSING_LEFT:
-			stop();
 			rotate_left();
 			break;
 		case MODE_CROSSING_RIGHT:
-			stop();
 			rotate_right();
 			break;
 		case MODE_CROSSING_FORWARD:
-			if((PINB & 0b00001111) == 0) mode = MODE_STRAIGHT;
+			if((PINB & 0b00001111) == MODE_STRAIGHT) mode = MODE_STRAIGHT;
 			turn_forward();
 			break;
 		case MODE_STRAIGHT:
 			run_straight(diff, rot, k_p, k_d, TRUE);
 			break;
 		case MODE_CROSSING:
-			crossing_counter = 0;
 			check_crossing();
 			break;
         case MODE_LINE_FOLLOW:

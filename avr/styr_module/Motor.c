@@ -69,15 +69,10 @@ void rotate_left(void)
 //Köra framåt ur korsning
 void drive_forward(void)
 {
-int timer = 0;
-
-	while(timer < 0xffff){
-		OCR1A =	max_speed;//sets the length of pulses, right side - pin7
-		OCR1B =	max_speed;//sets the length of pulses, left side - pin8
-		PORTA =(1<<PORTA0)//Left wheel direction - pin5
-			  |(1<<PORTA1);//Right wheel direction - pin6
-		++timer;
-	}	
+	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		|(1<<PORTA1);//Right wheel direction - pin6
 }
 
 //Rutin för vänstersväng
@@ -132,14 +127,10 @@ void manual_forward(void)
 
 void stop(void)
 {
-int timer = 0;
-	while(timer < 0xffff){
-		OCR1A =	stop_speed;//sets the length of pulses, right side - pin7
-		OCR1B =	stop_speed;//sets the length of pulses, left side - pin8
-		PORTA =(1<<PORTA0)//Left wheel direction - pin5
-			  |(1<<PORTA1);//Right wheel direction - pin6	
-		++timer;
-	}
+	OCR1A =	stop_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	stop_speed;//sets the length of pulses, left side - pin8
+	PORTA =(1<<PORTA0)//Left wheel direction - pin5
+		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
 void manual_reverse(void)

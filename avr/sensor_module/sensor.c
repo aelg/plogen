@@ -10,9 +10,10 @@
 
 #define GYRO_TURN_LEFT -1150000
 #define GYRO_TURN_RIGHT 1150000 //Tolkas de decimalt??
-#define TURN_TRESHOLD 20
+#define TURN_TRESHOLD 30
 
-#define SEND_DATA 0x1000
+#define SEND_DATA 0x0100
+#define SEND_COMPUTER_DATA 0x2000
 
 
 uint8_t mode = MODE_STRAIGHT;
@@ -23,7 +24,7 @@ uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tej
 uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
 
 volatile uint16_t temp_count = 0; // Temporar fullosning
-volatile uint8_t send_to_computer = 0;
+volatile uint16_t send_to_computer = 0;
 uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
@@ -187,6 +188,8 @@ uint8_t rotation(){
 
 	rot = 127 + short3 - short2;
 
+	if (rot > 160 || rot < 80) return 127;
+
 	return rot;
 }
 
@@ -225,9 +228,9 @@ ISR(ADC_vect){
 		switch(i){
 		case 2:
 			// Spara värde från ad-omvandligen.
-			long_ir_1_values[itr_long_ir_1]= ADCH;
+			long_ir_2_values[itr_long_ir_2]= ADCH;
 			// Räkna upp iteratorn.
-      		if(++itr_long_ir_1 > 3) itr_long_ir_1 = 0;
+      		if(++itr_long_ir_2 > 3) itr_long_ir_2 = 0;
 			break;
 		case 3:
 			// Spara värde från ad-omvandligen.
@@ -249,9 +252,9 @@ ISR(ADC_vect){
 			break;
 		case 6:
 			// Spara värde från ad-omvandligen.
-			long_ir_2_values[itr_long_ir_2]= ADCH;
+			long_ir_1_values[itr_long_ir_1]= ADCH;
 			// Räkna upp iteratorn.
-			if(++itr_long_ir_2 > 3) itr_long_ir_2 = 0;
+			if(++itr_long_ir_1 > 3) itr_long_ir_1 = 0;
 			break;
 		case 7: 
 			tape_value = ADCH;
@@ -380,19 +383,18 @@ void send_straight_data(void){
 	if (++temp_count > SEND_DATA){
 
 		send_differences(difference(), rotation());
-
-		++send_to_computer;
-		if(send_to_computer > 1){	
-	
-	 	send_tape_value(tape_value);
-		send_sensor_values(lowest_value(long_ir_1_values),
-						  lowest_value(long_ir_2_values),
-						  lowest_value(short_ir_1_values),
-						  lowest_value(short_ir_2_values),
-						  lowest_value(short_ir_3_values));
-		send_to_computer = 0;
-		}
 		temp_count = 0;
+	}
+
+	if(++send_to_computer > SEND_COMPUTER_DATA){	
+	
+	send_tape_value(tape_value);
+	send_sensor_values(lowest_value(long_ir_1_values),
+					  lowest_value(long_ir_2_values),
+					  lowest_value(short_ir_1_values),
+					  lowest_value(short_ir_2_values),
+					  lowest_value(short_ir_3_values));
+	send_to_computer = 0;
 	}
 }
 
@@ -459,16 +461,16 @@ int main()
 
 		switch(mode){
 			case MODE_STRAIGHT:
-				if((highest_value(short_ir_1_values) < 30) || (highest_value(short_ir_2_values) < 30)){
+				if((lowest_value(short_ir_1_values) < 30) || (lowest_value(short_ir_2_values) < 30)){
 					if (!interrupt_sent){
 						send_interrupt(MODE_CROSSING);
 						interrupt_sent = 1;
 					}
 				
-					if(highest_value(long_ir_1_values) < TURN_TRESHOLD){
-						PORTD = MODE_CROSSING_LEFT;
-					}
-					else if(highest_value(long_ir_2_values) < TURN_TRESHOLD){
+					//if(lowest_value(long_ir_1_values) < TURN_TRESHOLD){
+					//	PORTD = MODE_CROSSING_LEFT;
+					//}
+					/*else */ if(lowest_value(long_ir_2_values) < TURN_TRESHOLD){
 						PORTD = MODE_CROSSING_RIGHT;
 					}
 					else PORTD = MODE_CROSSING_FORWARD;
@@ -492,12 +494,6 @@ int main()
 				}*/
 					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.
 				break;					
-			case MODE_TURN_RIGHT:
-				
-				break;
-			case MODE_TURN_LEFT:
-
-				break;
 			case MODE_FINISH:
 				if(++temp_count > SEND_DATA){
 				uint8_t pos = find_max();

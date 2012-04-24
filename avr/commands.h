@@ -47,11 +47,11 @@
 #define CMD_SENSOR_MODE 0x21
 
 //Olika modes för sensor och styrenhet
-#define MODE_CROSSING_LEFT 0x00
+#define MODE_CROSSING_LEFT 0x03
 #define MODE_CROSSING_RIGHT 0x01
 #define MODE_CROSSING_FORWARD 0x02
 
-#define MODE_STRAIGHT 0x03
+#define MODE_STRAIGHT 0x00
 
 #define MODE_TURN 0x04 // onödig?
 #define MODE_TURN_LEFT 0x05

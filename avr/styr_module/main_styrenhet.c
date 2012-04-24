@@ -56,10 +56,10 @@ ISR(INT1_vect){
 	
 	switch(mode){
 		case MODE_CROSSING_LEFT:
-			//send_sensor_mode(MODE_CROSSING_LEFT);
+			send_sensor_mode(MODE_GYRO);
 			break;
 		case MODE_CROSSING_RIGHT:
-			//send_sensor_mode(MODE_CROSSING_RIGHT);
+			send_sensor_mode(MODE_GYRO);
 			break;
 		case MODE_CROSSING_FORWARD:
 			send_sensor_mode(MODE_CROSSING_FORWARD);
@@ -71,16 +71,21 @@ ISR(INT1_vect){
 			send_sensor_mode(MODE_TURN);
 			break;
 		case MODE_TURN_LEFT:
-			send_sensor_mode(MODE_TURN_LEFT);
+			send_sensor_mode(MODE_GYRO);
 			break;
 		case MODE_TURN_RIGHT:
-			send_sensor_mode(MODE_TURN_RIGHT);
+			send_sensor_mode(MODE_GYRO);
 			break;
 		case MODE_TURN_FORWARD:
 			send_sensor_mode(MODE_TURN_FORWARD);
 			break;
 		case MODE_CROSSING:
 			send_sensor_mode(MODE_CROSSING);
+			break;
+		case MODE_GYRO_COMPLETE:
+			drive_forward();
+			send_sensor_mode(MODE_STRAIGHT);
+			mode = MODE_STRAIGHT;
 			break;
 	}
 }
@@ -136,7 +141,7 @@ void auto_control(){
 			rotate_right();
 			break;
 		case MODE_CROSSING_FORWARD:
-			crossing_forward();
+			turn_forward();
 			break;
 		case MODE_STRAIGHT:
 			run_straight(diff, rot, k_p, k_d);
@@ -144,10 +149,10 @@ void auto_control(){
 		case MODE_TURN:
 			break;
 		case MODE_TURN_LEFT:
-			turn_left();
+			rotate_left();
 			break;
 		case MODE_TURN_RIGHT:
-			turn_right();
+			rotate_right();
 			break;
 		case MODE_TURN_FORWARD:
 			turn_forward();
@@ -203,11 +208,15 @@ void check_TWI(){
 	    if(s[i] == REG_D){
           k_d = s[i+1];
         }
+	    if(s[i] == REG_SPEED){
+          set_speed(s[i+1], 3, 3);
+        }
       }
       break;
 	  case CMD_AUTO_ON:
       autonomous = 1;
       break;
+
     }
   }
 }

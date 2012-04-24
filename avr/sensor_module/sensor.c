@@ -8,10 +8,8 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-#define GYRO_TURN_LEFT -0x7fffffff
-#define GYRO_TURN_RIGHT 0x7fffffff //Tolkas de decimalt??
-
-
+#define GYRO_TURN_LEFT -1150000
+#define GYRO_TURN_RIGHT 1150000 //Tolkas de decimalt??
 
 uint8_t mode = MODE_STRAIGHT;
 
@@ -200,30 +198,26 @@ void send_interrupt(uint8_t mode){
 //AD-omvandling klar. 
 ISR(ADC_vect){
 
-	if(gyro_mode){
+	switch(mode){
+	case MODE_GYRO:
 		gyro_sum += (int8_t)ADCH;		
 
 		if((gyro_sum >= GYRO_TURN_RIGHT) || (gyro_sum <= GYRO_TURN_LEFT)){ //Värde för fullbordad sväng
-			PORTB = (0b11110000 | (PORTB & 0b11001111)); //Ettställ PB7-PB4
-			gyro_mode = 0; //gå ur gyro_mode
-			//gyro_sum = 0;
-			ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal. //ska det vara i här?
-			TIFR = 0b00010000; //Nollställ timer-interrupt så det inte blir interrupt direkt.
-			TIMSK = 0b00010000; //Enable interrupt on Output compare A
+			send_interrupt(MODE_GYRO_COMPLETE);
+			gyro_sum = 0;
 		}
 	
 		ADCSRA = 0xCB;
-		return;
-	} 
-	else if(line_following){
+		break;
+	case MODE_LINE_FOLLOW:
 		if(diod_iterator == 0) diod[10] = ADCH;
 		else diod[diod_iterator-1] = ADCH;// lägg ADCH i arrayen
 		ADCSRA = 0xCB;//Interrupt-bit nollställs
 		if(diod_iterator < 10) ++diod_iterator; // räkna upp iteratorn
 		else diod_iterator = 0;
 		PORTB = (PORTB & 0xf0) | (10-diod_iterator);
-	}
-	else{	
+		break;
+	case MODE_STRAIGHT:	
 		switch(i){
 		case 2:
 			// Spara värde från ad-omvandligen.
@@ -267,7 +261,7 @@ ISR(ADC_vect){
 
 		ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
 		ADCSRA = 0xCB;//Interrupt-bit nollställs
-		return;
+		break;
 	}
 }
 
@@ -277,9 +271,6 @@ ISR (TIMER1_COMPA_vect){
 	volatile uint8_t tape = tape_counter >> 1; //Ger antalet tejpar
 
 	switch(tape){
-	case 0: 
-		//send_interrupt(MODE_STRAIGHT);
-		break;
 	case 1:
 		send_interrupt(MODE_TURN_FORWARD);
 		break;
@@ -360,8 +351,14 @@ void init_gyro(){
 
 	ADMUX = 0b00110000;
 	TIMSK = 0b00000000; //Disable interrupt on Output compare A
-	gyro_initialize = 0;
 	gyro_sum = 0;
+}
+
+void init_straight(void){
+
+	ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal. //ska det vara i här?
+	TIFR = 0b00010000; //Nollställ timer-interrupt så det inte blir interrupt direkt.
+	TIMSK = 0b00010000; //Enable interrupt on Output compare A
 }
 
 void init_sensor_buffers(){
@@ -396,8 +393,11 @@ void check_TWI(){
   len = TWI_read(s);
   if(len){
     switch(s[0]){
-    case CMD_MODE:
-		mode = s[3];
+    case CMD_SENSOR_MODE:
+		mode = s[2];
+
+		if(mode == MODE_GYRO) init_gyro();
+		else init_straight();
 		break;
 
     }
@@ -420,7 +420,7 @@ void init_timer(void){
 	TCCR1B = 0b00001101; // gammalt: 4D;
 	TIMSK = 0b00010000; //Enable interrupt on Output compare A
 	TCNT1 = 0; //Nollställ timer
-	OCR1A = 0x0200; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
+	OCR1A = 0x0500; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
 }
 
 //Huvudprogram
@@ -456,19 +456,14 @@ int main()
 				else if (tape_value < low_threshold){
 					tape_detected(0);
 				}
-				if(highest_value(short_ir_1_values) < 40){
-					send_interrupt(MODE_CROSSING_LEFT);
+				if(highest_value(long_ir_1_values) < 20){
+				send_interrupt(MODE_CROSSING_LEFT);
 				}
-				else if(highest_value(short_ir_2_values) < 40){
-					send_interrupt(MODE_CROSSING_RIGHT);
+				else if(highest_value(long_ir_2_values) < 20){
+				send_interrupt(MODE_CROSSING_RIGHT);
 				}
 					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.
-				break;
-			case MODE_CROSSING:
-				send_long_ir_data(lowest_value(long_ir_1_values), lowest_value(long_ir_1_values));//´Skickar data från de långa sensorerna.
-				break;				
-			case MODE_COMPLETING_CROSSING: // Läge under korsning. Efter korsningsrutin återgår mode till STRAIGHT
-				break;			
+				break;					
 			case MODE_TURN_RIGHT:
 				gyro_mode = 1;
 				gyro_initialize = 1;
@@ -482,6 +477,8 @@ int main()
 				uint8_t pos = find_max();
 				send_line_pos(pos);
 				}		
+				break;
+			case MODE_GYRO:
 				break;
 			}
 						

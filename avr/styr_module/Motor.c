@@ -69,10 +69,15 @@ void rotate_left(void)
 //Köra framåt ur korsning
 void drive_forward(void)
 {
-	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
-	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
-	PORTA =(1<<PORTA0)//Left wheel direction - pin5
-		  |(1<<PORTA1);//Right wheel direction - pin6
+uint16_t timer = 0;
+
+	while(timer < 0x0fff){
+		OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+		OCR1B =	max_speed;//sets the length of pulses, left side - pin8
+		PORTA =(1<<PORTA0)//Left wheel direction - pin5
+			  |(1<<PORTA1);//Right wheel direction - pin6
+		timer++;
+	}	
 }
 
 //Rutin för vänstersväng
@@ -184,9 +189,6 @@ void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d){
 	return;
 }
 
-void crossing_right(void){}
-void crossing_left(void){}
-void crossing_forward(void){}
 
 // Målområdeskörning
 void line_follow(uint8_t num_diods, uint8_t tape_position){
@@ -204,4 +206,10 @@ void line_follow(uint8_t num_diods, uint8_t tape_position){
 	else {
 		turn_left();
 	}	
+}
+
+void set_speed(int16_t max, int16_t turn, int16_t stop){
+  max_speed = max;
+  turn_speed = turn;
+  stop_speed = stop;
 }

@@ -78,7 +78,7 @@ class Capp(threading.Thread):
     self.lRegP.grid(column=0, row=9, pady=0, padx=0)
 
     self.sRegP = StringVar()
-    self.sRegP.set("35")
+    self.sRegP.set("1")
     self.eRegP = Entry(self.frame, textvariable=self.sRegP, bg="white")
     self.eRegP.grid(column=1, row=9, pady=0, padx=0)
 
@@ -86,7 +86,7 @@ class Capp(threading.Thread):
     self.lSpeed.grid(column=2, row=9, pady=0, padx=0)
 
     self.sSpeed = StringVar()
-    self.sSpeed.set("60")
+    self.sSpeed.set("128")
     self.eSpeed = Entry(self.frame, textvariable=self.sSpeed, bg="white")
     self.eSpeed.grid(column=3, row=9, pady=0, padx=0)
 
@@ -94,7 +94,7 @@ class Capp(threading.Thread):
     self.lRegD.grid(column=0, row=10, pady=0, padx=0)
 
     self.sRegD = StringVar()
-    self.sRegD.set("5")
+    self.sRegD.set("4")
     self.eRegD = Entry(self.frame, textvariable=self.sRegD, bg="white")
     self.eRegD.grid(column=1, row=10, pady=0, padx=0)
 

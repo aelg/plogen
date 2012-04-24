@@ -17,12 +17,8 @@ uint8_t mode = MODE_STRAIGHT;
 
 uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
-<<<<<<< HEAD
-volatile uint16_t temp_count = 0; // Temporar fullosning
-=======
 
-uint16_t temp_count = 0; // Temporar fullosning
->>>>>>> 1621a9f31ad633e22b7220b2ef15b6ac94324a96
+volatile uint16_t temp_count = 0; // Temporar fullosning
 uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
@@ -255,9 +251,9 @@ ISR(ADC_vect){
 			break;
 		case 6:
 			// Spara värde från ad-omvandligen.
-			long_ir_2_values[itr_long_ir_2]= ADCH;
+			long_ir_1_values[itr_long_ir_1]= ADCH;
 			// Räkna upp iteratorn.
-			if(++itr_long_ir_2 > 3) itr_long_ir_2 = 0;
+			if(++itr_long_ir_1 > 3) itr_long_ir_1 = 0;
 			break;
 		case 7: 
 			tape_value = ADCH;

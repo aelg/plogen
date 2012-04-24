@@ -44,7 +44,7 @@ void turn_forward(void);
 void manual_left(void);
 void manual_right(void);
 void manual_forward(void);
-void manual_stop(void);
+void stop(void);
 void manual_reverse(void);
 void interrupts(void);
 void crossing_right(void);

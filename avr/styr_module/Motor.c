@@ -146,7 +146,7 @@ void manual_reverse(void)
 		  |(0<<PORTA1);//Right wheel direction - pin6	
 }
 
-void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d){
+void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d, uint8_t run){
 
 	int16_t difference = (diff - 127) << REGULATOR_CORR;
 	int16_t rotation = (rot - 127) << REGULATOR_CORR;
@@ -159,6 +159,8 @@ void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d){
 		delay = 0;
 	}
 	
+	if(!run) return;
+
 	int16_t pdreg_value = p + d;
 
 	//if((uint16_t)pdreg_value > max_speed) pdreg_value = max_speed;

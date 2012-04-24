@@ -1,7 +1,7 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <inttypes.h>
-#include<avr/pgmspace.h>
+#include <avr/pgmspace.h>
 #include "../TWI/TWI.h"
 #include "../utility/send.h"
 #include "../commands.h"
@@ -10,25 +10,29 @@
 
 #define GYRO_TURN_LEFT -1150000
 #define GYRO_TURN_RIGHT 1150000 //Tolkas de decimalt??
+#define TURN_TRESHOLD 20
+
+#define SEND_DATA 0x1000
+
 
 uint8_t mode = MODE_STRAIGHT;
+
+uint8_t interrupt_sent = 0;
 
 uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
 
 volatile uint16_t temp_count = 0; // Temporar fullosning
+volatile uint8_t send_to_computer = 0;
 uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
 volatile int32_t gyro_value; //Värdet på den analoga spänning som gyrot gett
 volatile int32_t gyro_sum; //Summan av gyrovärden. Används som integral. 
-volatile uint8_t gyro_mode = 0;
-volatile uint8_t gyro_initialize = 0;
 volatile uint8_t global_tape = 0;
 volatile uint8_t tape_counter = 0;
 volatile uint8_t timer = 0;
 
-volatile uint8_t line_following = 0;
 int diod_iterator = 0;
 uint8_t diod[11];
 
@@ -221,9 +225,9 @@ ISR(ADC_vect){
 		switch(i){
 		case 2:
 			// Spara värde från ad-omvandligen.
-			long_ir_2_values[itr_long_ir_2]= ADCH;
+			long_ir_1_values[itr_long_ir_1]= ADCH;
 			// Räkna upp iteratorn.
-      		if(++itr_long_ir_2 > 3) itr_long_ir_2 = 0;
+      		if(++itr_long_ir_1 > 3) itr_long_ir_1 = 0;
 			break;
 		case 3:
 			// Spara värde från ad-omvandligen.
@@ -245,9 +249,9 @@ ISR(ADC_vect){
 			break;
 		case 6:
 			// Spara värde från ad-omvandligen.
-			long_ir_1_values[itr_long_ir_1]= ADCH;
+			long_ir_2_values[itr_long_ir_2]= ADCH;
 			// Räkna upp iteratorn.
-			if(++itr_long_ir_1 > 3) itr_long_ir_1 = 0;
+			if(++itr_long_ir_2 > 3) itr_long_ir_2 = 0;
 			break;
 		case 7: 
 			tape_value = ADCH;
@@ -373,15 +377,21 @@ void init_sensor_buffers(){
 //Funktion som skickar all nödvändig data vid PD-reglering
 void send_straight_data(void){
 
-	if (++temp_count > 0x2000){
+	if (++temp_count > SEND_DATA){
 
 		send_differences(difference(), rotation());
-		send_tape_value(tape_value);
+
+		++send_to_computer;
+		if(send_to_computer > 1){	
+	
+	 	send_tape_value(tape_value);
 		send_sensor_values(lowest_value(long_ir_1_values),
 						  lowest_value(long_ir_2_values),
 						  lowest_value(short_ir_1_values),
 						  lowest_value(short_ir_2_values),
 						  lowest_value(short_ir_3_values));
+		send_to_computer = 0;
+		}
 		temp_count = 0;
 	}
 }
@@ -449,31 +459,47 @@ int main()
 
 		switch(mode){
 			case MODE_STRAIGHT:
-				send_straight_data();
-				if(tape_value > high_threshold){
-					tape_detected(1);
+				if((highest_value(short_ir_1_values) < 30) || (highest_value(short_ir_2_values) < 30)){
+					if (!interrupt_sent){
+						send_interrupt(MODE_CROSSING);
+						interrupt_sent = 1;
+					}
+				
+					if(highest_value(long_ir_1_values) < TURN_TRESHOLD){
+						PORTD = MODE_CROSSING_LEFT;
+					}
+					else if(highest_value(long_ir_2_values) < TURN_TRESHOLD){
+						PORTD = MODE_CROSSING_RIGHT;
+					}
+					else PORTD = MODE_CROSSING_FORWARD;
 				}
-				else if (tape_value < low_threshold){
-					tape_detected(0);
+				else{
+					interrupt_sent = 0;
+					send_straight_data();
+					PORTD = PORTD & 0xe0;
+					if(tape_value > high_threshold){
+						tape_detected(1);
+					}
+					else if (tape_value < low_threshold){
+						tape_detected(0);
+					}
 				}
-				if(highest_value(long_ir_1_values) < 20){
-				send_interrupt(MODE_CROSSING_LEFT);
+/*				if(highest_value(long_ir_1_values) < 20){
+				//send_interrupt(MODE_CROSSING_LEFT);
 				}
 				else if(highest_value(long_ir_2_values) < 20){
-				send_interrupt(MODE_CROSSING_RIGHT);
-				}
+				//send_interrupt(MODE_CROSSING_RIGHT);
+				}*/
 					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.
 				break;					
 			case MODE_TURN_RIGHT:
-				gyro_mode = 1;
-				gyro_initialize = 1;
+				
 				break;
 			case MODE_TURN_LEFT:
-				gyro_mode = 1;
-				gyro_initialize = 1;
+
 				break;
 			case MODE_FINISH:
-				if(++temp_count > 0x2000){
+				if(++temp_count > SEND_DATA){
 				uint8_t pos = find_max();
 				send_line_pos(pos);
 				}		
@@ -497,7 +523,7 @@ int main()
 		}
 
 		if (line_following){
-		    if(++temp_count > 0x0100){
+		    if(++temp_count > 0x){
 				temp_count = 0;
 				uint8_t pos = find_max();
 				test_pos = pos;

@@ -20,8 +20,10 @@ uint8_t tape_position = 5;
 uint8_t num_diods = 0;
 uint8_t way_home[1]; //här sparas hur vi har kört på väg in i labyrinten
 
+uint8_t last_tape_detected = 0; //Sparar senaste tejpmarkering
+
 uint8_t rot = 5;
-uint8_t crossing_counter = 0;
+uint16_t crossing_counter = 0;
 uint8_t ir_long_left = 0;
 uint8_t ir_long_right = 0;
 
@@ -71,21 +73,22 @@ ISR(INT1_vect){
 			send_sensor_mode(MODE_TURN);
 			break;
 		case MODE_TURN_LEFT:
+			last_tape_detected = 3;
 			send_sensor_mode(MODE_GYRO);
 			break;
 		case MODE_TURN_RIGHT:
+			last_tape_detected = 2;
 			send_sensor_mode(MODE_GYRO);
 			break;
 		case MODE_TURN_FORWARD:
+			last_tape_detected = 1;
 			send_sensor_mode(MODE_TURN_FORWARD);
 			break;
 		case MODE_CROSSING:
-			send_sensor_mode(MODE_CROSSING);
 			break;
 		case MODE_GYRO_COMPLETE:
-			drive_forward();
+			mode = MODE_CROSSING_FORWARD;
 			send_sensor_mode(MODE_STRAIGHT);
-			mode = MODE_STRAIGHT;
 			break;
 	}
 }
@@ -94,9 +97,41 @@ ISR(INT1_vect){
 void check_crossing(void){
 
 	//Kolla alla sensorer flera gånger för att verifiera en sväng.
-	if(crossing_counter < 0xff){
-	
-	//använd	ir_long_left och ir_long_right
+	if(crossing_counter > 0x7f00){
+		manual_stop();
+		if((PINB & 0b00001111) == 0){
+			mode = MODE_STRAIGHT; //Om vi inte var i korsning, fortsätt i MODE_STRAIGHT;
+			return;
+		}
+		switch(last_tape_detected){
+		case 1: 
+			mode = MODE_CROSSING_FORWARD;
+			last_tape_detected = 0;
+			return;
+		case 2:
+			mode = MODE_CROSSING_RIGHT;
+			send_sensor_mode(MODE_GYRO);
+			last_tape_detected = 0;
+			return;
+		case 3:
+			mode = MODE_CROSSING_LEFT;
+			send_sensor_mode(MODE_GYRO);
+			last_tape_detected = 0;
+			return;
+		}
+		switch(PINB & 0b00001111){
+		case MODE_CROSSING_FORWARD: 
+			mode = MODE_CROSSING_FORWARD;
+			return;
+		case MODE_CROSSING_RIGHT:
+			mode = MODE_CROSSING_RIGHT;
+			send_sensor_mode(MODE_GYRO);
+			return;
+		case MODE_CROSSING_LEFT:
+			mode = MODE_CROSSING_LEFT;
+			send_sensor_mode(MODE_GYRO);
+			return;
+		}
 	}
 	++crossing_counter;
 		
@@ -104,6 +139,7 @@ void check_crossing(void){
 
 //Manuell körning
 void manual_control(){
+	run_straight(diff, rot, k_p, k_d, FALSE);
 	switch(manual_command){
 		case LEFT:
 			manual_left();
@@ -141,23 +177,14 @@ void auto_control(){
 			rotate_right();
 			break;
 		case MODE_CROSSING_FORWARD:
+			if((PINB & 0b00001111) == 0) mode = MODE_STRAIGHT;
 			turn_forward();
 			break;
 		case MODE_STRAIGHT:
-			run_straight(diff, rot, k_p, k_d);
-			break;
-		case MODE_TURN:
-			break;
-		case MODE_TURN_LEFT:
-			rotate_left();
-			break;
-		case MODE_TURN_RIGHT:
-			rotate_right();
-			break;
-		case MODE_TURN_FORWARD:
-			turn_forward();
+			run_straight(diff, rot, k_p, k_d, TRUE);
 			break;
 		case MODE_CROSSING:
+			crossing_counter = 0;
 			check_crossing();
 			break;
         case MODE_LINE_FOLLOW:

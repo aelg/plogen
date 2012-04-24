@@ -245,9 +245,9 @@ ISR(ADC_vect){
 			break;
 		case 6:
 			// Spara värde från ad-omvandligen.
-			long_ir_2_values[itr_long_ir_2]= ADCH;
+			long_ir_1_values[itr_long_ir_1]= ADCH;
 			// Räkna upp iteratorn.
-			if(++itr_long_ir_2 > 3) itr_long_ir_2 = 0;
+			if(++itr_long_ir_1 > 3) itr_long_ir_1 = 0;
 			break;
 		case 7: 
 			tape_value = ADCH;

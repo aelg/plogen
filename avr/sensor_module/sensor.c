@@ -491,7 +491,7 @@ int main()
 					tape_detected(0);
 				}
 				break;					
-			case MODE_FINISH:
+			case MODE_LINE_FOLLOW:
 				if(++temp_count > SEND_DATA){
 				temp_count = 0;
 				uint8_t pos = find_max();

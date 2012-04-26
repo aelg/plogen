@@ -12,6 +12,9 @@
 #include "../commands.h"
 #include "../utility/send.h"
 
+#define LINE_START_MAX 0xf000
+
+uint16_t line_start_timer = 0;
 uint8_t driving_back = 0;
 uint8_t autonomous = 0;
 uint8_t manual_command = STOP;
@@ -58,9 +61,9 @@ ISR(INT0_vect){
 //Interrupt routine for changing sensormode on interrupt from sensor
 ISR(INT1_vect){
 	if (mode == MODE_CROSSING_FORWARD) return;
-	mode = PINB & 0b00001111;
+	uint8_t t_mode = PINB & 0b00001111;
 	
-	switch(mode){
+	switch(t_mode){
 		/*case MODE_TURN_LEFT:
 			last_tape_detected = 3;
      		mode = MODE_STRAIGHT;
@@ -73,6 +76,11 @@ ISR(INT1_vect){
 			last_tape_detected = 1;
       		mode = MODE_STRAIGHT;
 			break;*/
+		case MODE_LINE_FOLLOW:
+			line_start_timer = 0;
+			mode = MODE_LINE_FOLLOW;
+			send_sensor_mode(MODE_LINE_FOLLOW);
+			break;
 		case MODE_GYRO_COMPLETE:
 			if(mode == MODE_TURN_AROUND){
 				mode = MODE_CROSSING_LEFT;
@@ -226,6 +234,11 @@ void auto_control(){
 			check_crossing();
 			break;
         case MODE_LINE_FOLLOW:
+			if(line_start_timer < LINE_START_MAX){
+				++line_start_timer;
+				turn_forward();
+				break;
+			}
 			if(line_follow(num_diods, tape_position)){
 				mode = MODE_TURN_AROUND;
 				send_sensor_mode(MODE_GYRO);
@@ -290,10 +303,13 @@ void check_TWI(){
 		if(s[i] == IR_LONG_RIGHT){
           ir_long_right = s[i+1];
         }
-		if(s[i] == TAPE){
-		  last_tape_detected = s[i+1];
-		  if (last_tape_detected == 4) mode = MODE_LINE_FOLLOW;
-		}
+		/*if(s[i] == TAPE){
+		  	last_tape_detected = s[i+1];
+		  	if (last_tape_detected == 4){
+		  		mode = MODE_LINE_FOLLOW;
+				send_sensor_mode(MODE_LINE_FOLLOW);
+			}
+		}*/
       }
       break;
     case CMD_MANUAL:

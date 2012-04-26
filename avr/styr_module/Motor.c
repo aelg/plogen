@@ -189,10 +189,16 @@ void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d, uint8_t r
 
 // Målområdeskörning
 void line_follow(uint8_t num_diods, uint8_t tape_position){
+int timer = 0;
+
 	if(num_diods > 4){
-		OCR1A = 0x0003;//sets the length of pulses, right side - pin7
-		OCR1B = 0x0003;//sets the length of pulses, left side - pin8
+		stop();
 		griparm();
+		while(timer < 0x0fff){
+			rotate_right();
+			++timer;
+		}
+	
 	}
 	else if(tape_position<4){
 		turn_right();
@@ -210,3 +216,4 @@ void set_speed(int16_t max, int16_t turn, int16_t stop){
   turn_speed = turn;
   stop_speed = stop;
 }
+

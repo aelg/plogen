@@ -12,13 +12,16 @@
 #include "../commands.h"
 #include "../utility/send.h"
 
+uint8_t driving_back = 0;
 uint8_t autonomous = 0;
 uint8_t manual_command = STOP;
 uint8_t diff = 127;
 uint8_t mode = MODE_STRAIGHT;
 uint8_t tape_position = 5;
 uint8_t num_diods = 0;
-uint8_t way_home[1]; //här sparas hur vi har kört på väg in i labyrinten
+
+uint8_t way_home[20]; //här sparas hur vi har kört på väg in i labyrinten
+uint8_t way_home_iterator = 0; //pekar på hur vi ska svänga i nästa kurva.
 
 uint8_t last_tape_detected = 0; //Sparar senaste tejpmarkering
 
@@ -59,12 +62,15 @@ ISR(INT1_vect){
 	switch(mode){
 		case MODE_CROSSING_LEFT:
 			send_sensor_mode(MODE_GYRO);
+			way_home[++way_home_iterator] = 3;
 			break;
 		case MODE_CROSSING_RIGHT:
 			send_sensor_mode(MODE_GYRO);
+			way_home[++way_home_iterator] = 2;
 			break;
 		case MODE_CROSSING_FORWARD:
 			send_sensor_mode(MODE_CROSSING_FORWARD);
+			way_home[++way_home_iterator] = 1;
 			break;
 		case MODE_STRAIGHT:
 			send_sensor_mode(MODE_STRAIGHT);
@@ -75,14 +81,17 @@ ISR(INT1_vect){
 		case MODE_TURN_LEFT:
 			last_tape_detected = 3;
 			send_sensor_mode(MODE_GYRO);
+			way_home[++way_home_iterator] = 3;
 			break;
 		case MODE_TURN_RIGHT:
 			last_tape_detected = 2;
 			send_sensor_mode(MODE_GYRO);
+			way_home[++way_home_iterator] = 2;
 			break;
 		case MODE_TURN_FORWARD:
 			last_tape_detected = 1;
 			send_sensor_mode(MODE_TURN_FORWARD);
+			way_home[++way_home_iterator] = 1;
 			break;
 		case MODE_CROSSING:
 			crossing_counter = 0;
@@ -133,8 +142,30 @@ void check_crossing(void){
 			send_sensor_mode(MODE_GYRO);
 			return;
 		}
+	}		
+}
+
+
+void check_crossing_way_back(void){
+	switch(way_home[way_home_iterator]){
+		case 0:
+			stop(); 
+		case 1:
+			mode = MODE_CROSSING_LEFT;
+			send_sensor_mode(MODE_GYRO);
+			--way_home_iterator;
+		return;
+		case 2:
+			mode = MODE_CROSSING_FORWARD;
+			--way_home_iterator;
+		return;
+		case 3:
+			mode = MODE_CROSSING_RIGHT;
+			send_sensor_mode(MODE_GYRO);
+			--way_home_iterator;
+		return;
+		break;
 	}
-		
 }
 
 //Manuell körning
@@ -188,10 +219,34 @@ void auto_control(){
 			break;
         case MODE_LINE_FOLLOW:
 			line_follow(num_diods, tape_position);
+			autonomous = 1;
+			driving_back = 1;
 			break;
 	}
 }
 
+//Tillbakavägskörning
+void way_back(){
+
+	switch(mode){
+		case MODE_CROSSING_LEFT:
+			rotate_left();
+			break;
+		case MODE_CROSSING_RIGHT:
+			rotate_right();
+			break;
+		case MODE_CROSSING_FORWARD:
+			if((PINB & 0b00001111) == MODE_STRAIGHT) mode = MODE_STRAIGHT;
+			turn_forward();
+			break;
+		case MODE_STRAIGHT:
+			run_straight(diff, rot, k_p, k_d, TRUE);
+			break;
+		case MODE_CROSSING:
+			check_crossing_way_back();
+			break;
+	}
+}
 
 // Kontrollera meddelanden.
 void check_TWI(){
@@ -224,6 +279,7 @@ void check_TWI(){
       break;
     case CMD_MANUAL:
       autonomous = 0;
+	  driving_back = 0;
       manual_command = s[2];
       break;
 	case CMD_SET_REG_PARAMS:
@@ -241,8 +297,8 @@ void check_TWI(){
       break;
 	  case CMD_AUTO_ON:
       autonomous = 1;
+	  driving_back = 0;
       break;
-
     }
   }
 }
@@ -262,10 +318,16 @@ int main(void)
  	    check_TWI();
 
 	    if(autonomous){
-	      auto_control();
+			if(driving_back){
+				way_back();
+			}
+			else {
+				auto_control();
+ 			}
 	    }
-	    else {
-	      manual_control();
-	    }
+
+		else {
+			manual_control();
+		}
 	}
 }

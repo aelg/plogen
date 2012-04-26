@@ -64,6 +64,8 @@
 #define MODE_LINE_FOLLOW 0x0b
 #define MODE_GYRO_COMPLETE 0x0c
 #define MODE_GYRO 0x10
+#define MODE_WAY_HOME 0x11
+#define MODE_TURN_AROUND 0x12
 
 // Manuell kontroll
 #define LEFT 0x0A
@@ -87,6 +89,7 @@
 #define IR_SHORT_BACK 10
 #define LINE_POSITION 11
 #define DIOD 12
+#define CROSSING 13
 
 // Styrdatakonstanter
 #define AUTO_MODE 1 // Vilket läge är vi i manuell, raksträcka, tejpsväng osv.

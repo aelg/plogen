@@ -57,6 +57,7 @@ uint8_t short_ir_3_values[SENSOR_LIST_LENGTH];
 
 uint8_t test_pos;
 
+
 //Referensevärden
 
 const uint8_t distance_ref_short1[118] = 

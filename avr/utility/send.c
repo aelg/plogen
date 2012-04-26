@@ -115,3 +115,5 @@ void send_reg_params(uint16_t p, uint16_t d){
 
 	TWI_write(COMM_ADDRESS, s, 8);
 }
+
+

@@ -23,7 +23,8 @@ uint8_t way_home[1]; //här sparas hur vi har kört på väg in i labyrinten
 uint8_t last_tape_detected = 0; //Sparar senaste tejpmarkering
 
 uint8_t rot = 5;
-uint32_t crossing_counter = 0;
+uint32_t crossing_timer = 0;
+uint32_t crossing_timer_max = 0x14000;
 uint8_t ir_long_left = 0;
 uint8_t ir_long_right = 0;
 
@@ -70,12 +71,14 @@ ISR(INT1_vect){
       mode = MODE_STRAIGHT;
 			break;
 		case MODE_GYRO_COMPLETE:
+			crossing_timer = 0; // För att hindra roboten att tro 
+										// att den är ute ur svängen för tidigt.
 			mode = MODE_CROSSING_FORWARD;
 			send_sensor_mode(MODE_STRAIGHT);
 			break;
     default:
       mode = MODE_CROSSING;
-			crossing_counter = 0;
+			crossing_timer = 0;
 			break;
 	}
 }
@@ -83,13 +86,13 @@ ISR(INT1_vect){
 //Routine to verify a crossing and decide which way to turn.
 void check_crossing(void){
 	manual_forward();
-	++crossing_counter;
+	++crossing_timer;
 	if((PINB & 0b00001111) == MODE_STRAIGHT){
 		mode = MODE_STRAIGHT; //Om vi inte var i korsning, fortsätt i MODE_STRAIGHT;
 		return;
 	}
 	//Kolla alla sensorer flera gånger för att verifiera en sväng.
-	if(crossing_counter > 0x000f4240){ // 0xf4240 == 1000000
+	if(crossing_timer > crossing_timer_max){ // 0xf4240 == 1000000
 		switch(last_tape_detected){
 		case 1: 
 			mode = MODE_CROSSING_FORWARD;
@@ -162,7 +165,11 @@ void auto_control(){
 			rotate_right();
 			break;
 		case MODE_CROSSING_FORWARD:
-			if((PINB & 0b00001111) == MODE_STRAIGHT) mode = MODE_STRAIGHT;
+			if (crossing_timer < (crossing_timer_max >> 1)){
+				++crossing_timer;
+				break;
+			}
+			else if((PINB & 0b00001111) == MODE_STRAIGHT) mode = MODE_STRAIGHT;
 			turn_forward();
 			break;
 		case MODE_STRAIGHT:
@@ -222,6 +229,9 @@ void check_TWI(){
 	    if(s[i] == REG_SPEED){
           set_speed(s[i+1], 3, 3);
         }
+		if(s[i] == REG_TIMER){
+		  crossing_timer_max = ((uint32_t) s[i+1]) << 12;
+		}
       }
       break;
 	  case CMD_AUTO_ON:

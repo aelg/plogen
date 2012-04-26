@@ -8,12 +8,14 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-#define GYRO_TURN_LEFT -1150000
-#define GYRO_TURN_RIGHT 1150000 //Tolkas de decimalt??
+#define GYRO_TURN_LEFT -680000
+#define GYRO_TURN_RIGHT 680000 //Tolkas de decimalt??
 #define TURN_TRESHOLD 30
 
 #define SEND_DATA 0x0100
 #define SEND_COMPUTER_DATA 0x2000
+
+#define SENSOR_LIST_LENGTH 16
 
 
 uint8_t mode = MODE_STRAIGHT;
@@ -47,11 +49,11 @@ int itr_long_ir_2 = 0;
 int itr_short_ir_1 = 0;
 int itr_short_ir_2 = 0;
 int itr_short_ir_3 = 0;
-uint8_t long_ir_1_values[4];
-uint8_t long_ir_2_values[4];
-uint8_t short_ir_1_values[4];
-uint8_t short_ir_2_values[4];
-uint8_t short_ir_3_values[4];
+uint8_t long_ir_1_values[SENSOR_LIST_LENGTH];
+uint8_t long_ir_2_values[SENSOR_LIST_LENGTH];
+uint8_t short_ir_1_values[SENSOR_LIST_LENGTH];
+uint8_t short_ir_2_values[SENSOR_LIST_LENGTH];
+uint8_t short_ir_3_values[SENSOR_LIST_LENGTH];
 
 uint8_t test_pos;
 
@@ -121,7 +123,7 @@ uint8_t lowest_value(uint8_t *list)
 {
 	int minimum = list[0];
 	int itr;
-	for(itr=1;itr<4;itr++){
+	for(itr=1;itr < SENSOR_LIST_LENGTH;itr++){
 		if(minimum>list[itr]){
 		minimum=list[itr];
 		}
@@ -134,7 +136,7 @@ uint8_t highest_value(uint8_t *list)
 {
 	int maximum = list[0];
 	int itr;
-	for(itr=1;itr<4;itr++){
+	for(itr=1;itr<SENSOR_LIST_LENGTH;itr++){
 		if(maximum<list[itr]){
 		maximum=list[itr];
 		}
@@ -230,31 +232,31 @@ ISR(ADC_vect){
 			// Spara värde från ad-omvandligen.
 			long_ir_2_values[itr_long_ir_2]= ADCH;
 			// Räkna upp iteratorn.
-      		if(++itr_long_ir_2 > 3) itr_long_ir_2 = 0;
+      		if(++itr_long_ir_2 >= SENSOR_LIST_LENGTH) itr_long_ir_2 = 0;
 			break;
 		case 3:
 			// Spara värde från ad-omvandligen.
 			short_ir_1_values[itr_short_ir_1]= ADCH;
 			// Räkna upp iteratorn.
-			if(++itr_short_ir_1 > 3) itr_short_ir_1 = 0;
+			if(++itr_short_ir_1 >= SENSOR_LIST_LENGTH) itr_short_ir_1 = 0;
 			break;
 		case 4:
 			// Spara värde från ad-omvandligen.
 			short_ir_2_values[itr_short_ir_2]= ADCH;
 			// Räkna upp iteratorn.
-			if(++itr_short_ir_2 > 3) itr_short_ir_2 = 0;
+			if(++itr_short_ir_2 >= SENSOR_LIST_LENGTH) itr_short_ir_2 = 0;
 			break;
 		case 5:
 			// Spara värde från ad-omvandligen.
 			short_ir_3_values[itr_short_ir_3]= ADCH;
 			// Räkna upp iteratorn.
-			if(++itr_short_ir_3 > 3) itr_short_ir_3 = 0;
+			if(++itr_short_ir_3 >= SENSOR_LIST_LENGTH) itr_short_ir_3 = 0;
 			break;
 		case 6:
 			// Spara värde från ad-omvandligen.
 			long_ir_1_values[itr_long_ir_1]= ADCH;
 			// Räkna upp iteratorn.
-			if(++itr_long_ir_1 > 3) itr_long_ir_1 = 0;
+			if(++itr_long_ir_1 >= SENSOR_LIST_LENGTH) itr_long_ir_1 = 0;
 			break;
 		case 7: 
 			tape_value = ADCH;
@@ -467,13 +469,14 @@ int main()
 						interrupt_sent = 1;
 					}
 				
-					//if(lowest_value(long_ir_1_values) < TURN_TRESHOLD){
-					//	PORTD = MODE_CROSSING_LEFT;
-					//}
-					/*else */ if(lowest_value(long_ir_2_values) < TURN_TRESHOLD){
+					if(lowest_value(long_ir_1_values) < TURN_TRESHOLD){
+						PORTD = MODE_CROSSING_LEFT;
+					}
+					else if(lowest_value(long_ir_2_values) < TURN_TRESHOLD){
 						PORTD = MODE_CROSSING_RIGHT;
 					}
 					else PORTD = MODE_CROSSING_FORWARD;
+					send_straight_data();
 				}
 				else{
 					interrupt_sent = 0;
@@ -486,63 +489,19 @@ int main()
 						tape_detected(0);
 					}
 				}
-/*				if(highest_value(long_ir_1_values) < 20){
-				//send_interrupt(MODE_CROSSING_LEFT);
-				}
-				else if(highest_value(long_ir_2_values) < 20){
-				//send_interrupt(MODE_CROSSING_RIGHT);
-				}*/
-					//Skickar interrupt till styr om att vi är i korsning. PB7=1 ger interrupt, PB6-4 = 5 betyder korsning.
 				break;					
 			case MODE_FINISH:
 				if(++temp_count > SEND_DATA){
+				temp_count = 0;
 				uint8_t pos = find_max();
 				send_line_pos(pos);
+				uint8_t num_diods = tape_detections();
+				send_number_of_diods(num_diods);
 				}		
 				break;
 			case MODE_GYRO:
 				break;
 			}
-						
-/*
-		switch(gyro_mode){
-			case 1: if(gyro_initialize == 1) 
-						init_gyro();
-			break;	
-			case 0: if(tape_value > high_threshold){
-						tape_detected(1);
-					}
-					else if (tape_value < low_threshold){
-						tape_detected(0);
-					}
-			break;	
-		}
-
-		if (line_following){
-		    if(++temp_count > 0x){
-				temp_count = 0;
-				uint8_t pos = find_max();
-				test_pos = pos;
-				send_line_pos(pos);
-				uint8_t num_diods = tape_detections();
-				send_number_of_diods(num_diods);
-			}
-		}
-		else if (++temp_count > 0x2000){
-
-			send_differences(difference(), rotation());
-			send_tape_value(tape_value);
-			send_sensor_values(lowest_value(long_ir_1_values),
-							  lowest_value(long_ir_2_values),
-							  lowest_value(short_ir_1_values),
-							  lowest_value(short_ir_2_values),
-							  lowest_value(short_ir_3_values));
-			temp_count = 0;
-		}
-		//if(temp_count == 0x2000)
-		//	send_difference(difference());
-	}
-*/
 	}
 	return 0;
 }

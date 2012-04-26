@@ -99,3 +99,4 @@
 #define REG_P 1
 #define REG_D 2
 #define REG_SPEED 3
+#define REG_TIMER 4

@@ -8,9 +8,9 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-#define GYRO_TURN_LEFT -680000
-#define GYRO_TURN_RIGHT 680000 //Tolkas de decimalt??
-#define TURN_TRESHOLD 30
+#define GYRO_TURN_LEFT -750000
+#define GYRO_TURN_RIGHT 750000 //Tolkas de decimalt??
+#define TURN_TRESHOLD 20
 
 #define SEND_DATA 0x0100
 #define SEND_COMPUTER_DATA 0x2000
@@ -163,8 +163,9 @@ uint8_t difference(){
 	short1 = distance_ref_short1[low_short1];
 	short2 = distance_ref_short1[low_short2];
 
-
 	diff = 127 + short1 - short2;
+
+	
 
 	return diff;
 }
@@ -434,7 +435,7 @@ void init_timer(void){
 	TCCR1B = 0b00001101; // gammalt: 4D;
 	TIMSK = 0b00010000; //Enable interrupt on Output compare A
 	TCNT1 = 0; //Nollställ timer
-	OCR1A = 0x0500; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
+	OCR1A = 0x0200; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
 }
 
 //Huvudprogram

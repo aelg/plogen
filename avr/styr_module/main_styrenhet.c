@@ -54,7 +54,7 @@ ISR(INT0_vect){
 
 //Interrupt routine for changing sensormode on interrupt from sensor
 ISR(INT1_vect){
-
+	if (mode == MODE_CROSSING_FORWARD) return;
 	mode = PINB & 0b00001111;
 	
 	switch(mode){
@@ -111,6 +111,7 @@ void check_crossing(void){
 		}
 		switch(PINB & 0b00001111){
 		case MODE_CROSSING_FORWARD: 
+			crossing_timer = 0;
 			mode = MODE_CROSSING_FORWARD;
 			return;
 		case MODE_CROSSING_RIGHT:
@@ -165,12 +166,12 @@ void auto_control(){
 			rotate_right();
 			break;
 		case MODE_CROSSING_FORWARD:
-			if (crossing_timer < (crossing_timer_max >> 1)){
+			turn_forward();
+			if (crossing_timer < (crossing_timer_max)){
 				++crossing_timer;
 				break;
 			}
 			else if((PINB & 0b00001111) == MODE_STRAIGHT) mode = MODE_STRAIGHT;
-			turn_forward();
 			break;
 		case MODE_STRAIGHT:
 			run_straight(diff, rot, k_p, k_d, TRUE);
@@ -212,6 +213,9 @@ void check_TWI(){
 		if(s[i] == IR_LONG_RIGHT){
           ir_long_right = s[i+1];
         }
+		if(s[i] == TAPE){
+		  last_tape_detected = s[i+1];
+		}
       }
       break;
     case CMD_MANUAL:

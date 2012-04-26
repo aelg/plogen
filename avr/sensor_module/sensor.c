@@ -22,8 +22,8 @@ uint8_t mode = MODE_STRAIGHT;
 
 uint8_t interrupt_sent = 0;
 
-uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
-uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
+uint8_t high_threshold = 100;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+uint8_t low_threshold = 60;//Tröskelvärde som vid jämförelse ger tejp/inte
 
 volatile uint16_t temp_count = 0; // Temporar fullosning
 volatile uint16_t send_to_computer = 0;
@@ -280,7 +280,7 @@ ISR (TIMER1_COMPA_vect){
 
 	volatile uint8_t tape = tape_counter >> 1; //Ger antalet tejpar
 
-	switch(tape){
+	/*switch(tape){
 	case 1:
 		send_interrupt(MODE_TURN_FORWARD);
 		break;
@@ -290,7 +290,7 @@ ISR (TIMER1_COMPA_vect){
 	case 3: 
 		send_interrupt(MODE_TURN_LEFT);
 		break;
-	}
+	}*/
 
 	if (tape) send_tape(tape);
 	tape_counter = 0; //Nollställ tape_counter då timern gått.
@@ -435,7 +435,7 @@ void init_timer(void){
 	TCCR1B = 0b00001101; // gammalt: 4D;
 	TIMSK = 0b00010000; //Enable interrupt on Output compare A
 	TCNT1 = 0; //Nollställ timer
-	OCR1A = 0x0200; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
+	OCR1A = 0x0600; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
 }
 
 //Huvudprogram
@@ -477,18 +477,17 @@ int main()
 						PORTD = MODE_CROSSING_RIGHT;
 					}
 					else PORTD = MODE_CROSSING_FORWARD;
-					send_straight_data();
 				}
 				else{
 					interrupt_sent = 0;
-					send_straight_data();
 					PORTD = PORTD & 0xe0;
-					if(tape_value > high_threshold){
-						tape_detected(1);
-					}
-					else if (tape_value < low_threshold){
-						tape_detected(0);
-					}
+				}
+				send_straight_data();
+				if(tape_value > high_threshold){
+					tape_detected(1);
+				}
+				else if (tape_value < low_threshold){
+					tape_detected(0);
 				}
 				break;					
 			case MODE_FINISH:

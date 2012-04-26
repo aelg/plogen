@@ -58,7 +58,7 @@ ISR(INT1_vect){
 	mode = PINB & 0b00001111;
 	
 	switch(mode){
-		case MODE_TURN_LEFT:
+		/*case MODE_TURN_LEFT:
 			last_tape_detected = 3;
       mode = MODE_STRAIGHT;
 			break;
@@ -75,7 +75,7 @@ ISR(INT1_vect){
 										// att den är ute ur svängen för tidigt.
 			mode = MODE_CROSSING_FORWARD;
 			send_sensor_mode(MODE_STRAIGHT);
-			break;
+			break;*/
     default:
       mode = MODE_CROSSING;
 			crossing_timer = 0;
@@ -180,7 +180,9 @@ void auto_control(){
 			check_crossing();
 			break;
         case MODE_LINE_FOLLOW:
-			line_follow(num_diods, tape_position);
+			if(line_follow(num_diods, tape_position)){
+				mode = MODE_STRAIGHT;
+			}
 			break;
 	}
 }
@@ -215,6 +217,7 @@ void check_TWI(){
         }
 		if(s[i] == TAPE){
 		  last_tape_detected = s[i+1];
+		  if (last_tape_detected == 4) mode = MODE_LINE_FOLLOW;
 		}
       }
       break;

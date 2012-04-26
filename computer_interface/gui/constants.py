@@ -50,4 +50,4 @@ REG_SPEED = chr(3)
 #Constants for setMode
 
 debug_nobluetooth = 0
-debug = 2
+debug = 0

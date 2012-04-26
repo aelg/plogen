@@ -60,45 +60,25 @@ ISR(INT1_vect){
 	mode = PINB & 0b00001111;
 	
 	switch(mode){
-		case MODE_CROSSING_LEFT:
-			send_sensor_mode(MODE_GYRO);
-			way_home[++way_home_iterator] = 3;
-			break;
-		case MODE_CROSSING_RIGHT:
-			send_sensor_mode(MODE_GYRO);
-			way_home[++way_home_iterator] = 2;
-			break;
-		case MODE_CROSSING_FORWARD:
-			send_sensor_mode(MODE_CROSSING_FORWARD);
-			way_home[++way_home_iterator] = 1;
-			break;
-		case MODE_STRAIGHT:
-			send_sensor_mode(MODE_STRAIGHT);
-			break;
-		case MODE_TURN:
-			send_sensor_mode(MODE_TURN);
-			break;
 		case MODE_TURN_LEFT:
 			last_tape_detected = 3;
-			send_sensor_mode(MODE_GYRO);
-			way_home[++way_home_iterator] = 3;
+     		mode = MODE_STRAIGHT;
 			break;
 		case MODE_TURN_RIGHT:
 			last_tape_detected = 2;
-			send_sensor_mode(MODE_GYRO);
-			way_home[++way_home_iterator] = 2;
+      		mode = MODE_STRAIGHT;
 			break;
 		case MODE_TURN_FORWARD:
 			last_tape_detected = 1;
-			send_sensor_mode(MODE_TURN_FORWARD);
-			way_home[++way_home_iterator] = 1;
-			break;
-		case MODE_CROSSING:
-			crossing_counter = 0;
+      		mode = MODE_STRAIGHT;
 			break;
 		case MODE_GYRO_COMPLETE:
 			mode = MODE_CROSSING_FORWARD;
 			send_sensor_mode(MODE_STRAIGHT);
+			break;
+    default:
+      mode = MODE_CROSSING;
+			crossing_counter = 0;
 			break;
 	}
 }
@@ -107,37 +87,43 @@ ISR(INT1_vect){
 void check_crossing(void){
 	manual_forward();
 	++crossing_counter;
+	if((PINB & 0b00001111) == MODE_STRAIGHT){
+		mode = MODE_STRAIGHT; //Om vi inte var i korsning, fortsätt i MODE_STRAIGHT;
+		return;
+	}
 	//Kolla alla sensorer flera gånger för att verifiera en sväng.
-	if(crossing_counter > 0x80000000){
-		if((PINB & 0b00001111) == MODE_STRAIGHT){
-			mode = MODE_STRAIGHT; //Om vi inte var i korsning, fortsätt i MODE_STRAIGHT;
-			return;
-		}
+	if(crossing_counter > 0x000f4240){ // 0xf4240 == 1000000
 		switch(last_tape_detected){
-		case 1: 
+		case 1:
+			way_home[++way_home_iterator] = 1;
 			mode = MODE_CROSSING_FORWARD;
 			last_tape_detected = 0;
 			return;
 		case 2:
+			way_home[++way_home_iterator] = 2;
 			mode = MODE_CROSSING_RIGHT;
 			send_sensor_mode(MODE_GYRO);
 			last_tape_detected = 0;
 			return;
 		case 3:
+			way_home[++way_home_iterator] = 3;
 			mode = MODE_CROSSING_LEFT;
 			send_sensor_mode(MODE_GYRO);
 			last_tape_detected = 0;
 			return;
 		}
 		switch(PINB & 0b00001111){
-		case MODE_CROSSING_FORWARD: 
+		case MODE_CROSSING_FORWARD:
+			way_home[++way_home_iterator] = 1;
 			mode = MODE_CROSSING_FORWARD;
 			return;
 		case MODE_CROSSING_RIGHT:
+			way_home[++way_home_iterator] = 2;
 			mode = MODE_CROSSING_RIGHT;
 			send_sensor_mode(MODE_GYRO);
 			return;
 		case MODE_CROSSING_LEFT:
+			way_home[++way_home_iterator] = 3;
 			mode = MODE_CROSSING_LEFT;
 			send_sensor_mode(MODE_GYRO);
 			return;
@@ -164,7 +150,6 @@ void check_crossing_way_back(void){
 			send_sensor_mode(MODE_GYRO);
 			--way_home_iterator;
 		return;
-		break;
 	}
 }
 

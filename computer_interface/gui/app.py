@@ -174,7 +174,6 @@ class Capp(threading.Thread):
             print "Error illformed message from Plogen."
             continue
           for i in range(1, len(message)-1, 3):
-            print i
             if message[i] == REG_P:
               self.robot.regP = (ord(message[i+1]) * 256) + ord(message[i+2])
               if self.robot.regP > (1 << 8) : 

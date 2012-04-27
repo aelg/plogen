@@ -22,8 +22,8 @@ uint8_t mode = MODE_STRAIGHT;
 
 uint8_t interrupt_sent = 0;
 
-uint8_t high_threshold = 100;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
-uint8_t low_threshold = 60;//Tröskelvärde som vid jämförelse ger tejp/inte
+uint8_t high_threshold = 170;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+uint8_t low_threshold = 140;//Tröskelvärde som vid jämförelse ger tejp/inte
 
 volatile uint16_t temp_count = 0; // Temporar fullosning
 volatile uint16_t send_to_computer = 0;
@@ -228,7 +228,7 @@ ISR(ADC_vect){
 		else diod_iterator = 0;
 		PORTB = (PORTB & 0xf0) | (10-diod_iterator);
 		break;
-	case MODE_STRAIGHT:	
+	case MODE_STRAIGHT:
 		switch(i){
 		case 2:
 			// Spara värde från ad-omvandligen.
@@ -353,6 +353,7 @@ void tape_detected(int tape){
 	//Till Målområdeskörning
 	if(tape_counter == 7){
 		send_interrupt(MODE_LINE_FOLLOW);
+		tape_counter = 0;
 	}
 }
 	
@@ -402,6 +403,12 @@ void send_straight_data(void){
 	}
 }
 
+void init_line_follow(){
+	mode = MODE_LINE_FOLLOW;
+	temp_count = 0;
+	ADMUX = (ADMUX & 0xE0) | (7 & 0x1F); //Ställ in interna muxen att läsa från externa muxen.
+}
+
 // Kontrollera meddelanden.
 void check_TWI(){
   uint8_t s[16];
@@ -413,7 +420,7 @@ void check_TWI(){
 		mode = s[2];
 
 		if(mode == MODE_GYRO) init_gyro();
-		else if(mode == MODE_LINE_FOLLOW) temp_count = 0;
+		else if(mode == MODE_LINE_FOLLOW) init_line_follow();
 		else init_straight();
 		break;
 
@@ -459,7 +466,7 @@ int main()
 	ADMUX = 0x27;
 	ADCSRA = 0xCB; 
 	sei(); //tillåt interrupt
-
+	
 	while(1) {
 			
 		check_TWI();

@@ -12,7 +12,7 @@
 #include "../commands.h"
 #include "../utility/send.h"
 
-#define LINE_START_MAX 0xf000
+#define LINE_START_MAX 0x4000
 
 uint16_t line_start_timer = 0;
 uint8_t driving_back = 0;
@@ -112,6 +112,27 @@ void check_crossing(void){
 	}
 	//Kolla alla sensorer flera gånger för att verifiera en sväng.
 	if(crossing_timer > crossing_timer_max){ // 0xf4240 == 1000000
+		if(driving_back){
+			switch(way_home[way_home_iterator]){
+			case 0:
+				mode = MODE_FINISH;
+				return;
+			case 1:
+				mode = MODE_CROSSING_LEFT;
+				send_sensor_mode(MODE_GYRO);
+				--way_home_iterator;
+				return;
+			case 2:
+				mode = MODE_CROSSING_FORWARD;
+				--way_home_iterator;
+				return;
+			case 3:
+				mode = MODE_CROSSING_RIGHT;
+				send_sensor_mode(MODE_GYRO);
+				--way_home_iterator;
+				return;
+			}
+		}
 		switch(last_tape_detected){
 		case 1:
 			way_home[++way_home_iterator] = 1;
@@ -151,7 +172,7 @@ void check_crossing(void){
 	}		
 }
 
-
+/*
 void check_crossing_way_back(void){
 	manual_forward();
 	++crossing_timer;
@@ -180,7 +201,7 @@ void check_crossing_way_back(void){
 			return;
 		}
 	}
-}
+}*/
 
 //Manuell körning
 void manual_control(){
@@ -215,6 +236,7 @@ void manual_control(){
 void auto_control(){
 
 	switch(mode){
+		case MODE_TURN_AROUND:
 		case MODE_CROSSING_LEFT:
 			rotate_left();
 			break;
@@ -242,14 +264,15 @@ void auto_control(){
 				break;
 			}
 			if(line_follow(num_diods, tape_position)){
-				mode = MODE_TURN_AROUND;
-				send_sensor_mode(MODE_GYRO);
-				driving_back = 1;
+				mode = MODE_STRAIGHT;
+				send_sensor_mode(MODE_STRAIGHT);
+				driving_back = 0;
 			}
 			break;
 	}
 }
 
+/*
 //Tillbakavägskörning
 void way_back(){
 
@@ -277,7 +300,7 @@ void way_back(){
 			break;
 	}
 }
-
+*/
 // Kontrollera meddelanden.
 void check_TWI(){
   uint8_t s[16];
@@ -354,12 +377,7 @@ int main(void)
  	    check_TWI();
 
 	    if(autonomous){
-			if(driving_back){
-				way_back();
-			}
-			else {
-				auto_control();
- 			}
+			auto_control();
 	    }
 
 		else {

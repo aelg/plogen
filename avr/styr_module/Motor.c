@@ -198,13 +198,13 @@ uint8_t line_follow(uint8_t num_diods, uint8_t tape_position){
 		return 0;
 	}
 	else if(tape_position<4){
-		turn_right();
+		turn_left();
 	}
 	else if(tape_position>=4 && tape_position<=6){
 		turn_forward();
 	}
 	else {
-		turn_left();
+		turn_right();
 	}
 	return 0;
 

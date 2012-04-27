@@ -189,10 +189,13 @@ void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d, uint8_t r
 
 // Målområdeskörning
 uint8_t line_follow(uint8_t num_diods, uint8_t tape_position){
-	if(num_diods > 4){
+	if(num_diods > 8){
 		stop();
 		griparm();
 		return 1;
+	}
+	else if(num_diods == 0){
+		return 0;
 	}
 	else if(tape_position<4){
 		turn_right();

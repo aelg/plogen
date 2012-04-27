@@ -77,6 +77,8 @@ ISR(INT1_vect){
       		mode = MODE_STRAIGHT;
 			break;*/
 		case MODE_LINE_FOLLOW:
+		 	num_diods = 1;
+			tape_position = 5;
 			line_start_timer = 0;
 			mode = MODE_LINE_FOLLOW;
 			send_sensor_mode(MODE_LINE_FOLLOW);
@@ -303,13 +305,9 @@ void check_TWI(){
 		if(s[i] == IR_LONG_RIGHT){
           ir_long_right = s[i+1];
         }
-		/*if(s[i] == TAPE){
+		if(s[i] == TAPE){
 		  	last_tape_detected = s[i+1];
-		  	if (last_tape_detected == 4){
-		  		mode = MODE_LINE_FOLLOW;
-				send_sensor_mode(MODE_LINE_FOLLOW);
-			}
-		}*/
+		}
       }
       break;
     case CMD_MANUAL:

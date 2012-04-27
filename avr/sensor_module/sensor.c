@@ -413,6 +413,7 @@ void check_TWI(){
 		mode = s[2];
 
 		if(mode == MODE_GYRO) init_gyro();
+		else if(mode == MODE_LINE_FOLLOW) temp_count = 0;
 		else init_straight();
 		break;
 
@@ -493,11 +494,11 @@ int main()
 				break;					
 			case MODE_LINE_FOLLOW:
 				if(++temp_count > SEND_DATA){
-				temp_count = 0;
-				uint8_t pos = find_max();
-				send_line_pos(pos);
-				uint8_t num_diods = tape_detections();
-				send_number_of_diods(num_diods);
+					temp_count = 0;
+					uint8_t pos = find_max();
+					send_line_pos(pos);
+					uint8_t num_diods = tape_detections();
+					send_number_of_diods(num_diods);
 				}		
 				break;
 			case MODE_GYRO:

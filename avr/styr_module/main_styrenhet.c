@@ -30,7 +30,7 @@ uint8_t last_tape_detected = 0; //Sparar senaste tejpmarkering
 
 uint8_t rot = 5;
 uint32_t crossing_timer = 0;
-uint32_t crossing_timer_max = 0x14000;
+uint32_t crossing_timer_max = 0x5000;
 uint8_t ir_long_left = 0;
 uint8_t ir_long_right = 0;
 
@@ -135,18 +135,18 @@ void check_crossing(void){
 		}
 		switch(last_tape_detected){
 		case 1:
-			way_home[++way_home_iterator] = 1;
+			way_home[++way_home_iterator] = 2;
 			mode = MODE_CROSSING_FORWARD;
 			last_tape_detected = 0;
 			return;
 		case 2:
-			way_home[++way_home_iterator] = 3;
+			way_home[++way_home_iterator] = 1;
 			mode = MODE_CROSSING_RIGHT;
 			send_sensor_mode(MODE_GYRO);
 			last_tape_detected = 0;
 			return;
 		case 3:
-			way_home[++way_home_iterator] = 2;
+			way_home[++way_home_iterator] = 3;
 			mode = MODE_CROSSING_LEFT;
 			send_sensor_mode(MODE_GYRO);
 			last_tape_detected = 0;
@@ -155,16 +155,16 @@ void check_crossing(void){
 		switch(PINB & 0b00001111){
 		case MODE_CROSSING_FORWARD: 
 			crossing_timer = 0;
-			way_home[++way_home_iterator] = 1;
+			way_home[++way_home_iterator] = 2;
 			mode = MODE_CROSSING_FORWARD;
 			return;
 		case MODE_CROSSING_RIGHT:
-			way_home[++way_home_iterator] = 3;
+			way_home[++way_home_iterator] = 1;
 			mode = MODE_CROSSING_RIGHT;
 			send_sensor_mode(MODE_GYRO);
 			return;
 		case MODE_CROSSING_LEFT:
-			way_home[++way_home_iterator] = 2;
+			way_home[++way_home_iterator] = 3;
 			mode = MODE_CROSSING_LEFT;
 			send_sensor_mode(MODE_GYRO);
 			return;
@@ -269,6 +269,10 @@ void auto_control(){
 				driving_back = 1;
 			}
 			break;
+		case MODE_FINISH:
+			stop();
+			while(1);
+			break;
 	}
 }
 
@@ -369,6 +373,7 @@ int main(void)
 	setup_motor();
 	TWI_init(CONTROL_ADDRESS);
 	sei();
+	way_home[0] = 0;
 
 	// Loop
 	while (1){

@@ -8,8 +8,8 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-#define GYRO_TURN_LEFT -750000
-#define GYRO_TURN_RIGHT 750000 //Tolkas de decimalt??
+#define GYRO_TURN_LEFT -950000
+#define GYRO_TURN_RIGHT 950000 //Tolkas de decimalt??
 #define TURN_TRESHOLD 20
 
 #define SEND_DATA 0x0100
@@ -194,7 +194,7 @@ uint8_t rotation(){
 
 	if (rot > 160 || rot < 80) return 127;
 
-	return rot;
+	return rot - 7;
 }
 
 

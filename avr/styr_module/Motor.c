@@ -8,7 +8,7 @@
 #include "../commands.h"
 #include "../utility/send.h"
 
-int16_t max_speed = 0x0080;
+int16_t max_speed = 180;
 int16_t turn_speed = 0x0003;
 int16_t stop_speed = 0x0003;
 

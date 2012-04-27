@@ -21,7 +21,7 @@ uint16_t delay = 0;
 void griparm(void)
 {
 	TCNT2 = 0x00;
-	DDRD=0xFF;
+	DDRD= DDRD | 0x80;
 
 	TCCR2 |=(1<<FOC2);
 	TCCR2 |=(0 << WGM21)|(1<<WGM20);

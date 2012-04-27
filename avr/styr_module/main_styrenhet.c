@@ -264,9 +264,9 @@ void auto_control(){
 				break;
 			}
 			if(line_follow(num_diods, tape_position)){
-				mode = MODE_STRAIGHT;
-				send_sensor_mode(MODE_STRAIGHT);
-				driving_back = 0;
+				mode = MODE_TURN_AROUND;
+				send_sensor_mode(MODE_GYRO);
+				driving_back = 1;
 			}
 			break;
 	}

@@ -78,25 +78,33 @@ class Capp(threading.Thread):
     self.lRegP.grid(column=0, row=9, pady=0, padx=0)
 
     self.sRegP = StringVar()
-    self.sRegP.set("1")
+    self.sRegP.set("2")
     self.eRegP = Entry(self.frame, textvariable=self.sRegP, bg="white")
     self.eRegP.grid(column=1, row=9, pady=0, padx=0)
-
-    self.lSpeed = Label(self.frame, text = "Speed:")
-    self.lSpeed.grid(column=2, row=9, pady=0, padx=0)
-
-    self.sSpeed = StringVar()
-    self.sSpeed.set("128")
-    self.eSpeed = Entry(self.frame, textvariable=self.sSpeed, bg="white")
-    self.eSpeed.grid(column=3, row=9, pady=0, padx=0)
 
     self.lRegD = Label(self.frame, text = "D:")
     self.lRegD.grid(column=0, row=10, pady=0, padx=0)
 
     self.sRegD = StringVar()
-    self.sRegD.set("4")
+    self.sRegD.set("8")
     self.eRegD = Entry(self.frame, textvariable=self.sRegD, bg="white")
     self.eRegD.grid(column=1, row=10, pady=0, padx=0)
+
+    self.lSpeed = Label(self.frame, text = "Speed:")
+    self.lSpeed.grid(column=2, row=9, pady=0, padx=0)
+
+    self.sSpeed = StringVar()
+    self.sSpeed.set("250")
+    self.eSpeed = Entry(self.frame, textvariable=self.sSpeed, bg="white")
+    self.eSpeed.grid(column=3, row=9, pady=0, padx=0)
+
+    self.lTimer = Label(self.frame, text = "Crossing Timer:")
+    self.lTimer.grid(column=2, row=10, pady=0, padx=0)
+
+    self.sTimer = StringVar()
+    self.sTimer.set("5")
+    self.eTimer = Entry(self.frame, textvariable=self.sTimer, bg="white")
+    self.eTimer.grid(column=3, row=10, pady=0, padx=0)
 
     self.bSendRegParams = Button(self.frame, text="Send", command=self.sendRegParams)
     self.bSendRegParams.grid(column=2, row=14, pady=0, padx=0)
@@ -137,7 +145,7 @@ class Capp(threading.Thread):
       self.robot.setMode(MODE_AUTO)
 
   def sendRegParams(self):
-    self.robot.sendRegParams(self.sRegP.get(), self.sRegD.get(), speed = self.sSpeed.get())
+    self.robot.sendRegParams(self.sRegP.get(), self.sRegD.get(), speed = self.sSpeed.get(), timer = self.sTimer.get())
 
   def run(self):
 
@@ -167,7 +175,10 @@ class Capp(threading.Thread):
             if message[i] == IR_ANGLE:
               self.robot.IRAngle = ord(message[i+1])
             if message[i] == TAPE:
+              self.robot.numTape += 1
               self.robot.tape = ord(message[i+1])
+            if message[i] == TAPE_VALUE:
+              self.robot.tapeValue = ord(message[i+1])
 
         if message[0] == chr(CMD_REG_PARAMS):
           if not(len(message) % 3):

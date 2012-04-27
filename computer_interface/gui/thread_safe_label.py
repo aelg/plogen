@@ -26,6 +26,7 @@ class ThreadSafeLabel(Label):
   def updateData(self) :
     # Display data from the robot-object on the label
     self.data.set("Antal tejp: " + str(self.robot.getTape()) + \
+        "\nTejp value: " + str(self.robot.getTapeValue()) + " No: " + str(self.robot.getNumTape()) + \
         "\nIR Long Left: " + str(self.robot.getIRLongLeft()) + \
         "\nIR Long Right: " + str(self.robot.getIRLongRight()) + \
         "\nIR Short Left: " + str(self.robot.getIRShortLeft()) + \

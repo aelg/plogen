@@ -27,6 +27,8 @@ class Crobot(threading.Thread):
 
     self.bt = bt
     self.tape = 0
+    self.numTape = 0
+    self.tapeValue = 0
     self.speed = 0
     self.IRLongLeft = 0
     self.IRLongRight = 0
@@ -104,6 +106,10 @@ class Crobot(threading.Thread):
     return self.autoMode
   def getTape(self):
     return self.tape
+  def getNumTape(self):
+    return self.numTape
+  def getTapeValue(self):
+    return self.tapeValue
   def getButtonPressed(self): return self.button_pressed
   ##
   # Functions for controling the BT
@@ -151,8 +157,8 @@ class Crobot(threading.Thread):
 
   ##
   # Send Regulator Params
-  def sendRegParams(self, p, d, speed):
-    self.bt.sendcmd(CMD_SET_REG_PARAMS, REG_P + chr(int(p)) + REG_D + chr(int(d)) + REG_SPEED + chr(int(speed)))
+  def sendRegParams(self, p, d, speed, timer):
+    self.bt.sendcmd(CMD_SET_REG_PARAMS, REG_P + chr(int(p)) + REG_D + chr(int(d)) + REG_SPEED + chr(int(speed)) + REG_TIMER + chr(int(timer)))
 
   def setMode(self, mode):
     self.bt.sendcmd(CMD_SET_MODE, '' + chr(mode))

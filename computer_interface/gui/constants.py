@@ -46,6 +46,7 @@ BACKWARD = chr(0x0d)
 REG_P = chr(1)
 REG_D = chr(2)
 REG_SPEED = chr(3)
+REG_TIMER = chr(4)
 
 #Constants for setMode
 

@@ -12,6 +12,8 @@
 #define GYRO_TURN_RIGHT 950000 //Tolkas de decimalt??
 #define GYRO_TURN_AROUND 2700000
 #define TURN_TRESHOLD 20
+#define SHORT_TRESHOLD 30
+#define MIDDLE_SENSOR_VALUE 48
 
 #define SEND_DATA 0x0100
 #define SEND_COMPUTER_DATA 0x2000
@@ -162,8 +164,13 @@ uint8_t difference(){
 
 	if(low_short1 > 117)
 		low_short1 = 117;
+  else if(low_short1 < SHORT_TRESHOLD)
+    low_short1 = MIDDLE_SENSOR_VALUE;
 	if(low_short2 > 117)
 		low_short2 = 117;
+  else if(low_short2 < SHORT_TRESHOLD)
+    low_short2 = MIDDLE_SENSOR_VALUE;
+
 	short1 = distance_ref_short1[low_short1];
 	short2 = distance_ref_short1[low_short2];
 
@@ -481,7 +488,7 @@ int main()
 
 		switch(mode){
 			case MODE_STRAIGHT:
-				if((lowest_value(short_ir_1_values) < 30) || (lowest_value(short_ir_2_values) < 30)){
+				if((lowest_value(short_ir_1_values) < SHORT_TRESHOLD) || (lowest_value(short_ir_2_values) < SHORT_TRESHOLD)){
 					if (!interrupt_sent){
 						send_interrupt(MODE_CROSSING);
 						interrupt_sent = 1;

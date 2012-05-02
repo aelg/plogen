@@ -230,7 +230,8 @@ ISR(INT1_vect){
 
 //Routine to verify a crossing and decide which way to turn.
 void crossing(void){
-	forward();
+	run_straight(diff, rot, k_p, k_d, TRUE); // Kör med reglering här eftersom diff och rot ska ge rakt fram 
+                                           // om de inte ser väggar och annars reglera efter väggen den ser.
 	++crossing_timer;
 	if(MODE_FROM_SENSOR == MODE_STRAIGHT){
     set_mode_straight();
@@ -283,7 +284,8 @@ void crossing(void){
  *  Räknar upp crossing_counter och byter sen till MODE_STRAIGHT.
  */
 void crossing_forward(){
-  forward();
+	run_straight(diff, rot, k_p, k_d, TRUE); // Kör med reglering här eftersom diff och rot ska ge rakt fram 
+                                           // om de inte ser väggar och annars reglera efter väggen den ser.
 	if (crossing_timer < (crossing_timer_max)){
 		++crossing_timer;
 		return;

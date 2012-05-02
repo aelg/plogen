@@ -16,7 +16,7 @@
 #define SEND_DATA 0x0100
 #define SEND_COMPUTER_DATA 0x2000
 
-#define SENSOR_LIST_LENGTH 16
+#define SENSOR_LIST_LENGTH 8
 
 
 uint8_t mode = MODE_STRAIGHT;
@@ -106,16 +106,6 @@ const uint8_t distance_ref_short3[118] =
 	 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 
 	 3, 2, 2, 2, 1, 1, 1, 0};
 
-										   /*{0, 0, 0,  1,  1,  1,  2,  2,  2,  3,  3, 3,  4, 
-											4,	5,	5,  6,  6,  7,  7,  8,  8,  9,  9,  10, 10,    
-									 		11,11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17,  
-									 		18,19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 
-									 		31,32, 33, 34, 36, 38, 40, 41, 42, 44, 45, 47, 48,
-											49,51, 53, 55, 57,	59,	61,	62,	64, 66,	69,	71,	74,
-									 		77,80,	83,	86,	90,	93,	96,	100,104,108,112,119,127};*/
-//volatile uint8_t voltage_ref_long1[]; // Behöver endast en bransch!
-//volatile uint8_t voltage_ref_long2[]; // Behöver endast en bransch!
-
 
 ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 	volatile uint8_t c;
@@ -125,14 +115,24 @@ ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 //Subrutin som plockar ut det minsta värdet i arrayen
 uint8_t lowest_value(uint8_t *list)
 {
-	int minimum = list[0];
-	int itr;
+  uint8_t min1, min2, min3, itr;
+	min1 = list[0];
+  min2 = min3 = 255;
 	for(itr=1;itr < SENSOR_LIST_LENGTH;itr++){
-		if(minimum>list[itr]){
-		minimum=list[itr];
+		if(list[itr] < min1){
+		  min3 = min2;
+      min2 = min1;
+      min1 = list[itr];
+		}
+    else if(list[itr] < min2){
+		  min3 = min2;
+      min2 = list[itr];
+		}
+    else if(list[itr] < min3){
+		  min3 = list[itr];
 		}
 	}
-	return minimum;
+	return min3;
 }
 
 //Subrutin som plockar ut det högsta värdet i arrayen

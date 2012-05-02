@@ -12,10 +12,12 @@
 #include "../commands.h"
 #include "../utility/send.h"
 
-#define LINE_START_MAX 0x0100
+#define LINE_START_MAX 0x0f00
 #define CROSSING_TIMER_MAX 0x5000
 
 #define MODE_FROM_SENSOR (PINB & 0x0f)
+
+void set_mode_turn_complete();
 
 // Räknare som ser används då saker inte ska göras för ofta.
 uint16_t line_start_timer = 0;
@@ -154,10 +156,9 @@ void set_mode_forward_turn(){
  *  därför räknas den först upp här.
  */
 void set_mode_turn_around(){
-  mode = MODE_TURN_AROUND;
+ 	mode = MODE_TURN_AROUND;
 	send_sensor_mode(MODE_GYRO);
-  ++way_home_iterator;
-  driving_back = 1;
+ 	driving_back = 1;
 }
 
 /** Byt till "turn complete"
@@ -180,7 +181,7 @@ void set_mode_turn_complete(){
 void set_mode_finish(){
   stop();
   autonomous = 0;
-  MANUAL_COMMAND = MANUAL_STOP;
+  mode = STOP;
 }
 
 // Interrupts
@@ -211,15 +212,10 @@ ISR(INT1_vect){
 	
 	switch(t_mode){
 		case MODE_LINE_FOLLOW:
-      set_mode_line_follow(){
+      if(driving_back == 0) set_mode_line_follow();
 			break;
 		case MODE_GYRO_COMPLETE:
-			if(mode == MODE_TURN_AROUND){
-        set_mode_left_turn();
-			}
-			else {
-        set_mode_turn_complete()
-			}
+		   set_mode_turn_complete();
 			break;
     default:
       set_mode_crossing();

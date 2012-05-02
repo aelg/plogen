@@ -10,6 +10,7 @@
 
 #define GYRO_TURN_LEFT -950000
 #define GYRO_TURN_RIGHT 950000 //Tolkas de decimalt??
+#define GYRO_TURN_AROUND 2700000
 #define TURN_TRESHOLD 20
 
 #define SEND_DATA 0x0100
@@ -19,6 +20,8 @@
 
 
 uint8_t mode = MODE_STRAIGHT;
+
+uint8_t turn_around = 0;
 
 uint8_t interrupt_sent = 0;
 
@@ -211,9 +214,13 @@ ISR(ADC_vect){
 
 	switch(mode){
 	case MODE_GYRO:
-		gyro_sum += (int8_t)ADCH;		
-
-		if((gyro_sum >= GYRO_TURN_RIGHT) || (gyro_sum <= GYRO_TURN_LEFT)){ //Värde för fullbordad sväng
+		gyro_sum += (int8_t)ADCH;
+		if(turn_around == 1 && (gyro_sum >= GYRO_TURN_AROUND)){
+			send_interrupt(MODE_GYRO_COMPLETE);
+			gyro_sum = 0;
+			turn_around = 0;
+			}
+		else if(turn_around == 0 && ((gyro_sum >= GYRO_TURN_RIGHT) || (gyro_sum <= GYRO_TURN_LEFT))){ //Värde för fullbordad sväng
 			send_interrupt(MODE_GYRO_COMPLETE);
 			gyro_sum = 0;
 		}
@@ -221,6 +228,7 @@ ISR(ADC_vect){
 		ADCSRA = 0xCB;
 		break;
 	case MODE_LINE_FOLLOW:
+		turn_around = 1;
 		if(diod_iterator == 0) diod[10] = ADCH;
 		else diod[diod_iterator-1] = ADCH;// lägg ADCH i arrayen
 		ADCSRA = 0xCB;//Interrupt-bit nollställs

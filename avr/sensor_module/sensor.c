@@ -8,14 +8,14 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-#define GYRO_TURN_LEFT -950000
-#define GYRO_TURN_RIGHT 950000 //Tolkas de decimalt??
+#define GYRO_TURN_LEFT 950000
+#define GYRO_TURN_RIGHT -700000 //Tolkas de decimalt??
 #define GYRO_TURN_AROUND 2700000
 #define TURN_TRESHOLD 20
 #define SHORT_TRESHOLD 30
 #define MIDDLE_SENSOR_VALUE 48
 
-#define SEND_DATA 0x0100
+#define SEND_DATA 0x0040
 #define SEND_COMPUTER_DATA 0x2000
 
 #define SENSOR_LIST_LENGTH 8
@@ -225,7 +225,7 @@ ISR(ADC_vect){
 			gyro_sum = 0;
 			turn_around = 0;
 			}
-		else if(turn_around == 0 && ((gyro_sum >= GYRO_TURN_RIGHT) || (gyro_sum <= GYRO_TURN_LEFT))){ //Värde för fullbordad sväng
+		else if(turn_around == 0 && ((gyro_sum <= GYRO_TURN_RIGHT) || (gyro_sum >= GYRO_TURN_LEFT))){ //Värde för fullbordad sväng
 			send_interrupt(MODE_GYRO_COMPLETE);
 			gyro_sum = 0;
 		}

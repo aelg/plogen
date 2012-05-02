@@ -150,8 +150,6 @@ uint8_t highest_value(uint8_t *list)
 	return maximum;
 }
 
-
-
 //Differensfunktion
 uint8_t difference(){
 
@@ -251,7 +249,7 @@ ISR(ADC_vect){
 			// Räkna upp iteratorn.
       		if(++itr_long_ir_2 >= SENSOR_LIST_LENGTH) itr_long_ir_2 = 0;
 			break;
-		case 3:
+		case 5:
 			// Spara värde från ad-omvandligen.
 			short_ir_1_values[itr_short_ir_1]= ADCH;
 			// Räkna upp iteratorn.
@@ -263,7 +261,7 @@ ISR(ADC_vect){
 			// Räkna upp iteratorn.
 			if(++itr_short_ir_2 >= SENSOR_LIST_LENGTH) itr_short_ir_2 = 0;
 			break;
-		case 5:
+		case 3:
 			// Spara värde från ad-omvandligen.
 			short_ir_3_values[itr_short_ir_3]= ADCH;
 			// Räkna upp iteratorn.

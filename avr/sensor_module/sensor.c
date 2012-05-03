@@ -12,10 +12,10 @@
 #define GYRO_TURN_RIGHT -700000 //Tolkas de decimalt??
 #define GYRO_TURN_AROUND 2700000
 #define TURN_TRESHOLD 20
-#define SHORT_TRESHOLD 30
+#define SHORT_TRESHOLD 25
 #define MIDDLE_SENSOR_VALUE 48
 
-#define SEND_DATA 0x0100
+#define SEND_DATA 0x0040
 #define SEND_COMPUTER_DATA 0x2000
 
 #define SENSOR_LIST_LENGTH 8
@@ -484,8 +484,7 @@ int main()
 	ADMUX = 0x27;
 	ADCSRA = 0xCB; 
 	sei(); //tillåt interrupt
-	init_line_follow();
-	
+
 	while(1) {
 			
 		check_TWI();
@@ -525,6 +524,7 @@ int main()
 					send_line_pos(pos);
 					uint8_t num_diods = tape_detections();
 					send_number_of_diods(num_diods);
+					send_differences(difference(), rotation());
 				}		
 				break;
 			case MODE_GYRO:

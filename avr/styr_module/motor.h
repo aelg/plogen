@@ -32,7 +32,7 @@
 #define ROTATION_COMPLETE 0x11 //onödig?
 
 #define K_P 2 //P-konstant i PD-regulator
-#define K_D 10 //D-konstant i PD-regulator
+#define K_D 14 //D-konstant i PD-regulator
 
 #define REGULATOR_CORR 4 // Antalet steg man shiftar resultatet i P- resp. D-regleringen. Vilket ger bra varlden.
 

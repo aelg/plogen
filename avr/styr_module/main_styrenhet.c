@@ -13,7 +13,7 @@
 #include "../utility/send.h"
 
 #define LINE_START_MAX 0x0f00
-#define CROSSING_TIMER_MAX 0x5000
+#define CROSSING_TIMER_MAX 0x4000
 
 #define MODE_FROM_SENSOR (PINB & 0x0f)
 
@@ -286,7 +286,7 @@ void crossing(void){
 void crossing_forward(){
 	forward(); // 
                                            // om de inte ser väggar och annars reglera efter väggen den ser.
-	if (crossing_timer < (crossing_timer_max)){
+	if (crossing_timer < (crossing_timer_max << 1)){
 		++crossing_timer;
 		return;
 	}

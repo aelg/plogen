@@ -219,13 +219,19 @@ ISR(ADC_vect){
 		ADCSRA = 0xCB;
 		break;
 	case MODE_LINE_FOLLOW:
-		if(diod_iterator == 0) diod[10] = ADCH;
-		else diod[diod_iterator-1] = ADCH;// lägg ADCH i arrayen
-		ADCSRA = 0xCB;//Interrupt-bit nollställs
-		if(diod_iterator < 10) ++diod_iterator; // räkna upp iteratorn
-		else diod_iterator = 0;
-		PORTB = (PORTB & 0xf0) | (10-diod_iterator);
-		break;
+		if(i == 7){
+			if(diod_iterator == 0) diod[10] = ADCH;
+			else diod[diod_iterator-1] = ADCH;// lägg ADCH i arrayen
+			ADCSRA = 0xCB;//Interrupt-bit nollställs
+			if(diod_iterator < 10) ++diod_iterator; // räkna upp iteratorn
+			else diod_iterator = 0;
+			PORTB = (PORTB & 0xf0) | (10-diod_iterator);
+			if(diod_iterator == 0){
+				i = 2;
+				break;
+			}
+			break;
+		}
 	case MODE_STRAIGHT:	
 		switch(i){
 		case 2:
@@ -262,9 +268,8 @@ ISR(ADC_vect){
 			tape_value = ADCH;
 			break;
 		}
-
 		if(++i > 7){
-			i = 2;
+				i = 2;
 		}
 
 

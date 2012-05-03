@@ -46,8 +46,8 @@ uint8_t way_home[20]; //här sparas hur vi har kört på väg in i labyrinten
 uint8_t way_home_iterator = 0; //pekar på hur vi ska svänga i nästa kurva.
 
 // Regulatorparametrar.
-uint8_t k_p = REG_P;
-uint8_t k_d = REG_D;
+uint8_t k_p = K_P;
+uint8_t k_d = K_D;
 
 /** Initiera interrupts.
  *  INT0 används för att upptäcka knapptryck på den blå knappen, denna byter mellan autonomt och manuellt läge.

@@ -8,7 +8,7 @@ void send_tape(uint8_t tape){
 	s[2] = TAPE;
 	s[3] = tape;
 
-	TWI_write(COMM_ADDRESS, s, 4);
+	TWI_write(GENERAL_CALL, s, 4);
 }
 
 void send_tape_value(uint8_t value){
@@ -115,3 +115,5 @@ void send_reg_params(uint16_t p, uint16_t d){
 
 	TWI_write(COMM_ADDRESS, s, 8);
 }
+
+

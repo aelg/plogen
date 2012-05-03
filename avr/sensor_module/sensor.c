@@ -8,22 +8,27 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-#define GYRO_TURN_LEFT -680000
-#define GYRO_TURN_RIGHT 680000 //Tolkas de decimalt??
-#define TURN_TRESHOLD 30
+#define GYRO_TURN_LEFT 950000
+#define GYRO_TURN_RIGHT -700000 //Tolkas de decimalt??
+#define GYRO_TURN_AROUND 2700000
+#define TURN_TRESHOLD 20
+#define SHORT_TRESHOLD 30
+#define MIDDLE_SENSOR_VALUE 48
 
 #define SEND_DATA 0x0100
 #define SEND_COMPUTER_DATA 0x2000
 
-#define SENSOR_LIST_LENGTH 16
+#define SENSOR_LIST_LENGTH 8
 
 
 uint8_t mode = MODE_STRAIGHT;
 
+uint8_t turn_around = 0;
+
 uint8_t interrupt_sent = 0;
 
-uint8_t high_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
-uint8_t low_threshold = 20;//Tröskelvärde som vid jämförelse ger tejp/inte
+uint8_t high_threshold = 170;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+uint8_t low_threshold = 140;//Tröskelvärde som vid jämförelse ger tejp/inte
 
 volatile uint16_t temp_count = 0; // Temporar fullosning
 volatile uint16_t send_to_computer = 0;
@@ -56,6 +61,7 @@ uint8_t short_ir_2_values[SENSOR_LIST_LENGTH];
 uint8_t short_ir_3_values[SENSOR_LIST_LENGTH];
 
 uint8_t test_pos;
+
 
 //Referensevärden
 
@@ -102,16 +108,6 @@ const uint8_t distance_ref_short3[118] =
 	 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 
 	 3, 2, 2, 2, 1, 1, 1, 0};
 
-										   /*{0, 0, 0,  1,  1,  1,  2,  2,  2,  3,  3, 3,  4, 
-											4,	5,	5,  6,  6,  7,  7,  8,  8,  9,  9,  10, 10,    
-									 		11,11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17,  
-									 		18,19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 
-									 		31,32, 33, 34, 36, 38, 40, 41, 42, 44, 45, 47, 48,
-											49,51, 53, 55, 57,	59,	61,	62,	64, 66,	69,	71,	74,
-									 		77,80,	83,	86,	90,	93,	96,	100,104,108,112,119,127};*/
-//volatile uint8_t voltage_ref_long1[]; // Behöver endast en bransch!
-//volatile uint8_t voltage_ref_long2[]; // Behöver endast en bransch!
-
 
 ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 	volatile uint8_t c;
@@ -121,14 +117,24 @@ ISR(BADISR_vect){ // Fånga felaktiga interrupt om något går snett.
 //Subrutin som plockar ut det minsta värdet i arrayen
 uint8_t lowest_value(uint8_t *list)
 {
-	int minimum = list[0];
-	int itr;
+  uint8_t min1, min2, min3, itr;
+	min1 = list[0];
+  min2 = min3 = 255;
 	for(itr=1;itr < SENSOR_LIST_LENGTH;itr++){
-		if(minimum>list[itr]){
-		minimum=list[itr];
+		if(list[itr] < min1){
+		  min3 = min2;
+      min2 = min1;
+      min1 = list[itr];
+		}
+    else if(list[itr] < min2){
+		  min3 = min2;
+      min2 = list[itr];
+		}
+    else if(list[itr] < min3){
+		  min3 = list[itr];
 		}
 	}
-	return minimum;
+	return min3;
 }
 
 //Subrutin som plockar ut det högsta värdet i arrayen
@@ -144,8 +150,6 @@ uint8_t highest_value(uint8_t *list)
 	return maximum;
 }
 
-
-
 //Differensfunktion
 uint8_t difference(){
 
@@ -158,13 +162,19 @@ uint8_t difference(){
 
 	if(low_short1 > 117)
 		low_short1 = 117;
+  else if(low_short1 < SHORT_TRESHOLD)
+    low_short1 = MIDDLE_SENSOR_VALUE;
 	if(low_short2 > 117)
 		low_short2 = 117;
+  else if(low_short2 < SHORT_TRESHOLD)
+    low_short2 = MIDDLE_SENSOR_VALUE;
+
 	short1 = distance_ref_short1[low_short1];
 	short2 = distance_ref_short1[low_short2];
 
-
 	diff = 127 + short1 - short2;
+
+	
 
 	return diff;
 }
@@ -192,7 +202,7 @@ uint8_t rotation(){
 
 	if (rot > 160 || rot < 80) return 127;
 
-	return rot;
+	return rot - 7;
 }
 
 
@@ -209,9 +219,13 @@ ISR(ADC_vect){
 
 	switch(mode){
 	case MODE_GYRO:
-		gyro_sum += (int8_t)ADCH;		
-
-		if((gyro_sum >= GYRO_TURN_RIGHT) || (gyro_sum <= GYRO_TURN_LEFT)){ //Värde för fullbordad sväng
+		gyro_sum += (int8_t)ADCH;
+		if(turn_around == 1 && (gyro_sum >= GYRO_TURN_AROUND)){
+			send_interrupt(MODE_GYRO_COMPLETE);
+			gyro_sum = 0;
+			turn_around = 0;
+			}
+		else if(turn_around == 0 && ((gyro_sum <= GYRO_TURN_RIGHT) || (gyro_sum >= GYRO_TURN_LEFT))){ //Värde för fullbordad sväng
 			send_interrupt(MODE_GYRO_COMPLETE);
 			gyro_sum = 0;
 		}
@@ -219,6 +233,7 @@ ISR(ADC_vect){
 		ADCSRA = 0xCB;
 		break;
 	case MODE_LINE_FOLLOW:
+		turn_around = 1;
 		if(i == 7){
 			if(diod_iterator == 0) diod[10] = ADCH;
 			else diod[diod_iterator-1] = ADCH;// lägg ADCH i arrayen
@@ -232,7 +247,7 @@ ISR(ADC_vect){
 			}
 			break;
 		}
-	case MODE_STRAIGHT:	
+	case MODE_STRAIGHT:
 		switch(i){
 		case 2:
 			// Spara värde från ad-omvandligen.
@@ -240,7 +255,7 @@ ISR(ADC_vect){
 			// Räkna upp iteratorn.
       		if(++itr_long_ir_2 >= SENSOR_LIST_LENGTH) itr_long_ir_2 = 0;
 			break;
-		case 3:
+		case 5:
 			// Spara värde från ad-omvandligen.
 			short_ir_1_values[itr_short_ir_1]= ADCH;
 			// Räkna upp iteratorn.
@@ -252,7 +267,7 @@ ISR(ADC_vect){
 			// Räkna upp iteratorn.
 			if(++itr_short_ir_2 >= SENSOR_LIST_LENGTH) itr_short_ir_2 = 0;
 			break;
-		case 5:
+		case 3:
 			// Spara värde från ad-omvandligen.
 			short_ir_3_values[itr_short_ir_3]= ADCH;
 			// Räkna upp iteratorn.
@@ -284,7 +299,7 @@ ISR (TIMER1_COMPA_vect){
 
 	volatile uint8_t tape = tape_counter >> 1; //Ger antalet tejpar
 
-	switch(tape){
+	/*switch(tape){
 	case 1:
 		send_interrupt(MODE_TURN_FORWARD);
 		break;
@@ -294,7 +309,7 @@ ISR (TIMER1_COMPA_vect){
 	case 3: 
 		send_interrupt(MODE_TURN_LEFT);
 		break;
-	}
+	}*/
 
 	if (tape) send_tape(tape);
 	tape_counter = 0; //Nollställ tape_counter då timern gått.
@@ -356,6 +371,7 @@ void tape_detected(int tape){
 	//Till Målområdeskörning
 	if(tape_counter == 7){
 		send_interrupt(MODE_LINE_FOLLOW);
+		tape_counter = 0;
 	}
 }
 	
@@ -405,6 +421,12 @@ void send_straight_data(void){
 	}
 }
 
+void init_line_follow(){
+	mode = MODE_LINE_FOLLOW;
+	temp_count = 0;
+	ADMUX = (ADMUX & 0xE0) | (7 & 0x1F); //Ställ in interna muxen att läsa från externa muxen.
+}
+
 // Kontrollera meddelanden.
 void check_TWI(){
   uint8_t s[16];
@@ -416,6 +438,7 @@ void check_TWI(){
 		mode = s[2];
 
 		if(mode == MODE_GYRO) init_gyro();
+		else if(mode == MODE_LINE_FOLLOW) init_line_follow();
 		else init_straight();
 		break;
 
@@ -439,7 +462,7 @@ void init_timer(void){
 	TCCR1B = 0b00001101; // gammalt: 4D;
 	TIMSK = 0b00010000; //Enable interrupt on Output compare A
 	TCNT1 = 0; //Nollställ timer
-	OCR1A = 0x0500; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
+	OCR1A = 0x0600; //sätt in värde som ska trigga avbrott (Uträknat värde = 0x0194)
 }
 
 //Huvudprogram
@@ -461,14 +484,14 @@ int main()
 	ADMUX = 0x27;
 	ADCSRA = 0xCB; 
 	sei(); //tillåt interrupt
-
+	
 	while(1) {
 			
 		check_TWI();
 
 		switch(mode){
 			case MODE_STRAIGHT:
-				if((lowest_value(short_ir_1_values) < 30) || (lowest_value(short_ir_2_values) < 30)){
+				if((lowest_value(short_ir_1_values) < SHORT_TRESHOLD) || (lowest_value(short_ir_2_values) < SHORT_TRESHOLD)){
 					if (!interrupt_sent){
 						send_interrupt(MODE_CROSSING);
 						interrupt_sent = 1;
@@ -481,27 +504,26 @@ int main()
 						PORTD = MODE_CROSSING_RIGHT;
 					}
 					else PORTD = MODE_CROSSING_FORWARD;
-					send_straight_data();
 				}
 				else{
 					interrupt_sent = 0;
-					send_straight_data();
 					PORTD = PORTD & 0xe0;
-					if(tape_value > high_threshold){
-						tape_detected(1);
-					}
-					else if (tape_value < low_threshold){
-						tape_detected(0);
-					}
+				}
+				send_straight_data();
+				if(tape_value > high_threshold){
+					tape_detected(1);
+				}
+				else if (tape_value < low_threshold){
+					tape_detected(0);
 				}
 				break;					
-			case MODE_FINISH:
+			case MODE_LINE_FOLLOW:
 				if(++temp_count > SEND_DATA){
-				temp_count = 0;
-				uint8_t pos = find_max();
-				send_line_pos(pos);
-				uint8_t num_diods = tape_detections();
-				send_number_of_diods(num_diods);
+					temp_count = 0;
+					uint8_t pos = find_max();
+					send_line_pos(pos);
+					uint8_t num_diods = tape_detections();
+					send_number_of_diods(num_diods);
 				}		
 				break;
 			case MODE_GYRO:

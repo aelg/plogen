@@ -28,8 +28,8 @@
 
 #define ROTATION_COMPLETE 0x11 //onödig?
 
-#define K_P 16 //P-konstant i PD-regulator
-#define K_D 64 //D-konstant i PD-regulator
+#define K_P 2 //P-konstant i PD-regulator
+#define K_D 10 //D-konstant i PD-regulator
 
 #define REGULATOR_CORR 4 // Antalet steg man shiftar resultatet i P- resp. D-regleringen. Vilket ger bra varlden.
 
@@ -37,21 +37,14 @@ void griparm(void);
 void setup_motor(void);
 void rotate_right(void);
 void rotate_left(void);
-void drive_forward(void);
+void forward(void);
 void turn_left(void);
 void turn_right(void);
-void turn_forward(void);
-void manual_left(void);
-void manual_right(void);
-void manual_forward(void);
 void stop(void);
-void manual_reverse(void);
+void reverse(void);
 void interrupts(void);
-void crossing_right(void);
-void crossing_left(void);
-void crossing_forward(void);
 void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d, uint8_t run);
-void line_follow(uint8_t num_diods, uint8_t tape_position);
+uint8_t run_line_follow(uint8_t num_diods, uint8_t tape_position);
 void set_speed(int16_t max, int16_t turn, int16_t stop);
 
 #endif

@@ -23,6 +23,9 @@
 #define ROTATE_RIGHT 0x0F
 #define STOP 0x10
 
+#define NO_TAPE 2
+#define END_TAPE 1
+
 #define FALSE 0
 #define TRUE 1
 

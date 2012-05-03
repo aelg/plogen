@@ -243,7 +243,6 @@ ISR(ADC_vect){
 			PORTB = (PORTB & 0xf0) | (10-diod_iterator);
 			if(diod_iterator == 0){
 				i = 2;
-				break;
 			}
 			break;
 		}
@@ -283,10 +282,11 @@ ISR(ADC_vect){
 			tape_value = ADCH;
 			break;
 		}
-		if(++i > 7){
+		if(mode == MODE_STRAIGHT || i != 7){
+			if(++i > 7){
 				i = 2;
+			}
 		}
-
 
 		ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
 		ADCSRA = 0xCB;//Interrupt-bit nollställs
@@ -350,7 +350,7 @@ uint8_t find_max(){
 uint8_t tape_detections(){
 uint8_t number_of_diods = 0;
 
-	for(i=0;i<10;i++){ 
+	for(uint8_t i = 0; i < 10;i++){ 
 
 		if(diod[i] > high_threshold){
 			number_of_diods++;
@@ -484,6 +484,7 @@ int main()
 	ADMUX = 0x27;
 	ADCSRA = 0xCB; 
 	sei(); //tillåt interrupt
+	init_line_follow();
 	
 	while(1) {
 			

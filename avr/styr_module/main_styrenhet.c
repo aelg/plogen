@@ -298,15 +298,18 @@ void crossing_forward(){
  *  Kör run_line_follow och byt mode om vi är framme.
  */
 void line_follow(){
+  uint8_t res;
   if(line_start_timer < line_start_timer_max){
 	  ++line_start_timer;
 		forward();
 		return;
 	}
-	if(run_line_follow(num_diods, tape_position)){
+	res = run_line_follow(num_diods, tape_position);
+	if(res == END_TAPE){
     set_mode_turn_around();
 		driving_back = 1;
 	}
+	else if(res == NO_TAPE) run_straight(diff, rot, k_p, k_d, TRUE);
 }
 
 //Manuell körning

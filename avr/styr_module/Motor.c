@@ -163,7 +163,7 @@ uint8_t run_line_follow(uint8_t num_diods, uint8_t tape_position){
 		return 1;
 	}
 	else if(num_diods == 0){
-		return NO_DIODS;
+		return NO_TAPE;
 	}
 	else if(tape_position<4){
 		turn_left();

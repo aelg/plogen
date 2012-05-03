@@ -8,14 +8,14 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-#define GYRO_TURN_LEFT -950000
-#define GYRO_TURN_RIGHT 950000 //Tolkas de decimalt??
+#define GYRO_TURN_LEFT 950000
+#define GYRO_TURN_RIGHT -700000 //Tolkas de decimalt??
 #define GYRO_TURN_AROUND 2700000
 #define TURN_TRESHOLD 20
-#define SHORT_TRESHOLD 30
+#define SHORT_TRESHOLD 25
 #define MIDDLE_SENSOR_VALUE 48
 
-#define SEND_DATA 0x0100
+#define SEND_DATA 0x0040
 #define SEND_COMPUTER_DATA 0x2000
 
 #define SENSOR_LIST_LENGTH 8
@@ -225,7 +225,7 @@ ISR(ADC_vect){
 			gyro_sum = 0;
 			turn_around = 0;
 			}
-		else if(turn_around == 0 && ((gyro_sum >= GYRO_TURN_RIGHT) || (gyro_sum <= GYRO_TURN_LEFT))){ //Värde för fullbordad sväng
+		else if(turn_around == 0 && ((gyro_sum <= GYRO_TURN_RIGHT) || (gyro_sum >= GYRO_TURN_LEFT))){ //Värde för fullbordad sväng
 			send_interrupt(MODE_GYRO_COMPLETE);
 			gyro_sum = 0;
 		}
@@ -234,13 +234,18 @@ ISR(ADC_vect){
 		break;
 	case MODE_LINE_FOLLOW:
 		turn_around = 1;
-		if(diod_iterator == 0) diod[10] = ADCH;
-		else diod[diod_iterator-1] = ADCH;// lägg ADCH i arrayen
-		ADCSRA = 0xCB;//Interrupt-bit nollställs
-		if(diod_iterator < 10) ++diod_iterator; // räkna upp iteratorn
-		else diod_iterator = 0;
-		PORTB = (PORTB & 0xf0) | (10-diod_iterator);
-		break;
+		if(i == 7){
+			if(diod_iterator == 0) diod[10] = ADCH;
+			else diod[diod_iterator-1] = ADCH;// lägg ADCH i arrayen
+			ADCSRA = 0xCB;//Interrupt-bit nollställs
+			if(diod_iterator < 10) ++diod_iterator; // räkna upp iteratorn
+			else diod_iterator = 0;
+			PORTB = (PORTB & 0xf0) | (10-diod_iterator);
+			if(diod_iterator == 0){
+				i = 2;
+			}
+			break;
+		}
 	case MODE_STRAIGHT:
 		switch(i){
 		case 2:
@@ -277,11 +282,11 @@ ISR(ADC_vect){
 			tape_value = ADCH;
 			break;
 		}
-
-		if(++i > 7){
-			i = 2;
+		if(mode == MODE_STRAIGHT || i != 7){
+			if(++i > 7){
+				i = 2;
+			}
 		}
-
 
 		ADMUX = (ADMUX & 0xE0) | (i & 0x1F); //Byter insignal.
 		ADCSRA = 0xCB;//Interrupt-bit nollställs
@@ -345,7 +350,7 @@ uint8_t find_max(){
 uint8_t tape_detections(){
 uint8_t number_of_diods = 0;
 
-	for(i=0;i<10;i++){ 
+	for(uint8_t i = 0; i < 10;i++){ 
 
 		if(diod[i] > high_threshold){
 			number_of_diods++;
@@ -479,7 +484,7 @@ int main()
 	ADMUX = 0x27;
 	ADCSRA = 0xCB; 
 	sei(); //tillåt interrupt
-	
+
 	while(1) {
 			
 		check_TWI();
@@ -519,6 +524,7 @@ int main()
 					send_line_pos(pos);
 					uint8_t num_diods = tape_detections();
 					send_number_of_diods(num_diods);
+					send_differences(difference(), rotation());
 				}		
 				break;
 			case MODE_GYRO:

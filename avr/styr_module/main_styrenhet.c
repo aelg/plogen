@@ -13,7 +13,7 @@
 #include "../utility/send.h"
 
 #define LINE_START_MAX 0x0f00
-#define CROSSING_TIMER_MAX 0x5000
+#define CROSSING_TIMER_MAX 0x4000
 
 #define MODE_FROM_SENSOR (PINB & 0x0f)
 
@@ -230,7 +230,7 @@ ISR(INT1_vect){
 
 //Routine to verify a crossing and decide which way to turn.
 void crossing(void){
-	run_straight(diff, rot, k_p, k_d, TRUE); // Kör med reglering här eftersom diff och rot ska ge rakt fram 
+	forward(); // 
                                            // om de inte ser väggar och annars reglera efter väggen den ser.
 	++crossing_timer;
 	if(MODE_FROM_SENSOR == MODE_STRAIGHT){
@@ -284,9 +284,9 @@ void crossing(void){
  *  Räknar upp crossing_counter och byter sen till MODE_STRAIGHT.
  */
 void crossing_forward(){
-	run_straight(diff, rot, k_p, k_d, TRUE); // Kör med reglering här eftersom diff och rot ska ge rakt fram 
+	forward(); // 
                                            // om de inte ser väggar och annars reglera efter väggen den ser.
-	if (crossing_timer < (crossing_timer_max)){
+	if (crossing_timer < (crossing_timer_max << 1)){
 		++crossing_timer;
 		return;
 	}
@@ -298,15 +298,18 @@ void crossing_forward(){
  *  Kör run_line_follow och byt mode om vi är framme.
  */
 void line_follow(){
+  uint8_t res;
   if(line_start_timer < line_start_timer_max){
 	  ++line_start_timer;
 		forward();
 		return;
 	}
-	if(run_line_follow(num_diods, tape_position)){
+	res = run_line_follow(num_diods, tape_position);
+	if(res == END_TAPE){
     set_mode_turn_around();
 		driving_back = 1;
 	}
+	else if(res == NO_TAPE) run_straight(diff, rot, k_p, k_d, TRUE);
 }
 
 //Manuell körning

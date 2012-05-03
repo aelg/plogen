@@ -86,7 +86,7 @@ class Capp(threading.Thread):
     self.lRegD.grid(column=0, row=10, pady=0, padx=0)
 
     self.sRegD = StringVar()
-    self.sRegD.set("8")
+    self.sRegD.set("14")
     self.eRegD = Entry(self.frame, textvariable=self.sRegD, bg="white")
     self.eRegD.grid(column=1, row=10, pady=0, padx=0)
 
@@ -102,7 +102,7 @@ class Capp(threading.Thread):
     self.lTimer.grid(column=2, row=10, pady=0, padx=0)
 
     self.sTimer = StringVar()
-    self.sTimer.set("5")
+    self.sTimer.set("3")
     self.eTimer = Entry(self.frame, textvariable=self.sTimer, bg="white")
     self.eTimer.grid(column=3, row=10, pady=0, padx=0)
 

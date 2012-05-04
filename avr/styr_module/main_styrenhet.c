@@ -50,8 +50,8 @@ uint8_t way_home[20]; //här sparas hur vi har kört på väg in i labyrinten
 uint8_t way_home_iterator = 0; //pekar på hur vi ska svänga i nästa kurva.
 
 // Regulatorparametrar.
-uint8_t k_p = REG_P;
-uint8_t k_d = REG_D;
+uint8_t k_p = K_P;
+uint8_t k_d = K_D;
 
 /** Initiera interrupts.
  *  INT0 används för att upptäcka knapptryck på den blå knappen, denna byter mellan autonomt och manuellt läge.
@@ -101,6 +101,7 @@ void set_mode_line_follow(){
 	tape_position = 5;
 	line_start_timer = 0;
 	mode = MODE_LINE_FOLLOW;
+	griparm(OPEN);
 }
 
 /** Byt till korsningsläge.
@@ -414,7 +415,9 @@ void check_TWI(){
       break;
     case CMD_MANUAL:
       autonomous = 0;
-      manual_command = s[2];
+	  if(s[2] == OPEN) griparm(OPEN);
+	  else if(s[2] == CLOSE) griparm(CLOSE);
+      else manual_command = s[2];
       break;
 	case CMD_SET_REG_PARAMS:
 	  for(uint8_t i = 2; i < len; i = i+2){

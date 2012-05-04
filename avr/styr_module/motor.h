@@ -36,7 +36,7 @@
 
 #define REGULATOR_CORR 4 // Antalet steg man shiftar resultatet i P- resp. D-regleringen. Vilket ger bra varlden.
 
-void griparm(void);
+void griparm(uint8_t);
 void setup_motor(void);
 void rotate_right(void);
 void rotate_left(void);

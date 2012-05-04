@@ -1,3 +1,4 @@
+# coding: utf-8
 from Tkinter import * 	# GUI
 from thread_safe_label import ThreadSafeLabel
 import threading 	# Threading
@@ -62,6 +63,12 @@ class Capp(threading.Thread):
     self.lbMode.insert(END, "PD-reg")
     self.lbMode.insert(END, "Auto")
 
+    self.bOpen = Button(self.frame, text="Öppna", command=self.gripOpen)
+    self.bOpen.grid(column=3, row=5)
+
+    self.bClose = Button(self.frame, text="Stäng", command=self.gripClose)
+    self.bClose.grid(column=3, row=6)
+
     self.input = StringVar()      # Text-field used to read input from user
     self.input.set("")
     self.eInput = Entry(self.frame, textvariable = self.input, bg="white")
@@ -86,7 +93,7 @@ class Capp(threading.Thread):
     self.lRegD.grid(column=0, row=10, pady=0, padx=0)
 
     self.sRegD = StringVar()
-    self.sRegD.set("8")
+    self.sRegD.set("14")
     self.eRegD = Entry(self.frame, textvariable=self.sRegD, bg="white")
     self.eRegD.grid(column=1, row=10, pady=0, padx=0)
 
@@ -102,7 +109,7 @@ class Capp(threading.Thread):
     self.lTimer.grid(column=2, row=10, pady=0, padx=0)
 
     self.sTimer = StringVar()
-    self.sTimer.set("5")
+    self.sTimer.set("3")
     self.eTimer = Entry(self.frame, textvariable=self.sTimer, bg="white")
     self.eTimer.grid(column=3, row=10, pady=0, padx=0)
 
@@ -146,6 +153,12 @@ class Capp(threading.Thread):
 
   def sendRegParams(self):
     self.robot.sendRegParams(self.sRegP.get(), self.sRegD.get(), speed = self.sSpeed.get(), timer = self.sTimer.get())
+
+  def gripOpen(self):
+    self.robot.grip(OPEN)
+
+  def gripClose(self):
+    self.robot.grip(CLOSE)
 
   def run(self):
 

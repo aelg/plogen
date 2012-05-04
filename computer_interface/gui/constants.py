@@ -34,13 +34,15 @@ IR_LONG_RIGHT = chr(9)
 IR_SHORT_BACK = chr(10)
 
 #Control constants
-STOP = chr(0x10)
-RIGHT = chr(0x0f)
-RIGHTFORW = chr(12)
-LEFT = chr(0x0e)
-LEFTFORW = chr(14)
+LEFTFORW = chr(0x0a)
+RIGHTFORW = chr(0x0b)
 FORWARD = chr(0x0c)
 BACKWARD = chr(0x0d)
+LEFT = chr(0x0e)
+RIGHT = chr(0x0f)
+STOP = chr(0x10)
+OPEN = chr(0x11)
+CLOSE = chr(0x12)
 
 #Regulator constants
 REG_P = chr(1)
@@ -50,5 +52,5 @@ REG_TIMER = chr(4)
 
 #Constants for setMode
 
-debug_nobluetooth = 0
+debug_nobluetooth = 1
 debug = 0

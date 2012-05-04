@@ -163,3 +163,11 @@ class Crobot(threading.Thread):
   def setMode(self, mode):
     self.bt.sendcmd(CMD_SET_MODE, '' + chr(mode))
 
+  ##
+  # Control the griparm
+  def grip(self, command):
+    if command == OPEN :
+      self.bt.sendcmd(CMD_MANUAL, '' + OPEN)
+    elif command == CLOSE :
+      self.bt.sendcmd(CMD_MANUAL, '' + CLOSE)
+    else : print "Invalid command to grip()"

@@ -28,10 +28,10 @@ void griparm(uint8_t grip)
 	TCCR2 |= (1<< COM21)|(1<< COM20);
 	TCCR2 |= (1<< CS22) |(1<< CS21)|(0<< CS20);
 	if (grip == CLOSE){
-		OCR2 = 0xF0;//sets the length of pulses
+		OCR2 = 0xe0;//sets the length of pulses
 	} 
 	else if(grip == OPEN) {
-		OCR2 = 0x00; //sets the length of pulses
+		OCR2 = 0x50; //sets the length of pulses
 	}
 }
 
@@ -79,8 +79,8 @@ void forward(void)
 		|(1<<PORTA1);//Right wheel direction - pin6
 }
 
-//Rutin för vänstersväng
-void turn_left(void)
+//Rutin för hogersväng
+void turn_right(void)
 {
 	OCR1A =	turn_speed;//sets the length of pulses, right side - pin7
 	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
@@ -88,8 +88,8 @@ void turn_left(void)
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
-//Rutin för högersväng
-void turn_right(void)
+//Rutin för vanstersväng
+void turn_left(void)
 {
 	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
 	OCR1B =	turn_speed;//sets the length of pulses, left side - pin8
@@ -170,13 +170,13 @@ uint8_t run_line_follow(uint8_t num_diods, uint8_t tape_position){
 		return NO_TAPE;
 	}
 	else if(tape_position<4){
-		turn_left();
+		turn_right();
 	}
 	else if(tape_position>=4 && tape_position<=6){
 		forward();
 	}
 	else {
-		turn_right();
+		turn_left();
 	}
 	return 0;
 

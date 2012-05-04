@@ -95,6 +95,7 @@ void set_mode_line_follow(){
 	tape_position = 5;
 	line_start_timer = 0;
 	mode = MODE_LINE_FOLLOW;
+	griparm(OPEN);
 }
 
 /** Byt till korsningsläge.
@@ -399,7 +400,9 @@ void check_TWI(){
       break;
     case CMD_MANUAL:
       autonomous = 0;
-      manual_command = s[2];
+	  if(s[2] == OPEN) griparm(OPEN);
+	  else if(s[2] == CLOSE) griparm(CLOSE);
+      else manual_command = s[2];
       break;
 	case CMD_SET_REG_PARAMS:
 	  for(uint8_t i = 2; i < len; i = i+2){

@@ -8,7 +8,7 @@
 #include "../commands.h"
 #include "../utility/send.h"
 
-int16_t max_speed = 180;
+int16_t max_speed = 240;
 int16_t turn_speed = 0x0003;
 int16_t stop_speed = 0x0003;
 
@@ -75,6 +75,14 @@ void forward(void)
 		|(1<<PORTA1);//Right wheel direction - pin6
 }
 
+//Köra bakåt i målområdet
+void backward(void)
+{
+	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
+	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
+	PORTA =(0<<PORTA0)//Left wheel direction - pin5
+		|(0<<PORTA1);//Right wheel direction - pin6
+}
 //Rutin för vänstersväng
 void turn_left(void)
 {
@@ -177,6 +185,8 @@ uint8_t run_line_follow(uint8_t num_diods, uint8_t tape_position){
 	return 0;
 
 }
+
+
 
 void set_speed(int16_t max, int16_t turn, int16_t stop){
   max_speed = max;

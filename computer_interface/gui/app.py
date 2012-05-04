@@ -2,7 +2,7 @@ from Tkinter import * 	# GUI
 from thread_safe_label import ThreadSafeLabel
 import threading 	# Threading
 from constants import *
-from plot import Plot
+#from plot import Plot
 ##
 # Objects which holds the GUI
 #

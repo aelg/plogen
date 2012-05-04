@@ -41,6 +41,7 @@ void setup_motor(void);
 void rotate_right(void);
 void rotate_left(void);
 void forward(void);
+void backward(void);
 void turn_left(void);
 void turn_right(void);
 void stop(void);

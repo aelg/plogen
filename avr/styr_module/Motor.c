@@ -18,8 +18,8 @@ uint16_t delay = 0;
 //Functions
 
 //Griparmsfunktion
-void griparm(void)
-{
+void griparm(uint8_t grip)
+{	 
 	TCNT2 = 0x00;
 	DDRD= DDRD | 0x80;
 
@@ -27,8 +27,12 @@ void griparm(void)
 	TCCR2 |=(0 << WGM21)|(1<<WGM20);
 	TCCR2 |= (1<< COM21)|(1<< COM20);
 	TCCR2 |= (1<< CS22) |(1<< CS21)|(0<< CS20);
-
-	OCR2 = 0xF0;//sets the length of pulses
+	if (grip == CLOSE){
+		OCR2 = 0xF0;//sets the length of pulses
+	} 
+	else if(grip == OPEN) {
+		OCR2 = 0x00; //sets the length of pulses
+	}
 }
 
 //Körs alltid vid uppstart
@@ -159,7 +163,7 @@ void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d, uint8_t r
 uint8_t run_line_follow(uint8_t num_diods, uint8_t tape_position){
 	if(num_diods > 5){
 		stop();
-		griparm();
+		griparm(CLOSE);
 		return 1;
 	}
 	else if(num_diods == 0){

@@ -75,6 +75,8 @@
 #define ROTATE_LEFT 0x0E
 #define ROTATE_RIGHT 0x0F
 #define STOP 0x10
+#define CLOSE 0x11
+#define OPEN 0x12
 
 
 // Sensordata

@@ -126,7 +126,7 @@ void set_mode_left_turn(){
   if(driving_back)
     --way_home_iterator;
   else
-		way_home[++way_home_iterator] = 3;
+	way_home[++way_home_iterator] = 3;
 }
 
 /** Byt till högersvängsläge.
@@ -215,19 +215,22 @@ ISR(INT0_vect){
  * 3. Sensorenheten har upptäckt 4 tejpar och vi måste byta till linjeföljningsläge snabbt. MODE_LINE_FOLLOW skickas på PINB.
  */
 ISR(INT1_vect){
-	if (mode == MODE_CROSSING_FORWARD) return;
-	uint8_t t_mode = MODE_FROM_SENSOR;
+	if(autonomous){
+		if (mode == MODE_CROSSING_FORWARD) return;
+		uint8_t t_mode = MODE_FROM_SENSOR;
 	
-	switch(t_mode){
-		case MODE_LINE_FOLLOW:
-      if(driving_back == 0) set_mode_line_follow();
-			break;
-		case MODE_GYRO_COMPLETE:
-		   set_mode_turn_complete();
-			break;
-    default:
-      set_mode_crossing();
-			break;
+		switch(t_mode){
+			case MODE_LINE_FOLLOW:
+	      if(driving_back == 0) set_mode_line_follow();
+				break;
+			case MODE_GYRO_COMPLETE:
+				if(mode == MODE_TURN_AROUND) set_mode_straight();
+				else set_mode_turn_complete();
+				break;
+	    default:
+	      set_mode_crossing();
+				break;
+		}
 	}
 }
 
@@ -294,7 +297,7 @@ void crossing(void){
 void crossing_forward(){
 	forward(); // 
                                            // om de inte ser väggar och annars reglera efter väggen den ser.
-	if (crossing_timer < (crossing_timer_max << 1)){
+	if (crossing_timer < (crossing_timer_max << 2)){
 		++crossing_timer;
 		return;
 	}

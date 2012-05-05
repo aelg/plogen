@@ -173,21 +173,21 @@ uint8_t run_line_follow(uint8_t num_diods, uint8_t tape_position){
 	if(num_diods > 5){
 		stop();
 		griparm(CLOSE);
-		return 1;
+		return END_TAPE;
 	}
 	else if(num_diods == 0){
 		return NO_TAPE;
 	}
-	else if(tape_position<4){
+	else if(tape_position<=4){
 		turn_right();
 	}
-	else if(tape_position>=4 && tape_position<=6){
+	else if(tape_position==5){
 		forward();
 	}
 	else {
 		turn_left();
 	}
-	return 0;
+	return TAPE_DETECTED;
 
 }
 

@@ -27,8 +27,8 @@ uint8_t turn_around = 0;
 
 uint8_t interrupt_sent = 0;
 
-uint8_t high_threshold = 170;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
-uint8_t low_threshold = 140;//Tröskelvärde som vid jämförelse ger tejp/inte
+uint8_t high_threshold = 190;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+uint8_t low_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte
 
 volatile uint16_t temp_count = 0; // Temporar fullosning
 volatile uint16_t send_to_computer = 0;
@@ -44,11 +44,12 @@ volatile uint8_t timer = 0;
 int diod_iterator = 0;
 uint8_t diod[11];
 
-volatile int long_ir_1_value;//Värdet på den analoga spänning som lång avståndsmätare 1 gett(pinne 34/PA6)
-volatile int long_ir_2_value;//Värdet på den analoga spänning som lång avståndsmätare 2 gett(pinne 38/PA2)
-volatile int short_ir_1_value;//Värdet på den analoga spänning som kort avståndsmätare 1 gett(pinne 37/PA3)
-volatile int short_ir_2_value;//Värdet på den analoga spänning som kort avståndsmätare 2 gett(pinne 36/PA4)
-volatile int short_ir_3_value;//Värdet på den analoga spänning som kort avståndsmätare 3 gett(pinne 35/PA5)
+
+uint8_t long_ir_1_value = 48;//Värdet på den analoga spänning som lång avståndsmätare 1 gett(pinne 34/PA6)
+uint8_t long_ir_2_value = 48;//Värdet på den analoga spänning som lång avståndsmätare 2 gett(pinne 38/PA2)
+uint8_t short_ir_1_value = 48;
+uint8_t short_ir_2_value = 48;
+uint8_t short_ir_3_value = 48;
 int itr_long_ir_1 = 0;
 int itr_long_ir_2 = 0;
 int itr_short_ir_1 = 0;
@@ -208,8 +209,11 @@ uint8_t rotation(){
 
 //Skickar interrupt till styrenheten
 void send_interrupt(uint8_t mode){
-
+	
+	PORTD = 0;
+	for(uint8_t i = 0; i < 50; ++i){}
 	PORTD = 0b00010000 | mode;
+	for(uint8_t i = 0; i < 50; ++i){}
 	PORTD = mode;
 }
 
@@ -235,13 +239,13 @@ ISR(ADC_vect){
 	case MODE_LINE_FOLLOW:
 		turn_around = 1;
 		if(i == 7){
-			if(diod_iterator == 0) diod[10] = ADCH;
+			if(diod_iterator == 1) diod[9] = ADCH;
 			else diod[diod_iterator-1] = ADCH;// lägg ADCH i arrayen
 			ADCSRA = 0xCB;//Interrupt-bit nollställs
-			if(diod_iterator < 10) ++diod_iterator; // räkna upp iteratorn
-			else diod_iterator = 0;
-			PORTB = (PORTB & 0xf0) | (10-diod_iterator);
-			if(diod_iterator == 0){
+			if(diod_iterator < 9) ++diod_iterator; // räkna upp iteratorn
+			else diod_iterator = 1;
+			PORTB = (PORTB & 0xf0) | (9-diod_iterator);
+			if(diod_iterator == 1){
 				i = 2;
 			}
 			break;
@@ -337,7 +341,7 @@ uint8_t min(uint8_t value_one, uint8_t value_two){
 //Hittar positionen för dioden med högsta värdet 
 uint8_t find_max(){
 	uint8_t max_value = 0, max_pos = 0;
-	for(uint8_t i = 0; i < 10; ++i){
+	for(uint8_t i = 1; i < 10; ++i){
 		if (max_value < diod[i]){
 			max_pos = i;
 			max_value = diod[i];
@@ -348,12 +352,12 @@ uint8_t find_max(){
 
 //Antalet dioder som ser en tejp vid linjeföljningen
 uint8_t tape_detections(){
-uint8_t number_of_diods = 0;
+	uint8_t number_of_diods = 0;
 
-	for(uint8_t i = 0; i < 10;i++){ 
+	for(uint8_t i = 1; i < 10;++i){ 
 
 		if(diod[i] > high_threshold){
-			number_of_diods++;
+			++number_of_diods;
 		}
 	}
 	return number_of_diods;
@@ -412,8 +416,8 @@ void send_straight_data(void){
 	if(++send_to_computer > SEND_COMPUTER_DATA){	
 	
 	send_tape_value(tape_value);
-	send_sensor_values(lowest_value(long_ir_1_values),
-					  lowest_value(long_ir_2_values),
+	send_sensor_values(long_ir_1_value,
+					  long_ir_2_value,
 					  lowest_value(short_ir_1_values),
 					  lowest_value(short_ir_2_values),
 					  lowest_value(short_ir_3_values));
@@ -491,16 +495,26 @@ int main()
 
 		switch(mode){
 			case MODE_STRAIGHT:
+				if(lowest_value(short_ir_1_values) < short_ir_1_value) --short_ir_1_value;
+				else if(lowest_value(short_ir_1_values) > short_ir_1_value) ++short_ir_1_value;
+				if(lowest_value(short_ir_2_values) < short_ir_2_value) --short_ir_2_value;
+				else if(lowest_value(short_ir_2_values) > short_ir_2_value) ++short_ir_2_value;
+				if(lowest_value(short_ir_3_values) < short_ir_3_value) --short_ir_3_value;
+				else if(lowest_value(short_ir_3_values) > short_ir_3_value) ++short_ir_3_value;
+
 				if((lowest_value(short_ir_1_values) < SHORT_TRESHOLD) || (lowest_value(short_ir_2_values) < SHORT_TRESHOLD)){
 					if (!interrupt_sent){
 						send_interrupt(MODE_CROSSING);
 						interrupt_sent = 1;
 					}
-				
-					if(lowest_value(long_ir_1_values) < TURN_TRESHOLD){
+					if(lowest_value(long_ir_1_values) < long_ir_1_value) --long_ir_1_value;
+					else if(lowest_value(long_ir_1_values) > long_ir_1_value) ++long_ir_1_value;
+					if(lowest_value(long_ir_2_values) < long_ir_2_value) --long_ir_2_value;
+					else if(lowest_value(long_ir_2_values) > long_ir_2_value) ++long_ir_2_value;
+					if(long_ir_1_value < TURN_TRESHOLD){
 						PORTD = MODE_CROSSING_LEFT;
 					}
-					else if(lowest_value(long_ir_2_values) < TURN_TRESHOLD){
+					else if(long_ir_2_value < TURN_TRESHOLD){
 						PORTD = MODE_CROSSING_RIGHT;
 					}
 					else PORTD = MODE_CROSSING_FORWARD;

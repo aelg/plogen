@@ -30,9 +30,8 @@ uint8_t interrupt_sent = 0;
 uint8_t high_threshold = 170;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
 uint8_t low_threshold = 140;//Tröskelvärde som vid jämförelse ger tejp/inte
 
-volatile uint16_t temp_count = 0; // Temporar fullosning
+volatile uint16_t send_data_count = 0;
 volatile uint16_t send_to_computer = 0;
-uint16_t temp_ir_count = 0; // Temporar fullosning
 volatile uint8_t i = 2;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
 volatile int32_t gyro_value; //Värdet på den analoga spänning som gyrot gett
@@ -403,10 +402,10 @@ void init_sensor_buffers(){
 //Funktion som skickar all nödvändig data vid PD-reglering
 void send_straight_data(void){
 
-	if (++temp_count > SEND_DATA){
+	if (++send_data_count > SEND_DATA){
 
 		send_differences(difference(), rotation());
-		temp_count = 0;
+		send_data_count = 0;
 	}
 
 	if(++send_to_computer > SEND_COMPUTER_DATA){	
@@ -423,7 +422,7 @@ void send_straight_data(void){
 
 void init_line_follow(){
 	mode = MODE_LINE_FOLLOW;
-	temp_count = 0;
+	send_data_count = 0;
 	ADMUX = (ADMUX & 0xE0) | (7 & 0x1F); //Ställ in interna muxen att läsa från externa muxen.
 }
 
@@ -518,8 +517,8 @@ int main()
 				}
 				break;					
 			case MODE_LINE_FOLLOW:
-				if(++temp_count > SEND_DATA){
-					temp_count = 0;
+				if(++send_data_count > SEND_DATA){
+					send_data_count = 0;
 					uint8_t pos = find_max();
 					send_line_pos(pos);
 					uint8_t num_diods = tape_detections();

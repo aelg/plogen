@@ -15,7 +15,7 @@
 #define SHORT_TRESHOLD 25
 #define MIDDLE_SENSOR_VALUE 48
 
-#define SEND_DATA 0x0040
+#define SEND_DATA 0x0100 
 #define SEND_COMPUTER_DATA 0x2000
 
 #define SENSOR_LIST_LENGTH 8
@@ -27,8 +27,8 @@ uint8_t turn_around = 0;
 
 uint8_t interrupt_sent = 0;
 
-uint8_t high_threshold = 190;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
-uint8_t low_threshold = 160;//Tröskelvärde som vid jämförelse ger tejp/inte
+uint8_t high_threshold = 150;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+uint8_t low_threshold = 120;//Tröskelvärde som vid jämförelse ger tejp/inte
 
 volatile uint16_t temp_count = 0; // Temporar fullosning
 volatile uint16_t send_to_computer = 0;

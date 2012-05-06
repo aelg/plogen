@@ -25,13 +25,14 @@
 
 #define NO_TAPE 2
 #define END_TAPE 1
+#define TAPE_DETECTED 0
 
 #define FALSE 0
 #define TRUE 1
 
 #define ROTATION_COMPLETE 0x11 //onödig?
 
-#define K_P 2 //P-konstant i PD-regulator
+#define K_P 3 //P-konstant i PD-regulator
 #define K_D 14 //D-konstant i PD-regulator
 
 #define REGULATOR_CORR 4 // Antalet steg man shiftar resultatet i P- resp. D-regleringen. Vilket ger bra varlden.
@@ -41,6 +42,7 @@ void setup_motor(void);
 void rotate_right(void);
 void rotate_left(void);
 void forward(void);
+void backward(void);
 void turn_left(void);
 void turn_right(void);
 void stop(void);

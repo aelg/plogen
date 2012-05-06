@@ -22,24 +22,28 @@ void set_mode_turn_complete();
 // Räknare som ser används då saker inte ska göras för ofta.
 uint16_t line_start_timer = 0;
 uint32_t crossing_timer = 0;
+uint32_t backwards_timer = 0;
 
 // Värden på räknare som innebär att åtgärden ska utföras.
 // Dessa kan ändras via TWI så att det går att byta tidsfördröjningar från datorn
 uint32_t crossing_timer_max = CROSSING_TIMER_MAX;
 uint16_t line_start_timer_max = LINE_START_MAX;
+uint32_t backwards_timer_max = CROSSING_TIMER_MAX;
 
 // Variabler som definerar vilket läge styrenheten är i just nu.
 uint8_t driving_back = 0;
 uint8_t autonomous = 0;
 uint8_t mode = MODE_STRAIGHT;
+uint8_t end_of_line_follow = 0;
 
 // Variabler där data mottagen från TWI sparas
 uint8_t manual_command = STOP; // Senast mottagna manuella kommando.
 uint8_t diff = 127; // Diff mottagen från sensorenheten.
-uint8_t rot = 5; // Rotation mottagen från sensorenheten.
+uint8_t rot = 127; // Rotation mottagen från sensorenheten.
 uint8_t tape_position = 5; // Den diod där det är mest troligt att tejpen finns.
 uint8_t num_diods = 0; // Hur många dioder som upptäcker tejp.
 uint8_t last_tape_detected = 0; //Sparar senaste tejpmarkering
+int16_t main_max_speed = 240; //Sparar maxhastigheten
 
 // Variabler som hanterar tillbakavägen.
 uint8_t way_home[20]; //här sparas hur vi har kört på väg in i labyrinten
@@ -90,8 +94,10 @@ void set_mode_straight(){
  *  Nollställ linjeföljningsvariabler så den börjar med att åka rakt, samt skicka MODE_LINE_FOLLOW till sensorenheten.
  */
 void set_mode_line_follow(){
+	set_speed(180, 3, 3);
+	backwards_timer = 0;
 	send_sensor_mode(MODE_LINE_FOLLOW);
-  num_diods = 1;
+  	num_diods = 1;
 	tape_position = 5;
 	line_start_timer = 0;
 	mode = MODE_LINE_FOLLOW;
@@ -105,7 +111,7 @@ void set_mode_line_follow(){
  *  Roboten kör rakt fram i detta läge.
  */
 void set_mode_crossing(){
-  mode = MODE_CROSSING;
+	mode = MODE_CROSSING;
 	crossing_timer = 0;
 }
 
@@ -120,7 +126,7 @@ void set_mode_left_turn(){
   if(driving_back)
     --way_home_iterator;
   else
-		way_home[++way_home_iterator] = 3;
+	way_home[++way_home_iterator] = 3;
 }
 
 /** Byt till högersvängsläge.
@@ -157,6 +163,7 @@ void set_mode_forward_turn(){
  *  därför räknas den först upp här.
  */
 void set_mode_turn_around(){
+	set_speed(main_max_speed, 3, 3);
  	mode = MODE_TURN_AROUND;
 	send_sensor_mode(MODE_GYRO);
  	driving_back = 1;
@@ -208,19 +215,22 @@ ISR(INT0_vect){
  * 3. Sensorenheten har upptäckt 4 tejpar och vi måste byta till linjeföljningsläge snabbt. MODE_LINE_FOLLOW skickas på PINB.
  */
 ISR(INT1_vect){
-	if (mode == MODE_CROSSING_FORWARD) return;
-	uint8_t t_mode = MODE_FROM_SENSOR;
+	if(autonomous){
+		if (mode == MODE_CROSSING_FORWARD) return;
+		uint8_t t_mode = MODE_FROM_SENSOR;
 	
-	switch(t_mode){
-		case MODE_LINE_FOLLOW:
-      if(driving_back == 0) set_mode_line_follow();
-			break;
-		case MODE_GYRO_COMPLETE:
-		   set_mode_turn_complete();
-			break;
-    default:
-      set_mode_crossing();
-			break;
+		switch(t_mode){
+			case MODE_LINE_FOLLOW:
+	      if(driving_back == 0) set_mode_line_follow();
+				break;
+			case MODE_GYRO_COMPLETE:
+				if(mode == MODE_TURN_AROUND) set_mode_straight();
+				else set_mode_turn_complete();
+				break;
+	    default:
+	      set_mode_crossing();
+				break;
+		}
 	}
 }
 
@@ -287,7 +297,7 @@ void crossing(void){
 void crossing_forward(){
 	forward(); // 
                                            // om de inte ser väggar och annars reglera efter väggen den ser.
-	if (crossing_timer < (crossing_timer_max << 1)){
+	if (crossing_timer < (crossing_timer_max << 2)){
 		++crossing_timer;
 		return;
 	}
@@ -299,18 +309,26 @@ void crossing_forward(){
  *  Kör run_line_follow och byt mode om vi är framme.
  */
 void line_follow(){
-  uint8_t res;
-  if(line_start_timer < line_start_timer_max){
-	  ++line_start_timer;
+
+	if(line_start_timer < line_start_timer_max){
+		++line_start_timer;
 		forward();
 		return;
 	}
-	res = run_line_follow(num_diods, tape_position);
-	if(res == END_TAPE){
-    set_mode_turn_around();
+	if(!driving_back) end_of_line_follow = run_line_follow(num_diods, tape_position);
+	
+	if(end_of_line_follow == END_TAPE){
 		driving_back = 1;
+		backward();
+
+		if(backwards_timer < backwards_timer_max){
+			++backwards_timer;
+			return;
+		}
+		else set_mode_turn_around();
+			
 	}
-	else if(res == NO_TAPE) run_straight(diff, rot, k_p, k_d, TRUE);
+	else if(end_of_line_follow == NO_TAPE) run_straight(diff, rot, k_p, k_d, TRUE);
 }
 
 //Manuell körning
@@ -355,7 +373,7 @@ void auto_control(){
 			rotate_right();
 			break;
 		case MODE_CROSSING_FORWARD:
-      crossing_forward();
+      		crossing_forward();
 			break;
 		case MODE_STRAIGHT:
 			run_straight(diff, rot, k_p, k_d, TRUE);
@@ -363,8 +381,8 @@ void auto_control(){
 		case MODE_CROSSING:
 			crossing();
 			break;
-    case MODE_LINE_FOLLOW:
-      line_follow();
+    	case MODE_LINE_FOLLOW:
+      		line_follow();
 			break;
 		case MODE_FINISH:
 			set_mode_finish();
@@ -413,7 +431,8 @@ void check_TWI(){
           k_d = s[i+1];
         }
 	    if(s[i] == REG_SPEED){
-          set_speed(s[i+1], 3, 3);
+			main_max_speed = s[i+1];
+        	set_speed(s[i+1], 3, 3);
         }
 		if(s[i] == REG_TIMER){
 		  crossing_timer_max = ((uint32_t) s[i+1]) << 12;

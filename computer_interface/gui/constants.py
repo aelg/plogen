@@ -41,8 +41,8 @@ BACKWARD = chr(0x0d)
 LEFT = chr(0x0e)
 RIGHT = chr(0x0f)
 STOP = chr(0x10)
-OPEN = chr(0x11)
-CLOSE = chr(0x12)
+CLOSE = chr(0x11)
+OPEN = chr(0x12)
 
 #Regulator constants
 REG_P = chr(1)
@@ -52,5 +52,5 @@ REG_TIMER = chr(4)
 
 #Constants for setMode
 
-debug_nobluetooth = 1
+debug_nobluetooth = 0
 debug = 0

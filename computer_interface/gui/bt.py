@@ -6,6 +6,7 @@ ERROR = -1
 IN = 11 		# In-queue in the BT
 OUT = 1 		# Out-queue in the BT
 BT_ADRESS = "00:06:66:03:A9:9C" # Hardware-address to the BT
+#BT_ADRESS = "00:06:66:03:71:88"
 PROGRAM = "fkub" # Default program to be run on the BT
 DEFAULT = 0xff
 CENTER_AREA = 1
@@ -29,7 +30,7 @@ class Cbt:
       return
 
     self.bt = BluetoothSocket( RFCOMM ) 	# Create socket
-    error = self.bt.connect((addr, 1)); 	# Connect, channel 1
+    error = self.bt.connect((BT_ADRESS, 1)); 	# Connect, channel 1
     self.bt.setblocking(1) 		# Activates blocking, which makes the socket wait for data if there is none
     self.send_socket_lock = send_socket_lock
     self.recv_socket_lock = recv_socket_lock

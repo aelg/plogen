@@ -19,29 +19,33 @@ class Plot():
     self.ax.set_ylim(-100, 240)
     self.ax.set_xlim(0, 5)
     self.ax.grid()
-    self.xData, self.pYData, self.dYData = [], [], []
+    self.xData, self.pYData, self.dYData, self.leftYData, self.rightYData = [], [], [], [], []
 
   def data_gen(self):
     t = self.t
     while True:
       t += 0.01
-      yield t, self.robot.getRegP(), self.robot.getRegD()
+      yield t, self.robot.getRegP(), self.robot.getRegD(), self.robot.getIRShortRight(), self.robot.getIRShortLeft()
 
   def run(self, data):
 
-    t,pY, dY = data
+    t,pY, dY, right, left = data
   
     self.xData.append(t)
     self.pYData.append(pY)
     self.dYData.append(dY)
+    self.rightYData.append(right)
+    self.leftYData.append(left)
     xmin, xmax = self.ax.get_xlim()
     if t >= xmax:
         self.ax.set_xlim(t-4, t+1)
         self.ax.figure.canvas.draw()
     self.pLine.set_data(self.xData, self.pYData)
     self.dLine.set_data(self.xData, self.dYData)
+    self.rightLine.set_data(self.xData, self.rightYData)
+    self.leftLine.set_data(self.xData, self.leftYData)
 
-    return self.pLine, self.dLine
+    return self.pLine, self.dLine, self.rightLine, leftLine
 
   def start(self):
 

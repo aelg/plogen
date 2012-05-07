@@ -1,11 +1,8 @@
 //STYRENHET.C
-#undef F_CPU 
-#define F_CPU 18400000UL 
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <inttypes.h>
-#include <util/delay.h>
 
 #include "../TWI/TWI.h"
 #include "motor.h"
@@ -43,7 +40,7 @@ uint8_t rot = 127; // Rotation mottagen från sensorenheten.
 uint8_t tape_position = 5; // Den diod där det är mest troligt att tejpen finns.
 uint8_t num_diods = 0; // Hur många dioder som upptäcker tejp.
 uint8_t last_tape_detected = 0; //Sparar senaste tejpmarkering
-int16_t main_max_speed = 240; //Sparar maxhastigheten
+int16_t main_max_speed = 220; //Sparar maxhastigheten
 
 // Variabler som hanterar tillbakavägen.
 uint8_t way_home[20]; //här sparas hur vi har kört på väg in i labyrinten

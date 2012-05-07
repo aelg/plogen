@@ -4,9 +4,13 @@
  */
 
 #include "error.h"
+#include "../styr_module/motor.h"
 
 void error(uint8_t e){
-	volatile int c;
-	++c;
+	volatile int c = e;
+	if(c==2) return;
+	while(1){
+		stop();
+	}
 	return;
 }

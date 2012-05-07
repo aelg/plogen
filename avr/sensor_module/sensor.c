@@ -9,8 +9,8 @@
 //#include <stdlib.h>
 
 #define GYRO_TURN_LEFT 950000
-#define GYRO_TURN_RIGHT -700000 //Tolkas de decimalt??
-#define GYRO_TURN_AROUND 2700000
+#define GYRO_TURN_RIGHT -700000 
+#define GYRO_TURN_AROUND 2500000
 #define TURN_TRESHOLD 20
 #define SHORT_TRESHOLD 25
 #define MIDDLE_SENSOR_VALUE 48
@@ -34,6 +34,7 @@ volatile uint16_t send_data_count = 0;
 volatile uint16_t send_to_computer = 0;
 volatile uint8_t i = 2;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
+volatile uint8_t last_tape_value = 40; // För att mäta ändringar i tejpsensorn istället för att ha tröskelvärden.
 volatile int32_t gyro_value; //Värdet på den analoga spänning som gyrot gett
 volatile int32_t gyro_sum; //Summan av gyrovärden. Används som integral. 
 volatile uint8_t global_tape = 0;
@@ -523,12 +524,13 @@ int main()
 					PORTD = PORTD & 0xe0;
 				}
 				send_straight_data();
-				if(tape_value > high_threshold){
+				if(tape_value > last_tape_value + 30){
 					tape_detected(1);
 				}
-				else if (tape_value < low_threshold){
+				else if (tape_value < last_tape_value - 30){
 					tape_detected(0);
 				}
+        last_tape_value = tape_value;
 				break;					
 			case MODE_LINE_FOLLOW:
 				if(++send_data_count > SEND_DATA){

@@ -8,9 +8,9 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-#define GYRO_TURN_LEFT 950000
+#define GYRO_TURN_LEFT 850000
 #define GYRO_TURN_RIGHT -700000 
-#define GYRO_TURN_AROUND 2500000
+#define GYRO_TURN_AROUND 2300000
 #define TURN_TRESHOLD 20
 #define SHORT_TRESHOLD 25
 #define MIDDLE_SENSOR_VALUE 48
@@ -27,14 +27,14 @@ uint8_t turn_around = 0;
 
 uint8_t interrupt_sent = 0;
 
-uint8_t high_threshold = 150;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
-uint8_t low_threshold = 120;//Tröskelvärde som vid jämförelse ger tejp/inte
+uint8_t high_threshold_line_follow = 160;//Tröskelvärde som vid jämförelse ger tejp/inte tejp vid linjeföljning
+uint8_t high_threshold = 130;//Tröskelvärde som vid jämförelse ger tejp/inte tejp
+uint8_t low_threshold = 60;//Tröskelvärde som vid jämförelse ger tejp/inte
 
 volatile uint16_t send_data_count = 0;
 volatile uint16_t send_to_computer = 0;
 volatile uint8_t i = 2;
 volatile uint8_t tape_value = 0; //Värdet på den analoga spänning som tejpdetektorn gett
-volatile uint8_t last_tape_value = 40; // För att mäta ändringar i tejpsensorn istället för att ha tröskelvärden.
 volatile int32_t gyro_value; //Värdet på den analoga spänning som gyrot gett
 volatile int32_t gyro_sum; //Summan av gyrovärden. Används som integral. 
 volatile uint8_t global_tape = 0;
@@ -356,7 +356,7 @@ uint8_t tape_detections(){
 
 	for(uint8_t i = 1; i < 10;++i){ 
 
-		if(diod[i] > high_threshold){
+		if(diod[i] > high_threshold_line_follow){
 			++number_of_diods;
 		}
 	}
@@ -432,22 +432,24 @@ void init_line_follow(){
 }
 
 // Kontrollera meddelanden.
-void check_TWI(){
-  uint8_t s[16];
-  uint8_t len;
-  len = TWI_read(s);
-  if(len){
-    switch(s[0]){
-    case CMD_SENSOR_MODE:
-		mode = s[2];
+uint8_t check_TWI(){
+	uint8_t s[16];
+	uint8_t len;
+	len = TWI_read(s);
+	if(len){
+		switch(s[0]){
+		case CMD_SENSOR_MODE:
+			mode = s[2];
 
-		if(mode == MODE_GYRO) init_gyro();
-		else if(mode == MODE_LINE_FOLLOW) init_line_follow();
-		else init_straight();
-		break;
+			if(mode == MODE_GYRO) init_gyro();
+			else if(mode == MODE_LINE_FOLLOW) init_line_follow();
+			else init_straight();
+			break;
 
-    }
-  }
+    	}
+		return 1;
+  	}
+  	else return 0;
 }
 
 //Initera uppstart, datariktningar
@@ -491,7 +493,7 @@ int main()
 
 	while(1) {
 			
-		check_TWI();
+		while(check_TWI());
 
 		switch(mode){
 			case MODE_STRAIGHT:
@@ -524,13 +526,12 @@ int main()
 					PORTD = PORTD & 0xe0;
 				}
 				send_straight_data();
-				if(tape_value > last_tape_value + 30){
+				if(tape_value > high_threshold){
 					tape_detected(1);
 				}
-				else if (tape_value < last_tape_value - 30){
+				else if (tape_value < low_threshold){
 					tape_detected(0);
 				}
-        last_tape_value = tape_value;
 				break;					
 			case MODE_LINE_FOLLOW:
 				if(++send_data_count > SEND_DATA){

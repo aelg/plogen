@@ -16,6 +16,8 @@ class Plot():
     self.ax = self.fig.add_subplot(111)
     self.pLine, = self.ax.plot([], [], lw=2)
     self.dLine, = self.ax.plot([], [], lw=2)
+    self.rightLine, = self.ax.plot([], [], lw=2)
+    self.leftLine, = self.ax.plot([], [], lw=2)
     self.ax.set_ylim(-100, 240)
     self.ax.set_xlim(0, 5)
     self.ax.grid()
@@ -45,7 +47,7 @@ class Plot():
     self.rightLine.set_data(self.xData, self.rightYData)
     self.leftLine.set_data(self.xData, self.leftYData)
 
-    return self.pLine, self.dLine, self.rightLine, leftLine
+    return self.pLine, self.dLine, self.rightLine, self.leftLine
 
   def start(self):
 

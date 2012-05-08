@@ -1,3 +1,26 @@
+/** @file
+ * Här finns kod som hanterar I2C bussen. Denna hanteras genom två arrayer som agerar
+ * cirkulära listor för att spara data som tagits emot men inte hunnit behandlas alternativt
+ * ska skickas men inte hunnit iväg ännu. Eftersom dessa listor är begränsade kräver detta att
+ * den inkommande listan töms regelbundet av resten av programmet. 
+ * Skulle bussen bli upptagen för länge kommer också den utgående listan bli full.
+ *
+ * I2C har 4 lägen
+ * - MR Master Reciever
+ * - MT Master Transmitter
+ * - SR Slave Reciever
+ * - ST Slave Transmitter
+ *
+ * De lägen som implementerats är MT och SR data skickas alltså som Master och tas emot som 
+ * Slave. Eftersom alla enheter använder denna kod betyder det att roboten har flera Masters
+ * på bussen. Fördelen är att det blir mindre lägen att implementera och samma kod körs överallt.
+ * Nackdelen är att flera Masters kan skriva på bussen samtidigt och alltså måste hantering
+ * för arbitrationfel implementeras. MR och ST är inte implementerade överhuvudtaget.
+ *
+ * Funktionerna TWI_read() och TWI_write() är de som ska användas utanför den här filen.
+ * Skrivs paket till dessa så ska de flyga iväg på bussen helt automatiskt.
+ */
+
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <util/atomic.h>
@@ -5,6 +28,10 @@
 #include "../error/error.h"
 #include "TWI.h"
 
+/** @name TWCR-konstanter.
+ * Namngivna konstanter för TWCR i I2C-interruptet.
+ */
+///@{ 
 //TWCR BITS(TWxx):   INT EA STA STO WC EN Res IE
 #define SEND 0xc5 // 1   1  0   0   0  1  0   1
 #define STOP 0xd5 // 1   1  0   1   0  1  0   1
@@ -12,189 +39,215 @@
 #define ACK 0xc5  // 1   1  0   0   0  1  0   1
 #define NACK 0x85 // 1   0  0   0   0  1  0   1
 #define RESET 0xc5// 1   1  0   0   0  1  0   1
+///@}
 
-// These are changed by ISRs and read by interuptable functions and should be volatile.
-// Dont't really think this is necessary.
-volatile uint8_t tread_buff[TWI_BUFFER_SIZE];
-volatile uint8_t twrite_buff[TWI_BUFFER_SIZE];
-volatile uint8_t tread_end, twrite_start;
+/* @name Buffertar
+ * Buffertar och pekare till dem. 
+ */
+///@{
+// Dessa ändras av både interrupts och vanlig kod och borde vara volatile.
+// Tror egentligen inte att det är nödvändigt.
+volatile uint8_t tread_buff[TWI_BUFFER_SIZE]; ///< Inkommande buffer.
+volatile uint8_t twrite_buff[TWI_BUFFER_SIZE]; ///< Utgående buffer.
+volatile uint8_t tread_end; ///< Pekare till elementet efter det sista som används i inkommande bufferten.
+volatile uint8_t twrite_start; ///< Pekare till första elementet i utgående bufferten. Det som ska skickas.
 
-// These are never changed by ISRs only read, and shouldn't need to be volatile.
-uint8_t tread_start, twrite_end;
-// These are only used by interrupts.
-uint8_t twrite_current, tread_current, tremaining_bytes;
 
-/**
- * TWI calculate address: make sure the address is within queue.
+uint8_t tread_start; ///< Pekare till första elementet i inkommande bufferten. Det som ska läsas.
+uint8_t twrite_end; ///< Pekare till elementet efter det sista som används i utgående bufferten.
+///@}
+
+/** @name Interruptpekare
+ * Pekare som används i interrupten för att inte tappa bort saker om fel skulle uppstå under överföring.
+ */
+///@{
+uint8_t twrite_current;
+uint8_t tread_current;
+uint8_t tremaining_bytes;
+///@}
+
+/** TWI calculate address.
+ * Hanterar cirkulariteten och ser till att pekaren inte hamnar utanför listan.
  */
 inline uint8_t TWIca(uint8_t);
 uint8_t TWIca(uint8_t addr){
 	return addr & 0x1f;
 }
 
-/**
- *  The write queue needs to know which address to send packets to.
- *  Put address to receiver before every packet.
+/** Hantera TWI-interruptet.
+ *  Läser in SR som säger vilket läge TWI-hårdvaran är och gör det som behövs. (Use the source, Luke).
+ *  
+ *  TWI behöver veta vem den ska skicka paketet till så före varje paket i den utgående bufferten ska
+ *  adressen på mottagaren ligga.
  */
 
 ISR(TWI_vect){
 	uint8_t sr = TWSR & 0xf8;
 	switch(sr){
-	case 0x8: // Start sent.
-	case 0x10: // Repeated start sent.
-		// Copy twrite_start to current_start so we know what to send next,
-		// let twrite_start remain as is, in case of arbitration error.
+	case 0x8: // Start har skickats.
+	case 0x10: // Repeated start har skickats.
+		// Kopiera twrite_start till current_start så vi vet vad som ska skickas nu,
+		// låt twrite_start vara, om arbitration error.
 		twrite_current = twrite_start;
-		// Read number of bytes in packet, assume there is a complete packet in the queue.
-		// Add 3 to count SLA+W, command, and length.
+		// Läs antalet byte i paketet, utgå ifrån att det ligger ett helt paket i kön (TWI_write är snabbare än bussen).
+		// Lägg till 2 för att få med kommando och längdbyterna.
 		tremaining_bytes = twrite_buff[TWIca(twrite_start+2)]+2;
-		// Load addressbyte, clear W/R to select write.
+		// Skicka adress, tömm W/R för att gå in i MT.
 		TWDR = twrite_buff[twrite_current] << 1;
 		TWCR = SEND;
 		twrite_current = TWIca(twrite_current + 1);
 		break;
-	case 0x18: // SLA+W has been sent, ACK received.
-	case 0x28: // Data has been sent, ACK received.
+	case 0x18: // SLA+W skickat, ACK mottagen.
+	case 0x28: // Data skickat, ACK mottagen.
 		TWDR = twrite_buff[twrite_current];
-		// Check if this is the last byte in transmission.
+		// Finns något kvar att skicka?
 		if(tremaining_bytes == 0){
-			// Check if there are more packets to be sent.
+			// Finns fler paket att skicka efter detta?
 			if(twrite_current == twrite_end){
-				// Last byte, send STOP;
+				// Slut på paket skicka STOP;
 				TWCR = STOP;
 			}
 			else {
-				// More to send, send START
+				// Finns mer, skicka START
 				TWCR = START;
 			}
-			// Update start_twrite, there was no arbitration error.
+			// Uppdatera start_twrite, inga arbitrationfel.
 			twrite_start = TWIca(twrite_current);
 		}
 		else {
-			// Send byte.
+			// Skicka en byte.
 			--tremaining_bytes;
 			TWCR = SEND;
 			twrite_current = TWIca(twrite_current+1);
 		}
 		break;
-	case 0x38: // Arbitration error.
-		// We still want to send what we was sending, send START when bus becomes free.
+	case 0x38: // Arbitration fel.
+		// We vill fortfarande skicka det som vi höll på med, skicka START när bussen blir ledig.
 		TWCR = START;
 		break;
-	case 0x20: // Not ACK received after SLA+W, unknown address.
+	case 0x20: // Not ACK mottagen efter SLA+W, okänd adress.
 		error(TWI_UNKNOWN_ADDRESS);
-		// Remove current packet.
+		// Ta bort paketet.
 		while(tremaining_bytes--)
 			++twrite_current;
 
 		twrite_start = TWIca(twrite_current);
 
-		// Check if there are more packets.
+		// Kolla om det finn fler paket att skicka.
 		if(twrite_start == twrite_end){
-			// No more packets, send STOP.
+			// Inget mer, skicka STOP.
 			TWCR = STOP;
 		}
 		else{
-			// More packets in queue, send REPEATED START.
+			// Fler paket i kön, skicka REPEATED START.
 			TWCR = START;
 		}
 		break;
-	case 0x30: // Not ACK received after data.
-		// Signal error
+	case 0x30: // Not ACK mottagen efter data.
+		// Signalera fel.
 		error(TWI_NOT_ACK_RECEIVED);
-		// Start over and that the receiver has more space in buffer this time.
+		// Försök igen och hoppas att mottagaren har rensat bufferten.
 		TWCR = START;
 		break;
-	case 0x60: // Own SLA+W received, ACK returned.
-	case 0x68: // Arbitration lost in MR mode, own SLA+W received, ACK returned.
-	case 0x70: // General call address received.
-	case 0x78: // Arbitration lost in MR mode, general call address received, ACK returned.
-		// Read byte
+	case 0x60: // Egen SLA+W mottagen, ACK skickad tillbaka.
+	case 0x68: // Arbitration fel i MR mode, egen SLA+W mottagen, ACK skickad tillbaka.
+	case 0x70: // General call adress mottagen.
+	case 0x78: // Arbitration fel i MR mode, general call adress mottagen, ACK skickad tillbaka.
+		// Läs byte
 		//tread_buff[tread_current] = TWDR;
 		tread_current = TWIca(tread_end);
-		// Check if buffer is full.
+		// Kolla om bufferten är full.
 		if(TWIca(tread_current+1) == tread_start){
-			// Return NOT ACK.
+			// Skicka NOT ACK.
 			TWCR = NACK;
 		}
-		else { // Send ACK
+		else { // Skicka ACK
 			TWCR = ACK;
 		}
 		break;
-	case 0x80: // Data received, ACK sent. (Addressed)
-	case 0x90: // Data received, ACK sent. (General call)
-		// Read byte
+	case 0x80: // Data mottagen, ACK sent. (Adresserad)
+	case 0x90: // Data mottage, ACK sent. (General call)
+		// Läs byte
 		tread_buff[tread_current] = TWDR;
 		tread_current = TWIca(tread_current+1);
-		// Check if buffer is full.
+		// Kolla om bufferten är full.
 		if(tread_current == tread_start){
-			// Return NOT ACK.
+			// Skicka NOT ACK.
 			TWCR = NACK;
 		}
-		else { // Send ACK
+		else { // Skicka ACK
 			TWCR = ACK;
 		}
 		break;
-	case 0x88: // Data received, NACK sent. (Addressed)
-	case 0x98: // Data received, NACK sent. (General call)
-		// Reset and hope that we have room in buffer next time.
+	case 0x88: // Data mottagen, NACK skickad. (Adresserad)
+	case 0x98: // Data received, NACK skickad. (General call)
+		// Reset och hoppas att det finns plats i nästa gång.
 		TWCR = RESET;
 		error(TWI_READ_BUFFER_FULL);
 		break;
-	case 0xA0: // STOP received.
+	case 0xA0: // STOP mottagen.
 		tread_end = tread_current;
-		//Check if we want to send data.
+		//Kolla om vi vill skicka data.
 		if(twrite_start != twrite_end)
 			TWCR = START;
 		else
 			TWCR = RESET;
 		break;
-	case 0x00: // Bus error due to illegal START or STOP
-		// Send STOP to reset hardware, no STOP will be sent.
+	case 0x00: // Bus fel pga felaktig START or STOP
+		// Skicka STOP för att återställa hårdvara, inget STOP kommer skickas.
 		error(TWI_BUS_ERROR);
 		TWCR = STOP;
 		break;
-	default: // This shouldn't happen;
+	default: // Ska inte hända.
 		error(TWI_UNKNOWN_STATUS);
 		break;
 	}
 }
 
+/** Sätter igång bussen. Skickar ett första START-condition för att dra igång alltihop.
+ * Efter det så kommer allt skötas av interruptrutinen.
+ */
 void TWI_start(){
 	TWCR = START;
 }
 
+/** Initierar I2C-hårdvaran.
+ * Sätter adressen och bitrate så att bussen fungerar.
+ */
 void TWI_init(uint8_t sla){
 	tread_start = tread_end = twrite_start = twrite_end = 0;
-	// Set correct bitrate.
+	// Sätt bitrate.
 	TWBR = 0x80;//0x0c;
-	// Set slave address and receive general calls.
+	// Sätt slave adress och ta emot general calls.
 	TWAR = (sla << 1) | 0x01;
-	// Just to make sure.
+	// Säkrast så.
 	TWSR = 0;
-	// Reset to make TWI ready for use.
+	// Reset för att vara redo.
 	TWCR = RESET;
 }
 	
-
+/** Lägger till paket i utgående buffert.
+ * Tar ett paket och lägger till paketet i den utgående buffertern. 
+ * Kontrollerar så att det får plats och sätter igång bussen så det skickas.
+ */
 uint8_t TWI_write(uint8_t addr, uint8_t *s, uint8_t len){
-  // Save start local variable in case it is changed by an ISR
+  // Spara start lokalt ifall den skulle ändras av ett interrupt.
   uint8_t start = twrite_start;
-	// Temporary end to handle circular buffer.
+  // Temporär end för att hantera cirkulär buffer.
 	uint8_t end;
-	// Make sure end always is bigger than start.
+  // Se till att end alltid är större än start.
 	if(start > twrite_end){
 	  end = twrite_end + TWI_BUFFER_SIZE;
 	}
 	else end = twrite_end;
-	// Return false if the message doesn't fit in buffer.
+  // Returnera false om buffertern är full.
 	if(len + 1> TWI_BUFFER_SIZE - 1 -(end - start)){
-		// TODO: signal buffer error.
+		// TODO: signalera buffer fel.
 		return 0;
 	}
 	twrite_buff[twrite_end] = addr;
 	twrite_end = TWIca(twrite_end+1);
-	// Copy message to buffer.
+  // Kopiera meddelande till bufferten.
 	for(int i = 0; i < len; ++i){
 		twrite_buff[twrite_end] = s[i];
 		twrite_end = TWIca(twrite_end+1);
@@ -203,28 +256,32 @@ uint8_t TWI_write(uint8_t addr, uint8_t *s, uint8_t len){
 	return 1;
 }
 
+/** Läser ett paket från den inkommande buffertern.
+ * Tar ett paket från den inkommande buffertern och lägger paketet i parametern s.
+ * Returnerar längden på paketet. 0 om inget helt paket finns.
+ */
 uint8_t TWI_read(uint8_t* s){
-	// Temporary variable to handle circular list.
+  // Temporär variabel för att hanter cirkulära listan.
 	uint8_t end;
-	// Calculate the length of the circular list.
-  // Make atomic so tread_end doesn't change.
+  // Räkna ut längden på listan
+  // Atomic ifall tread_end skulle ändras av interrupt.
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 	  if(tread_end < tread_start)
 		  end = tread_end + TWI_BUFFER_SIZE;
 	  else end = tread_end;
   }
-	// Check if tread_buff contains correct number of bytes.
+  // Kolla om tread_buff innehåller korrekt antal byte.
 	if(end-tread_start >= 2){
-		// Read length byte from packet.
+    // Läs längden från paketet.
 		uint8_t len = tread_buff[TWIca(tread_start+1)]+2;
-			// Check if correct number of bytes in read_buff
+      // Kolla om det finns nog med byte i read_buff
 			if(len <= end-tread_start){
-				// Copy the bytes to the list s
+				// Kopiera till s.
 				for(uint8_t i = 0; i < len; i++){
 					s[i]=tread_buff[tread_start];
 					tread_start =TWIca(tread_start + 1);
 					}
-				//return the length of the list
+        // Returnera längden.
 				return len;
 			}
 			else return 0;

@@ -1,6 +1,18 @@
 /** @file
  * Huvudprogram för styrenheten.
- * Här finns all logik för styrenheten. */
+ * Här finns all logik för styrenheten. Koden är uppdelad så tydligt som möjligt.
+ * Den är skriven för läsbarhet och för att kunna ändras lätt. Återanvändbarhet och
+ * uppdelning i olika typer av funktioner är prioriterat.
+ * Först finns funktioner för att byta mellan styrenhetens olika moder. Dessa ska alltid 
+ * användas om mode byts, på detta sätt behöver ändringar bara göras på ett ställe och 
+ * kod återanvänds.
+ * Sedan finns interruptrutiner som hanterar alla interrupt. Dessa ska vara snabba.
+ * Funktionerna som hanterar moderna körs ifrån mainloopen. Dessa ska göra det som 
+ * behövs och sedan returnera så fort som möjligt. Inga fördröjningar eller långa 
+ * loopar får köras i dessa då detta kan förstöra bussen. Globala variabler används
+ * för att kunna spara värden mellan körningar av dessa funktioner, samt för att kunna
+ * implementera fördröjnigar utan att stoppa upp programmet.
+ */
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -62,7 +74,6 @@ uint8_t mode = MODE_STRAIGHT;
 uint8_t end_of_line_follow = 0;
 ///@}
 
-<<<<<<< HEAD
 /** @name Bussdata 
  *  Variabler där data mottagen från TWI sparas
  */
@@ -119,25 +130,19 @@ void init_interrupts(void){
  *  Dessa rutiner anropas för att byta läge på sensorenheten på ett systematiskt sätt.
  *  Följande lägen finns:
  *
- *  1. MODE_STRAIGHT Detta läge är till för att köra rakt i raksträckor på labyrinten. PD-reglering körs med
+ *  -# MODE_STRAIGHT Detta läge är till för att köra rakt i raksträckor på labyrinten. PD-reglering körs med
  *     data från sensorenheten.
- *
- *  2. MODE_LINE_FOLLOW Detta läge följer linjen framför roboten, när roboten kommer fram till ett tvärstreck
+ *  -# MODE_LINE_FOLLOW Detta läge följer linjen framför roboten, när roboten kommer fram till ett tvärstreck
  *     byts läget till "turn around", gripklon stängs och roboten påbörjar tilbakavägskörningen.
- *
- *  3. MODE_CROSSING Detta läge hanterar när roboten kommer in i en korsning. Den kör en timer som räknar upp så
+ *  -# MODE_CROSSING Detta läge hanterar när roboten kommer in i en korsning. Den kör en timer som räknar upp så
  *     att roboten kommer till mitten av korsningen. När detta skett kontrollerar den vilket håll den ska svänga
  *     och byter till rätt mode.
- *
- *  4. MODE_FORWARD/LEFT/RIGHT_TURN Dessa lägen ser till att roboten gör 90 gradersvängar eller fortsätter rakt fram.
+ *  -# MODE_FORWARD/LEFT/RIGHT_TURN Dessa lägen ser till att roboten gör 90 gradersvängar eller fortsätter rakt fram.
  *     Dessa funktioner kommer också att fixa sparning av tillbakvägsdata.
- *
- *  5. MODE_TURN_AROUND Vänder roboten och börjar sedan tillbakavägskörning.
- *
- *  6. MODE_TURN_COMPLETE Ser till att roboten kan ta sig ut ur en korsning efter att rätt sväng blivit utförd.
+ *  -# MODE_TURN_AROUND Vänder roboten och börjar sedan tillbakavägskörning.
+ *  -# MODE_TURN_COMPLETE Ser till att roboten kan ta sig ut ur en korsning efter att rätt sväng blivit utförd.
  *     Denna kör en timer och sätter sedan MODE_STRAIGHT.
- *
- *  7. MODE_FINISH Detta mode stoppar roboten och går över till manuellt mode.
+ *  -# MODE_FINISH Detta mode stoppar roboten och går över till manuellt mode.
  */
 
 ///@{
@@ -366,6 +371,7 @@ void crossing(void){
 
 /** Hanterar MODE_CROSSING_FORWARD
  *  Räknar upp crossing_counter och byter sen till MODE_STRAIGHT.
+ *  Ser till att roboten kommer ut ur korsningen.
  */
 void crossing_forward(){
 	forward(); // 
@@ -392,7 +398,7 @@ void line_follow(){
 	
 	if(end_of_line_follow == END_TAPE){
 		driving_back = 1;
-		backward();
+		reverse();
 
 		if(backwards_timer < backwards_timer_max){
 			++backwards_timer;

@@ -1,4 +1,9 @@
-//STYRENHET.C
+/** @file 
+ * Kod för att hantera motorerna i styrenheten, samt regleralgoritmer.
+ * Innehåller mest enklar funktioner för enkla registeromställningar som reglerar hastigheten på de olika hjulen.
+ *
+ * Både linjeföljningsregleringen och PD-regleringen efter väggarna finns här.
+ */
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -10,15 +15,19 @@
 
 /// Hastighet om roboten kör rakt fram.
 int16_t max_speed = 250;
+/// Hastighet på innerhjulet om roboten svänger.
 int16_t turn_speed = 0x0003;
+/// Hastighet på hjulen om roboten står stilla.
 int16_t stop_speed = 0x0003;
 
+/// Timer som används för att skicka regulatorparametrar till datorn med lagom intervall.
 uint16_t delay = 0;
 
 
-//Functions
 
-//Griparmsfunktion
+/** Griparmsfunktion
+ *  Funktion för att kontrollera griparmen.
+ */
 void griparm(uint8_t grip)
 {	 
 	TCNT2 = 0x00;
@@ -36,7 +45,9 @@ void griparm(uint8_t grip)
 	}
 }
 
-//Körs alltid vid uppstart
+/** Initiering av motorstyrningen.
+ *  Sätter register för att ställa PWM-modulerna för att kunna kontrollera motorerna.
+ */
 void setup_motor(void)
 {
 	TCNT1 = 0x0000;
@@ -53,7 +64,7 @@ void setup_motor(void)
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
-//Rotera höger
+/// Rotera höger
 void rotate_right(void)
 {
 	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
@@ -62,7 +73,7 @@ void rotate_right(void)
 		  |(0<<PORTA1);//Right wheel direction - pin6
 }
 	
-//Rotera vänster
+/// Rotera vänster
 void rotate_left(void)
 {
 	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
@@ -71,7 +82,7 @@ void rotate_left(void)
 	      |(1<<PORTA1);//Right wheel direction - pin6
 }
 
-//Köra framåt ur korsning
+/// Kör framåt.
 void forward(void)
 {
 	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
@@ -80,16 +91,8 @@ void forward(void)
 		|(1<<PORTA1);//Right wheel direction - pin6
 }
 
-//Köra bakåt i målområdet
-void backward(void)
-{
-	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
-	OCR1B =	max_speed;//sets the length of pulses, left side - pin8
-	PORTA =(0<<PORTA0)//Left wheel direction - pin5
-		|(0<<PORTA1);//Right wheel direction - pin6
-}
-
-//Rutin för hogersväng
+/// Kör höger.
+/// Mjukt genom att bromsa innerhjulet.
 void turn_right(void)
 {
 	OCR1A =	turn_speed;//sets the length of pulses, right side - pin7
@@ -98,7 +101,8 @@ void turn_right(void)
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
-//Rutin för vanstersväng
+/// Kör vänster.
+/// Mjukt genom att bromsa innerhjulet.
 void turn_left(void)
 {
 	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
@@ -107,6 +111,7 @@ void turn_left(void)
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
+/// Stanna.
 void stop(void)
 {
 	OCR1A =	stop_speed;//sets the length of pulses, right side - pin7
@@ -115,6 +120,7 @@ void stop(void)
 		  |(1<<PORTA1);//Right wheel direction - pin6
 }
 
+/// Kör bakåt.
 void reverse(void)
 {
 	OCR1A =	max_speed;//sets the length of pulses, right side - pin7
@@ -123,6 +129,12 @@ void reverse(void)
 		  |(0<<PORTA1);//Right wheel direction - pin6	
 }
 
+/** Reglering.
+ *  Kör regleringsalgoritmen.
+ *  Beräknar P- och D-del genom att multiplicera diff och rot med k_p och k_d och sedan dra av 
+ *  det från max_speed på rätt hjul. Parametern run=FALSE används för att köra algoritmen och bara skicka
+ *  reglerdata till datorn utan att ändra några hastigheter på hjulen.
+ */
 void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d, uint8_t run){
 
 	int16_t difference = (diff - 127) << REGULATOR_CORR;
@@ -169,7 +181,11 @@ void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d, uint8_t r
 }
 
 
-// Målområdeskörning
+/** Linjeföljning.
+ *  Reglerar roboten i målområdet. Kontrollerar var linjen finns och svänger åt rätt håll.
+ *  Returnerar END_TAPE, NO_TAPE eller TAPE_DETECTED beroende på om roboten ser en tvärgående tejp, inte ser tejp
+ *  eller ser tejp.
+ */
 uint8_t run_line_follow(uint8_t num_diods, uint8_t tape_position){
 	if(num_diods > 5){
 		stop();
@@ -192,8 +208,10 @@ uint8_t run_line_follow(uint8_t num_diods, uint8_t tape_position){
 
 }
 
-
-
+/** Ställ in hastighetsvariabler.
+ *  Ställer in variablerna som kontrollerar robotens hastighet. Används dels för att köra saktare i målområdet,
+ *  samt för att ställa in data från datorn.
+ */
 void set_speed(int16_t max, int16_t turn, int16_t stop){
   max_speed = max;
   turn_speed = turn;

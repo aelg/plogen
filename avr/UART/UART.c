@@ -1,105 +1,128 @@
+/** @file
+ * UART.c 
+ * 
+ * Här finns kod som hanterar USART bussen som blåtandsenheten är kopplad till. Denna hanteras genom två arrayer som agerar
+ * cirkulära listor för att spara data som tagits emot men inte hunnit behandlas alternativt
+ * ska skickas men inte hunnit iväg ännu. Eftersom dessa listor är begränsade kräver detta att
+ * den inkommande listan töms regelbundet av resten av programmet. 
+ *
+ * Funktionerna TWI_read() och TWI_write() är de som ska användas utanför den här filen.
+ * Skrivs paket med dessa så ska de flyga iväg på bussen helt automatiskt.
+ */
+
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
 #include "../error/error.h"
 #include "UART.h"
 
-// These are changed by ISRs and read by interuptable functions and should be volatile.
-// Dont't really think this is necessary.
-volatile uint8_t uread_buff[UART_BUFFER_SIZE];
-volatile uint8_t uwrite_buff[UART_BUFFER_SIZE];
-volatile uint8_t uread_end, uwrite_start;
+/* @name Buffertar
+ * Buffertar och pekare till dem. 
+ */
+///@{
+// Dessa ändras av både interrupts och vanlig kod och borde vara volatile.
+// Tror egentligen inte att det är nödvändigt.
+volatile uint8_t uread_buff[TWI_BUFFER_SIZE]; ///< Inkommande buffer.
+volatile uint8_t uwrite_buff[TWI_BUFFER_SIZE]; ///< Utgående buffer.
+volatile uint8_t uread_end; ///< Pekare till elementet efter det sista som används i inkommande bufferten.
+volatile uint8_t uwrite_start; ///< Pekare till första elementet i utgående bufferten. Det som ska skickas.
 
-// These are never changed by ISRs only read, and shouldn't need to be volatile.
-uint8_t uread_start, uwrite_end;
-// These are only used by interrupts.
-uint8_t uremaining_bytes, uremaining_packets;
 
-/**
- * TWI calculate address: make sure the address is within queue.
+uint8_t uread_start; ///< Pekare till första elementet i inkommande bufferten. Det som ska läsas.
+uint8_t uwrite_end; ///< Pekare till elementet efter det sista som används i utgående bufferten.
+///@}
+
+/** UART calculate address.
+ * Hanterar cirkulariteten och ser till att pekaren inte hamnar utanför listan.
  */
 inline uint8_t UARTca(uint8_t);
 uint8_t UARTca(uint8_t addr){
 	return addr & 0x1f;
 }
 
-/**
- * Interrupt vector for UDR Empty. UDR is empty and ready to receive a new byte.
- * Sends next byte from the USART packet queue.
+/** Interrupt för UDR Empty.
+ * UDR tom och redo att ta emot mer data.
+ * Skicka nästa byte i paketkön.
  */
 ISR(USART_UDRE_vect){
-	// Is there more data to send.
+  // Finns mer att skicka?
 	if (uwrite_start != uwrite_end){
-		// Write data to RXE to send it.
+    // Skriv data till UDR (RXE) för att skicka.
 		UDR = uwrite_buff[uwrite_start];
-		// Update buffer pointer.
+    // Uppdatera buffertpekaren.
 		uwrite_start = UARTca(uwrite_start+1);
 	}
 	else {
-	    // Disable UDRIE to stop sending data.
+      // Avaktivera UDRIE för att sluta skicka data.
 		UCSRB = UCSRB & 0xdf;
 	}
 }
 
-/**
- * Interrupt vector for Rx Complete. UDR contains last recieved byte and is ready to be read.
- * Copy UDR, to USART packet queue.
+/** Interrupt för Rx Complete. 
+ * UDR innehåller den senast mottagna byte och är redo att läsas.
+ * Kopiera UDR till inkommande kön.
  */
 ISR(USART_RXC_vect){
-	// Is the buffer full?
+	// Är bufferten full?
 	if(uread_start == UARTca(uread_end+1)){
 		error(UART_RXE_BUFFER_FULL);
-		// Read UDR to clear interrupt.
-		// FIXME: THIS BYTE WILL BE LOST AND WE WILL BE OUT OF SYNC WITH PACKETS.
+    // Läs UDR för att rensa interruptflaggan.
+    // FIXME: DENNA BYTE KOMMER TAPPAS OCH VI KOMMER VAR UR SYNC MED PAKETEN
 		asm volatile("ldi r24, 0x2c" : : : "r24");
 	}
 	else{
-		// Copy UDR to read_buffer.
+    // Kopiera UDR till uread_buff.
 		uread_buff[uread_end] = UDR;
-		// Update pointer.
+		// Uppdatera pekaren.
 		uread_end = UARTca(uread_end+1);
 	}
 }
 
+/** Initiera USART hårdvara.
+ * Nollställer buffertpekare och ställer in register så hårdvaran är redo.
+ */
 void UART_init(){
-	// Set buffer pointers to beginning of buffers.
+  // Sätt bufferpekare på början av bufferten.
 	uread_start = uread_end = uwrite_start = uwrite_end = 0;
 	// Init UCSRA just to make sure.
+  // För säkerhets skull.
 	UCSRA = 0x0;
-	// Write to UCSRA; set Asyncronous, no parity, 8 databits.
+	// Skriv UCSRA; läge: Asynkron, ingen paritet, 8 databitar.
 	UCSRC = 0x86;
-	// Set baudrate 115200
+	// Baudrate 115200
 	UBRRL = 0x09;
-	// Activate interrupts on RX Complete.
+	// Aktivera interrupt på RX Complete.
 	UCSRB = 0x98;
 }
 
+/** Starta USART-överföringar.
+ * När interruptet aktiveras kommer UDR Empty köras och paketen kommer börja flyga iväg.
+ */
 void UART_start(){
     // Enable interrupt on UDRE
     UCSRB = UCSRB | 0x20;
 }
 
-/**
- * Write packet to UART packet queue.
- * Parameters:
- * uint8_t* s buffer to receive the packet.
- * Return value: Length of packet, 0 if no complete packet is in the buffer.
+/** Skriv paket till UART-kön.
+ * Parametrar:
+ * uint8_t* s paket som ska skrivas.
+ * Returvärde: 1 om paketet, fick plats, 0 annars.
  */
 uint8_t UART_write(uint8_t *s, uint8_t len){
-	// Temporary end to handle circular buffer.
+  // Temporär end för att hantera cirkulär buffer.
 	uint8_t end;
-	// Make sure end always is bigger than write_start.
+  // Se till att end alltid är större än start.
 	if(uwrite_start > uwrite_end){
 		end = uwrite_end + UART_BUFFER_SIZE;
 	}
 	else end = uwrite_end;
-	// Return false if the message doesn't fit in buffer.
+  // Returnera false om buffertern är full.
 	if(len > UART_BUFFER_SIZE - 2 - (end - uwrite_start)){
-		// TODO: signal buffer error.
+		// TODO: signalera buffer fel.
 		return 0;
 	}
 
-	// Copy message to buffer.
+  // Kopiera meddelande till bufferten.
 	for(int i = 0; i < len; ++i){
 		uwrite_buff[uwrite_end] = s[i];
 		uwrite_end = UARTca(uwrite_end+1);
@@ -108,34 +131,33 @@ uint8_t UART_write(uint8_t *s, uint8_t len){
 	return 1;
 }
 
-/**
- * Read first packet from the UART packet queue.
- * Parameters:
- * uint8_t* s buffer to receive the packet.
- * Return value: Length of packet, 0 if no complete packet is in the buffer.
+/** Läs första paketet från inkommande paketkön.
+ * Parametrar:
+ * uint8_t* s buffer för att ta emot paket.
+ * Returvärde: Paketlängd, 0 om inget helt paket finns i bufferten.
  */
 uint8_t UART_read(uint8_t* s){
 	if(uread_start == uread_end) return 0;
-	// Temporary variable to handle circular list.
+  // Temporär variabel för att hanter cirkulära listan.
 	uint8_t end;
 	uint8_t start = uread_start;
-	// Calculate the length of the circular list.
+  // Räkna ut längden på listan
 	if(uread_end < start)
 		end = uread_end + UART_BUFFER_SIZE;
 	else end = uread_end;
-	// Check if read_buff contains correct number of bytes.
+  // Kolla om uread_buff innehåller korrekt antal byte.
 	if(end - start > 1){
-		// Read length byte from packet.
+    // Läs längden från paketet.
 		uint8_t len = uread_buff[UARTca(start+1)]+2;
-			// Check if correct number of bytes in read_buff
+      // Kolla om det finns nog med byte i read_buff
 			if(len <= end - start){
-				// Copy the bytes to the list s
+				// Kopiera till s.
 				for(uint8_t i = 0; i < len; i++){
 					s[i]=uread_buff[start];
 					start =UARTca(start + 1);
 					}
 				uread_start = start;
-				//return the length of the list
+        // Returnera längden.
 				return len;
 			}
 			else return 0;

@@ -8,11 +8,11 @@
 //#include <avr/sleep.h>
 //#include <stdlib.h>
 
-#define GYRO_TURN_LEFT 850000
-#define GYRO_TURN_RIGHT -700000 
-#define GYRO_TURN_AROUND 2300000
+#define GYRO_TURN_LEFT 800000
+#define GYRO_TURN_RIGHT -600000 
+#define GYRO_TURN_AROUND 2100000
 #define TURN_TRESHOLD 20
-#define SHORT_TRESHOLD 25
+#define SHORT_TRESHOLD 30
 #define MIDDLE_SENSOR_VALUE 48
 
 #define SEND_DATA 0x0100 

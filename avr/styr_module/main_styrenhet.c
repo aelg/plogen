@@ -1,4 +1,6 @@
-//STYRENHET.C
+/** @file
+ * Huvudprogram för styrenheten.
+ * Här finns all logik för styrenheten. */
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -9,46 +11,97 @@
 #include "../commands.h"
 #include "../utility/send.h"
 
-#define LINE_START_MAX 0x0f00
-#define CROSSING_TIMER_MAX 0x4000
 
+#define LINE_START_MAX 0x0f00 ///< Värde då line_start_timer slår över.
+#define CROSSING_TIMER_MAX 0x4000 ///< Värde då crossing_timer slår över.
+
+/// Används för att modedata från sensorn.
 #define MODE_FROM_SENSOR (PINB & 0x0f)
 
 void set_mode_turn_complete();
 
-// Räknare som ser används då saker inte ska göras för ofta.
+/** @name Räknare 
+ *  Används då saker inte ska göras för ofta.
+ */
+///@{
+
+/// Räknare så roboten inte detekterar sista tejpen i markeringen som slutmarkering.
 uint16_t line_start_timer = 0;
+/// Räknare för korsningar så vi väntar tillräckligt innan svängen.
 uint32_t crossing_timer = 0;
+/// Räknare för backningen efter att objektet är uppplockat.
 uint32_t backwards_timer = 0;
+///@}
 
-// Värden på räknare som innebär att åtgärden ska utföras.
-// Dessa kan ändras via TWI så att det går att byta tidsfördröjningar från datorn
+/** @name Maxvärden 
+ *  Maxvärden till räknare som innebär att åtgärden ska utföras.
+ *  Dessa kan ändras via TWI så att det går att byta tidsfördröjningar från datorn.
+ */
+///@{
+
+/// Maxvärde för crossing_timer
 uint32_t crossing_timer_max = CROSSING_TIMER_MAX;
+/// Maxvärde för line_start_timer
 uint16_t line_start_timer_max = LINE_START_MAX;
+/// Maxvärde för backwards_timer
 uint32_t backwards_timer_max = CROSSING_TIMER_MAX;
+///@}
 
-// Variabler som definerar vilket läge styrenheten är i just nu.
+/** @name Modevariabler
+ * Variabler som definerar vilket läge styrenheten är i just nu.
+ */
+///@{
+
+/// Mode-variabel som sätts då roboten är på väg tillbaka.
 uint8_t driving_back = 0;
+/// Mode-variabel som sätts då roboten är i autonomt läge.
 uint8_t autonomous = 0;
+/// Mode-variabel som kontrollerar vilket läge roboten är i.
 uint8_t mode = MODE_STRAIGHT;
+/// Mode-variabel som för att hantera vändningen.
 uint8_t end_of_line_follow = 0;
+///@}
 
-// Variabler där data mottagen från TWI sparas
-uint8_t manual_command = STOP; // Senast mottagna manuella kommando.
-uint8_t diff = 127; // Diff mottagen från sensorenheten.
-uint8_t rot = 127; // Rotation mottagen från sensorenheten.
-uint8_t tape_position = 5; // Den diod där det är mest troligt att tejpen finns.
-uint8_t num_diods = 0; // Hur många dioder som upptäcker tejp.
-uint8_t last_tape_detected = 0; //Sparar senaste tejpmarkering
-int16_t main_max_speed = 220; //Sparar maxhastigheten
+/** @name Bussdata 
+ *  Variabler där data mottagen från TWI sparas
+ */
+///@{
 
-// Variabler som hanterar tillbakavägen.
-uint8_t way_home[20]; //här sparas hur vi har kört på väg in i labyrinten
-uint8_t way_home_iterator = 0; //pekar på hur vi ska svänga i nästa kurva.
+/// Senast mottagna manuella kommando.
+uint8_t manual_command = STOP;
+/// Diff mottagen från sensorenheten.
+uint8_t diff = 127;
+/// Rotation mottagen från sensorenheten.
+uint8_t rot = 127;
+/// Den diod där det är mest troligt att tejpen finns.
+uint8_t tape_position = 5;
+/// Hur många dioder som upptäcker tejp.
+uint8_t num_diods = 0;
+/// Sparar senaste tejpmarkering
+uint8_t last_tape_detected = 0;
+/// Sparar maxhastigheten
+int16_t main_max_speed = 220;
+///@}
 
-// Regulatorparametrar.
+/** @name Tillbakaväg
+ *  Variabler som hanterar tillbakavägen.
+ */
+///@{
+
+/// Sparar hur vi har kört på väg in i labyrinten
+uint8_t way_home[20];
+/// Pekare för way_home[].
+uint8_t way_home_iterator = 0;
+///@}
+
+/** @name Regulatorparametrar.
+ */
+///@{
+/// P-parameter
 uint8_t k_p = K_P;
+/// D-parameter
 uint8_t k_d = K_D;
+///@}
 
 /** Initiera interrupts.
  *  INT0 används för att upptäcka knapptryck på den blå knappen, denna byter mellan autonomt och manuellt läge.
@@ -61,27 +114,36 @@ void init_interrupts(void){
   //Enable interrupts on INT0 and INT1
   GICR |= 0b11000000;
 }
-
-/** Lägesrutiner, dessa rutiner anropas för att byta läge på sensorenheten på ett systematiskt sätt.
+/** @name Lägesrutiner 
+ *  Dessa rutiner anropas för att byta läge på sensorenheten på ett systematiskt sätt.
  *  Följande lägen finns:
+ *
  *  1. MODE_STRAIGHT Detta läge är till för att köra rakt i raksträckor på labyrinten. PD-reglering körs med
- *  data från sensorenheten.
+ *     data från sensorenheten.
+ *
  *  2. MODE_LINE_FOLLOW Detta läge följer linjen framför roboten, när roboten kommer fram till ett tvärstreck
- *  byts läget till "turn around", gripklon stängs och roboten påbörjar tilbakavägskörningen.
+ *     byts läget till "turn around", gripklon stängs och roboten påbörjar tilbakavägskörningen.
+ *
  *  3. MODE_CROSSING Detta läge hanterar när roboten kommer in i en korsning. Den kör en timer som räknar upp så
- *  att roboten kommer till mitten av korsnningen. När detta skett kontrollerar den vilket håll den ska svänga
- *  och byter till rätt mode.
+ *     att roboten kommer till mitten av korsningen. När detta skett kontrollerar den vilket håll den ska svänga
+ *     och byter till rätt mode.
+ *
  *  4. MODE_FORWARD/LEFT/RIGHT_TURN Dessa lägen ser till att roboten gör 90 gradersvängar eller fortsätter rakt fram.
- *  Dessa funktioner kommer också att fixa sparning av tillbakvägsdata.
+ *     Dessa funktioner kommer också att fixa sparning av tillbakvägsdata.
+ *
  *  5. MODE_TURN_AROUND Vänder roboten och börjar sedan tillbakavägskörning.
+ *
  *  6. MODE_TURN_COMPLETE Ser till att roboten kan ta sig ut ur en korsning efter att rätt sväng blivit utförd.
- *  Denna kör en timer och sätter sedan MODE_STRAIGHT.
+ *     Denna kör en timer och sätter sedan MODE_STRAIGHT.
+ *
  *  7. MODE_FINISH Detta mode stoppar roboten och går över till manuellt mode.
  */
 
+///@{
+
 /** Byt till regleringsläge.
- *  Sätter roboten i läget där den reglerar efter väggarna i labyrinten.
- */
+  *  Sätter roboten i läget där den reglerar efter väggarna i labyrinten.
+  */
 void set_mode_straight(){
   send_sensor_mode(MODE_STRAIGHT);
   mode = MODE_STRAIGHT;
@@ -189,28 +251,33 @@ void set_mode_finish(){
   mode = STOP;
 }
 
-// Interrupts
+///@}
 
-// Fånga felaktiga interrupt om något går snett. Tänkt att användas under debuggning med JTAG så man vet vad som pågår
+/** @name Interruptrutiner
+ * Interruptrutiner som hanterar avbrott i styrenheten. Hanterar knappar och sensorsignaler.
+ */
+///@{
+/** Fångar felaktiga interrupt om något går snett. Tänkt att användas under debuggning med JTAG så man vet vad som pågår
+ */
 ISR(BADISR_vect){ 	
   volatile uint8_t c;
 	while(1) ++c;
 }
 
-/* Interruptrutin för den blå knappen, togglar mellan autonomt och icke autonomt läge.
- */
+/** Interruptrutin för den blå knappen, togglar mellan autonomt och icke autonomt läge.
+  */
 ISR(INT0_vect){
 	autonomous = 1 - autonomous;
 	return;
 }
 
-/* Interruptrutin för att ta emot tidskritisk information från sensorenheten.
- * Interrupt skickas i följande fall:
- * 1. Sensorenheten har upptäckt att den är i en korsning. Då skickas också data 
- * om vilket håll sensorenheten tror att vi ska svänga på PINB.
- * 2. Sensorenheten är i gyroläge och anser att vi svängt klart. Då skickas också MODE_GYRO_COMPLETE på PINB.
- * 3. Sensorenheten har upptäckt 4 tejpar och vi måste byta till linjeföljningsläge snabbt. MODE_LINE_FOLLOW skickas på PINB.
- */
+/** Interruptrutin för att ta emot tidskritisk information från sensorenheten.
+  * Interrupt skickas i följande fall:
+  * 1. Sensorenheten har upptäckt att den är i en korsning. Då skickas också data 
+  * om vilket håll sensorenheten tror att vi ska svänga på PINB.
+  * 2. Sensorenheten är i gyroläge och anser att vi svängt klart. Då skickas också MODE_GYRO_COMPLETE på PINB.
+  * 3. Sensorenheten har upptäckt 4 tejpar och vi måste byta till linjeföljningsläge snabbt. MODE_LINE_FOLLOW skickas på PINB.
+  */
 ISR(INT1_vect){
 	if(autonomous){
 		if (mode == MODE_CROSSING_FORWARD) return;
@@ -230,13 +297,21 @@ ISR(INT1_vect){
 		}
 	}
 }
+///@}
 
-/** Här följer några rutiner som hanterar vad som händer då vi är i något av moderna.
- *  Där det behövs finns rutinen för moden, den anropas i auto_control.
- *  Inget sker i auto_control för att få en konsekvent sätt att hantera moder.
+
+/** @name Modehantering
+  * Här följer några rutiner som hanterar vad som händer då vi är i något av moderna.
+  * Där det behövs finns rutinen för moden, den anropas i auto_control.
+  * Inget sker i auto_control för att få en konsekvent sätt att hantera moder.
  */
 
-//Routine to verify a crossing and decide which way to turn.
+///@{
+
+/** Rutin för att verifiera att roboten är i en korsning och sedan svänga.
+ * Vänta först så att roboten hinner in till mitten av korsningen, om sensorerna ser väggar var det falskt alarm.
+ * När roboten är i mitten så kolla sensorn för att avgöra vilket håll svängen ska vara.
+ */
 void crossing(void){
 	forward(); // 
                                            // om de inte ser väggar och annars reglera efter väggen den ser.
@@ -327,8 +402,11 @@ void line_follow(){
 	}
 	else if(end_of_line_follow == NO_TAPE) run_straight(diff, rot, k_p, k_d, TRUE);
 }
+///@}
 
-//Manuell körning
+/** Manuell körning.
+ *  Läser in senaste mottagna manuella kommando och utför.
+ */
 void manual_control(){
 	run_straight(diff, rot, k_p, k_d, FALSE); // Kör PD-reglering utan att skicka något till hjulen (FALSE),
                                             // för att kunna se parametrar på datorn även i manuellt läge.
@@ -358,7 +436,9 @@ void manual_control(){
 	}
 }
 
-//Autonom körning
+/** Autonom körning.
+ *  Läs vilket mode roboten är i och kör rätt funktion.
+ */
 void auto_control(){
 
 	switch(mode){
@@ -387,7 +467,9 @@ void auto_control(){
 	}
 }
 
-// Kontrollera meddelanden.
+/** Kontrollera busmeddelanden.
+ *  Hanterar bussen, läser in från busskön och hanterar. Sätter globala variabler som sedan används av andra funktioner.
+ */
 void check_TWI(){
   uint8_t s[16];
   uint8_t len;
@@ -443,7 +525,10 @@ void check_TWI(){
   }
 }
 
-//MAIN
+/** Mainloop
+ *  Kör alla initieringar och sedan går in i huvudloopen.
+ *  Kör check_TWI() och sedan antingen auto_control eller manual_control.
+ */
 int main(void)
 {
 	init_interrupts();

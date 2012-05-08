@@ -40,7 +40,7 @@ uint8_t rot = 127; // Rotation mottagen från sensorenheten.
 uint8_t tape_position = 5; // Den diod där det är mest troligt att tejpen finns.
 uint8_t num_diods = 0; // Hur många dioder som upptäcker tejp.
 uint8_t last_tape_detected = 0; //Sparar senaste tejpmarkering
-int16_t main_max_speed = 220; //Sparar maxhastigheten
+int16_t main_max_speed = 250; //Sparar maxhastigheten
 
 // Variabler som hanterar tillbakavägen.
 uint8_t way_home[20]; //här sparas hur vi har kört på väg in i labyrinten
@@ -388,7 +388,7 @@ void auto_control(){
 }
 
 // Kontrollera meddelanden.
-void check_TWI(){
+uint8_t check_TWI(){
   uint8_t s[16];
   uint8_t len;
   len = TWI_read(s);
@@ -440,7 +440,9 @@ void check_TWI(){
       autonomous = 1;
       break;
     }
+  	return 1;
   }
+  else return 0;
 }
 
 //MAIN
@@ -456,7 +458,7 @@ int main(void)
 	while (1){
 
 	    // Check TWI bus.
- 	    check_TWI();
+ 	    while(check_TWI());
 
 	    if(autonomous){
 			auto_control();

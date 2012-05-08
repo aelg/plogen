@@ -53,21 +53,11 @@ class Capp(threading.Thread):
     self.bPlot = Button(self.frame, text="Start Reg Plot", command=self.startPlot)
     self.bPlot.grid(column=3, row=1)
 
-    self.bChooseMode = Button(self.frame, text="Set Mode", command=self.setMode)
-    self.bChooseMode.grid(column=3, row=2)
-
-    self.lbMode = Listbox(self.frame, selectmode=SINGLE)
-    self.lbMode.grid(column=3, row=4)
-    self.lbMode.insert(END, "Manual")
-    self.lbMode.insert(END, "Line Follow")
-    self.lbMode.insert(END, "PD-reg")
-    self.lbMode.insert(END, "Auto")
-
     self.bOpen = Button(self.frame, text="Öppna", command=self.gripOpen)
-    self.bOpen.grid(column=3, row=5)
+    self.bOpen.grid(column=4, row=0)
 
     self.bClose = Button(self.frame, text="Stäng", command=self.gripClose)
-    self.bClose.grid(column=3, row=6)
+    self.bClose.grid(column=4, row=1)
 
     self.input = StringVar()      # Text-field used to read input from user
     self.input.set("")

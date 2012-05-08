@@ -62,6 +62,7 @@ uint8_t mode = MODE_STRAIGHT;
 uint8_t end_of_line_follow = 0;
 ///@}
 
+<<<<<<< HEAD
 /** @name Bussdata 
  *  Variabler där data mottagen från TWI sparas
  */
@@ -80,7 +81,7 @@ uint8_t num_diods = 0;
 /// Sparar senaste tejpmarkering
 uint8_t last_tape_detected = 0;
 /// Sparar maxhastigheten
-int16_t main_max_speed = 220;
+int16_t main_max_speed = 250;
 ///@}
 
 /** @name Tillbakaväg
@@ -470,7 +471,7 @@ void auto_control(){
 /** Kontrollera busmeddelanden.
  *  Hanterar bussen, läser in från busskön och hanterar. Sätter globala variabler som sedan används av andra funktioner.
  */
-void check_TWI(){
+uint8_t check_TWI(){
   uint8_t s[16];
   uint8_t len;
   len = TWI_read(s);
@@ -522,7 +523,9 @@ void check_TWI(){
       autonomous = 1;
       break;
     }
+  	return 1;
   }
+  else return 0;
 }
 
 /** Mainloop
@@ -541,7 +544,7 @@ int main(void)
 	while (1){
 
 	    // Check TWI bus.
- 	    check_TWI();
+ 	    while(check_TWI());
 
 	    if(autonomous){
 			auto_control();

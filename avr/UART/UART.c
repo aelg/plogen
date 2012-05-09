@@ -1,6 +1,4 @@
 /** @file
- * UART.c 
- * 
  * Här finns kod som hanterar USART bussen som blåtandsenheten är kopplad till. Denna hanteras genom två arrayer som agerar
  * cirkulära listor för att spara data som tagits emot men inte hunnit behandlas alternativt
  * ska skickas men inte hunnit iväg ännu. Eftersom dessa listor är begränsade kräver detta att

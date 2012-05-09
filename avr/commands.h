@@ -1,52 +1,69 @@
-//Commands
+/** @file 
+ * Innehåller konstanter som används i alla enheter.
+ * Framförallt konstanter som används i busskommunikationen
+ */
 
-/* CMD_MANUAL skickas till styrenheten, datadelen av paketet
-*  ska innehÃ¥lla en av konstanterna under Manuell kontroll.*/
+/** @name Busskommandon
+ * Konstanter som använts i kommandobyten i bussprotokollet.
+ */
+///@{
+
+/** CMD_MANUAL skickas till styrenheten.
+ * Datadelen av paketet ska innehålla en av konstanterna under Manuell kontroll.
+ */
 #define CMD_MANUAL 0x12
 
-// CMD_SEND_NEXT och CMD_END AnvÃ¤nds inte just nu, kanske vill anvÃ¤nda dessa senare.
+/// CMD_SEND_NEXT och CMD_END Används inte just nu, kanske vill använda dessa senare.
 #define CMD_SEND_NEXT 0x13
+/// CMD_SEND_NEXT och CMD_END Används inte just nu, kanske vill använda dessa senare.
 #define CMD_END 0x14
 
-/* CMD_SENSOR_DATA skickas till datorinterfacet och till styrenheten.
- * Detta kommando anvÃ¤nds fÃ¶r att skicka sensordata.
- * Datadelen ska innehÃ¥lla par av konstanter och data.
- * FÃ¶rst en konstant frÃ¥n de under Sensordata och sedan motsvarande data.
- * Efter det kan en till konstant komma med efterfÃ¶ljande data osv,
- * sÃ¥ lÃ¤nge inte begrÃ¤nsningen pÃ¥ 8 databytes Ã¶verskrids.
+/** CMD_SENSOR_DATA skickas till datorinterfacet och till styrenheten.
+ * Detta kommando används för att skicka sensordata.
+ * Datadelen ska innehålla par av konstanter och data.
+ * Först en konstant från de under Sensordatakonstanter och sedan motsvarande data.
+ * Efter det kan en till konstant komma med efterföljande data osv,
+ * så länge inte begränsningen på 12 databytes överskrids.
  * Ex {CMD_SENSOR_DATA, 4, IRLEFT, 23, IRRIGHT, 19} motsvarar ett paket med 
- * vÃ¤rdet 23 i vÃ¤nster irsensor och 19 i hÃ¶ger.*/
+ * värdet 23 i vänster irsensor och 19 i höger.*/
 #define CMD_SENSOR_DATA 0x15
 
-/* CMD_SENSOR_RAW anÃ¤nds pÃ¥ samma sÃ¤tt som CMD_SENSOR_DATA fast denna anvÃ¤nds
- * fÃ¶r att skicka obehandlad data till datorinterfacet. 
- * Tanken Ã¤r att lÃ¤tt kunna avgÃ¶ra vilka data som styrenheten inte behÃ¶ver bry sig om.*/
+/** CMD_SENSOR_RAW anänds på samma sätt som CMD_SENSOR_DATA fast denna används
+ * för att skicka obehandlad data till datorinterfacet. 
+ * Tanken är att lätt kunna avgöra vilka data som styrenheten inte behöver bry sig om.*/
 #define CMD_SENSOR_RAW 0x16
 
-/* CMD_CONTROL_DATA anvÃ¤nds som CMD_SENSOR_DATA fast anvÃ¤nds fÃ¶r att skicka data 
- * frÃ¥n styrenheten till datorinterfacet. 
- * HÃ¤r anvÃ¤nds konstanterna under Styrdatakonstanter */
+/** CMD_CONTROL_DATA används som CMD_SENSOR_DATA fast används för att skicka data 
+ * från styrenheten till datorinterfacet. 
+ * Här används konstanterna under Styrdatakonstanter */
 #define CMD_CONTROL_DATA 0x17
 
 
-/*CMD_MODE anges för att beteckna ett meddelande som innehåller ett modeläge
- *som används i sensorenheten.
+/**CMD_MODE anges för att beteckna ett meddelande som innehåller ett modeläge
+ * som används i sensorenheten.
  */
 #define CMD_MODE 0x18
 
-/* CMD_REG_PARAMS should be used in the same way as CMD_SENSOR_DATA*/
+/**CMD_REG_PARAMS används på samma sätt som CMD_SENSOR_DATA
+ */
 #define CMD_REG_PARAMS 0x18
 
+/** Starta autonomt läge.
+ */
 #define CMD_AUTO_ON 0x19
 
-/* CMD_SET_REG_PARAMS set regulator params on the robot with this command
+/** CMD_SET_REG_PARAMS set regulator params on the robot with this command
  * use as CMD_SENSOR_DATA but with the REG_xxx */
 #define CMD_SET_REG_PARAMS 0x20
 
-//Används för att identifiera att ett nytt sensormode kommer
+/// Används för att identifiera att ett nytt sensormode kommer
 #define CMD_SENSOR_MODE 0x21
+///@}
 
-//Olika modes för sensor och styrenhet
+/** @name Modekonstanter 
+ * Definerar olika modes för sensor och styrenhet.
+ */
+///@{
 #define MODE_CROSSING_LEFT 0x03
 #define MODE_CROSSING_RIGHT 0x01
 #define MODE_CROSSING_FORWARD 0x02
@@ -66,8 +83,12 @@
 #define MODE_GYRO 0x10
 #define MODE_WAY_HOME 0x11
 #define MODE_TURN_AROUND 0x12
+///@}
 
-// Manuell kontroll
+/** @name Konstanter för manuell kotroll
+ * Konstanter för att skicka kommandon för manuell kotroll av roboten.
+ */
+///@{
 #define LEFT 0x0A
 #define RIGHT 0x0B
 #define FORWARD 0x0C
@@ -77,9 +98,13 @@
 #define STOP 0x10
 #define CLOSE 0x11
 #define OPEN 0x12
+///@}
 
 
-// Sensordata
+/** @name Sensordatakonstanter
+ * Konstanter som markerar vilket sensorvärde som skickas i CMD_SENSOR_DATA paket.
+ */
+///@{
 #define IR_SHORT_LEFT 1
 #define IR_SHORT_RIGHT 2
 #define IRROT 3
@@ -92,14 +117,14 @@
 #define LINE_POSITION 11
 #define DIOD 12
 #define CROSSING 13
+///@}
 
-// Styrdatakonstanter
-#define AUTO_MODE 1 // Vilket lÃ¤ge Ã¤r vi i manuell, rakstrÃ¤cka, tejpsvÃ¤ng osv.
-#define MOTOR_LEFT 2
-#define MOTOR_RIGHT 3
-
-// Regulator constants
+/** @name Regulatorkonstanter
+ * Används för att skicka regulatorvärden.
+ */
+///@{
 #define REG_P 1
 #define REG_D 2
 #define REG_SPEED 3
 #define REG_TIMER 4
+///@}

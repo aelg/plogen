@@ -1,5 +1,13 @@
-/*
- * main.c
+/** @file
+ * Programfil för kommunikationsenheten.
+ *
+ * Kommunikationsenheten gör att roboten kan kommunicera, via blåtand, med en dator. 
+ * Detta sker genom busskontakt med de andra två enheterna, samt vi en blåtandsmodul
+ * inkopplad via ett UART-interface.
+ *
+ * Det som görs i kommunikationsenheten är att kopiera meddelanden från bussen till UART-interfacet.
+ * Data som kommer från UART-interfacet måste filtreras lite för att kunna skickas till rätt enhet.
+ * En del ska till styrenheten och en del till sensorenheten.
  *
  *  Created on: 15 mar 2012
  *      Author: aelg
@@ -13,19 +21,15 @@
 #include "../TWI/TWI.h"
 #include "../commands.h"
 
-
+/** Mainloop.
+ * Här sker allt i som kommunikationsenheten gör. Läs in data från den ena kanalen och skicka på den andra.
+ */
 int main(void)
 {
 	UART_init();
 	TWI_init(COMM_ADDRESS);
 	sei();
 
-	// Send greeting
-	//uint8_t s[13] = {'P', 'l', 'o', 'g', 'e', 'n', 'P', 'l', 'o', 'g', 'e', 'n', '\n'};
-	//UART_write(s, 13);
-
-	//uint8_t start[3] = {CMD_MANUAL, 0x01, 0x0c};
-	//uint8_t stop[3] = {CMD_MANUAL, 0x01, 0x10};
 	uint8_t end[2] = {CMD_END, 0};
 	
 

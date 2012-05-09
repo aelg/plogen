@@ -130,19 +130,19 @@ void init_interrupts(void){
  *  Dessa rutiner anropas för att byta läge på sensorenheten på ett systematiskt sätt.
  *  Följande lägen finns:
  *
- *  -# MODE_STRAIGHT Detta läge är till för att köra rakt i raksträckor på labyrinten. PD-reglering körs med
+ *-# MODE_STRAIGHT Detta läge är till för att köra rakt i raksträckor på labyrinten. PD-reglering körs med
  *     data från sensorenheten.
- *  -# MODE_LINE_FOLLOW Detta läge följer linjen framför roboten, när roboten kommer fram till ett tvärstreck
+ *-# MODE_LINE_FOLLOW Detta läge följer linjen framför roboten, när roboten kommer fram till ett tvärstreck
  *     byts läget till "turn around", gripklon stängs och roboten påbörjar tilbakavägskörningen.
- *  -# MODE_CROSSING Detta läge hanterar när roboten kommer in i en korsning. Den kör en timer som räknar upp så
+ *-# MODE_CROSSING Detta läge hanterar när roboten kommer in i en korsning. Den kör en timer som räknar upp så
  *     att roboten kommer till mitten av korsningen. När detta skett kontrollerar den vilket håll den ska svänga
  *     och byter till rätt mode.
- *  -# MODE_FORWARD/LEFT/RIGHT_TURN Dessa lägen ser till att roboten gör 90 gradersvängar eller fortsätter rakt fram.
+ *-# MODE_FORWARD/LEFT/RIGHT_TURN Dessa lägen ser till att roboten gör 90 gradersvängar eller fortsätter rakt fram.
  *     Dessa funktioner kommer också att fixa sparning av tillbakvägsdata.
- *  -# MODE_TURN_AROUND Vänder roboten och börjar sedan tillbakavägskörning.
- *  -# MODE_TURN_COMPLETE Ser till att roboten kan ta sig ut ur en korsning efter att rätt sväng blivit utförd.
+ *-# MODE_TURN_AROUND Vänder roboten och börjar sedan tillbakavägskörning.
+ *-# MODE_TURN_COMPLETE Ser till att roboten kan ta sig ut ur en korsning efter att rätt sväng blivit utförd.
  *     Denna kör en timer och sätter sedan MODE_STRAIGHT.
- *  -# MODE_FINISH Detta mode stoppar roboten och går över till manuellt mode.
+ *-# MODE_FINISH Detta mode stoppar roboten och går över till manuellt mode.
  */
 
 ///@{

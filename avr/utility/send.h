@@ -1,3 +1,7 @@
+/** @file
+ * Definerar funktioner som definerats i send.c
+ */
+
 void send_tape_value(uint8_t value);
 void send_tape(uint8_t tape);
 void send_sensor_values(uint8_t ll, uint8_t lr, 

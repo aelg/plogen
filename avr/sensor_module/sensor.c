@@ -11,15 +11,15 @@
  *
  * Sensorn körs i tre moder:
  *
- * -# STRAIGHT: Detta läge mäter spänningar på IR-sensorerna och på en av reflexsensorerna. Sen görs linjärisering 
- *    innan data om robotens läge mellan väggarna och hur den är roterad mot högerväggen. Om en korsning upptäcks 
- *    skickas interrupt till styrenheten. Dessutom skickas hela tiden data om hur labyrinten ser ut runt roboten
- *    via kablar från PORTD, alltså inte via I2c. Reflexsensorn räknar också tejpar 1, 2 eller 3 tejpar upptäckta skickas
- *    via I2C. Upptäcks 4 tejpar skickas interrupt till styrenheten.
- * -# GYRO: Här görs AD-omvandling bara på gyrot. När tillräckligt stora värden uppmäts åt något håll skickas 
- *    interrupt till styrenheten.
- * -# LINE_FOLLOW: I detta läge körs IR-sensorerna och alla dioder reflexsensorn. Då skickas linjäriserade lägesdata,
- *    antalet dioder med tejp under och vilken diod som tydligast visar tejp.
+ *-# STRAIGHT: Detta läge mäter spänningar på IR-sensorerna och på en av reflexsensorerna. Sen görs linjärisering 
+ *      innan data om robotens läge mellan väggarna och hur den är roterad mot högerväggen. Om en korsning upptäcks 
+ *      skickas interrupt till styrenheten. Dessutom skickas hela tiden data om hur labyrinten ser ut runt roboten
+ *      via kablar från PORTD, alltså inte via I2c. Reflexsensorn räknar också tejpar 1, 2 eller 3 tejpar upptäckta skickas
+ *      via I2C. Upptäcks 4 tejpar skickas interrupt till styrenheten.
+ *-# GYRO: Här görs AD-omvandling bara på gyrot. När tillräckligt stora värden uppmäts åt något håll skickas 
+ *      interrupt till styrenheten.
+ *-# LINE_FOLLOW: I detta läge körs IR-sensorerna och alla dioder reflexsensorn. Då skickas linjäriserade lägesdata,
+ *      antalet dioder med tejp under och vilken diod som tydligast visar tejp.
  */
 
 #include <avr/interrupt.h>

@@ -48,16 +48,16 @@ class Capp(threading.Thread):
     self.bBackward.bind("<ButtonRelease-1>", self.up)
 
     self.bLock = Button(self.frame, text="Start Auto", command=self.setAuto)
-    self.bLock.grid(column=3, row=0)
+    self.bLock.grid(column=4, row=0)
 
     self.bPlot = Button(self.frame, text="Start Reg Plot", command=self.startPlot)
-    self.bPlot.grid(column=3, row=1)
+    self.bPlot.grid(column=4, row=1)
 
     self.bOpen = Button(self.frame, text="Öppna", command=self.gripOpen)
-    self.bOpen.grid(column=4, row=0)
+    self.bOpen.grid(column=3, row=0)
 
     self.bClose = Button(self.frame, text="Stäng", command=self.gripClose)
-    self.bClose.grid(column=4, row=1)
+    self.bClose.grid(column=3, row=1)
 
     self.input = StringVar()      # Text-field used to read input from user
     self.input.set("")

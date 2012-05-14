@@ -200,3 +200,8 @@ void set_speed(int16_t max, int16_t turn, int16_t stop){
   stop_speed = stop;
 }
 
+void manual_speed(uint8_t rDir, uint8_t lDir, uint8_t rSpeed, uint8_t lSpeed){
+	PORTA = (PORTA & (0b11111100)) | (lDir << PORTA0 | rDir << PORTA1);
+	OCR1A = (uint16_t) rSpeed;
+	OCR1B = (uint16_t) lSpeed;
+}

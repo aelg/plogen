@@ -46,6 +46,9 @@
 //Används för att identifiera att ett nytt sensormode kommer
 #define CMD_SENSOR_MODE 0x21
 
+// Anänds för att skicka motorvärden direkt.
+#define CMD_MANUAL_SPEED 0x22
+
 //Olika modes för sensor och styrenhet
 #define MODE_CROSSING_LEFT 0x03
 #define MODE_CROSSING_RIGHT 0x01
@@ -77,6 +80,12 @@
 #define STOP 0x10
 #define CLOSE 0x11
 #define OPEN 0x12
+
+//Manuell motorkontroll
+#define RDIR 1
+#define LDIR 2
+#define RSPEED 3
+#define LSPEED 4
 
 
 // Sensordata

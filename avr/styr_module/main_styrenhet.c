@@ -62,7 +62,6 @@ uint8_t mode = MODE_STRAIGHT;
 uint8_t end_of_line_follow = 0;
 ///@}
 
-<<<<<<< HEAD
 /** @name Bussdata 
  *  Variabler där data mottagen från TWI sparas
  */
@@ -102,6 +101,19 @@ uint8_t way_home_iterator = 0;
 uint8_t k_p = K_P;
 /// D-parameter
 uint8_t k_d = K_D;
+///@}
+
+/** @name Manuella motorkommandon.
+ */
+///@{
+/// Höger hjuls riktning.
+rDir = 0;
+/// Vänster hjuls riktning.
+lDir = 0;
+/// Höger hjuls fart.
+rSpeed = 3;
+/// Vänster hjuls fart.
+lSpeed = 3;
 ///@}
 
 /** Initiera interrupts.
@@ -433,7 +445,9 @@ void manual_control(){
 		case STOP:
 			stop();
 			break;
-		
+		case CMD_MANUAL_SPEED:
+			manual_speed(rDir, lDir, rSpeed, lSpeed);
+			break;
 	}
 }
 
@@ -517,6 +531,24 @@ uint8_t check_TWI(){
 		if(s[i] == REG_TIMER){
 		  crossing_timer_max = ((uint32_t) s[i+1]) << 12;
 		}
+      }
+      break;
+	case CMD_MANUAL_SPEED:
+          autonomous = 0;
+	  manual_command = CMD_MANUAL_SPEED;
+	  for(uint8_t i = 2; i < len; i = i+2){
+            if(s[i] == RDIR){
+              rDir = s[i+1];
+        }
+	    if(s[i] == LDIR){
+              lDir = s[i+1];
+        }
+	    if(s[i] == RSPEED){
+	      rSpeed = s[i+1];
+        }
+	    if(s[i] == LSPEED){
+	      lSpeed = s[i+1];
+	}
       }
       break;
 	  case CMD_AUTO_ON:

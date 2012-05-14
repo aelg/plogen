@@ -1,3 +1,8 @@
+/**
+ * \addtogroup komm
+ * @{
+ */
+
 /** @file
  * Definerar konstanter och funktioner som definerats i UART.c
  */
@@ -16,3 +21,7 @@ uint8_t UART_read(uint8_t* s);
 uint8_t UART_write(uint8_t *s, uint8_t len);
 
 #endif
+
+/*
+ * @}
+ */

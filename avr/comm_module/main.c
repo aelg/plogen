@@ -1,3 +1,8 @@
+/**
+ * \defgroup komm Kommunikationsenhet
+ * @{
+ */
+
 /** @file
  * Programfil för kommunikationsenheten.
  *
@@ -61,3 +66,7 @@ int main(void)
 		}
 	}
 }
+
+/*
+ * @}
+ */

@@ -1,3 +1,8 @@
+/**
+ * \addtogroup komm
+ * @{
+ */
+
 /** @file
  * Här finns kod som hanterar USART bussen som blåtandsenheten är kopplad till. Denna hanteras genom två arrayer som agerar
  * cirkulära listor för att spara data som tagits emot men inte hunnit behandlas alternativt
@@ -162,3 +167,7 @@ uint8_t UART_read(uint8_t* s){
 		}
 		else return 0;
 }
+
+/*
+ * @}
+ */

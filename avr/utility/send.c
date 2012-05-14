@@ -1,3 +1,8 @@
+/**
+ * \addtogroup buss
+ * @{
+ */
+
 /** @file
  * Samlar alla funktioner som skickar data på bussen.
  * I den här filen göms all kod som formaterar paketen på olika sätt.
@@ -157,4 +162,6 @@ void send_reg_params(uint16_t p, uint16_t d){
 	TWI_write(COMM_ADDRESS, s, 8);
 }
 
-
+/*
+ * @}
+ */

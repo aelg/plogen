@@ -1,3 +1,8 @@
+/**
+ * \addtogroup styr Styrenhet
+ * @{
+ */
+
 /** @file 
  * Kod för att hantera motorerna i styrenheten, samt regleralgoritmer.
  * Innehåller mest enklar funktioner för enkla registeromställningar som reglerar hastigheten på de olika hjulen.
@@ -218,3 +223,6 @@ void set_speed(int16_t max, int16_t turn, int16_t stop){
   stop_speed = stop;
 }
 
+/*
+ * @}
+ */

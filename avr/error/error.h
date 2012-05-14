@@ -1,3 +1,8 @@
+/**
+ * \addtogroup buss
+ * @{
+ */
+
 /** @file
  * Definerar konstanter och funktioner som definerats i error.c
  */
@@ -20,3 +25,7 @@
 void error(uint8_t e);
 
 #endif
+
+/*
+ * @}
+ */

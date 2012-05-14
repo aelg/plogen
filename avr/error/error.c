@@ -1,3 +1,8 @@
+/**
+ * \addtogroup buss
+ * @{
+ */
+
 /** @file
  * Kod som anropas när något går fel. Framförallt bussen.
  * Denna används för debuggning. Så att det finns något att anropa och leta i 
@@ -20,3 +25,7 @@ void error(uint8_t e){
 	}*/
 	return;
 }
+
+/*
+ * @}
+ */

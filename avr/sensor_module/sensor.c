@@ -1,3 +1,8 @@
+/**
+ * \defgroup sensor Sensorenhet
+ * @{
+ */
+
 /** @file
  * Programfil för sensorenheten.
  * Hanterar alla sensorer och behandling av dem. En stor del av jobbet sker med hjälp av AD-omvandlarinterruptet.
@@ -628,3 +633,7 @@ int main()
 	}
 	return 0;
 }
+
+/*
+ * @}
+ */

@@ -1,3 +1,8 @@
+/**
+ * \addtogroup buss
+ * @{
+ */
+
 /** @file
  * Definerar funktioner som definerats i send.c
  */
@@ -14,3 +19,6 @@ void send_sensor_mode(uint8_t);
 void send_reg_params(uint16_t p, uint16_t d);
 void send_number_of_diods(uint8_t diod);
 
+/*
+ * @}
+ */

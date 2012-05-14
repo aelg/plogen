@@ -1,3 +1,8 @@
+/**
+ * \addtogroup buss
+ * @{
+ */
+
 /** @file
  * Definerar konstanter och funktioner som definerats i TWI.c
  */
@@ -23,3 +28,7 @@ uint8_t TWI_read(uint8_t* s);
 void TWI_init(uint8_t sla);
 
 #endif
+
+/*
+ * @}
+ */

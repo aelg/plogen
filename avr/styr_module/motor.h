@@ -1,3 +1,8 @@
+/**
+ * \addtogroup styr Styrenhet
+ * @{
+ */
+
 /** @file
  * Definerar konstanter och funktioner som definerats i Motor.c
  */
@@ -48,3 +53,7 @@ uint8_t run_line_follow(uint8_t num_diods, uint8_t tape_position);
 void set_speed(int16_t max, int16_t turn, int16_t stop);
 
 #endif
+
+/*
+ * @}
+ */

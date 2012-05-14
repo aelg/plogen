@@ -1,3 +1,8 @@
+/**
+ * \addtogroup buss
+ * @{
+ */
+
 /** @file 
  * Innehåller konstanter som används i alla enheter.
  * Framförallt konstanter som används i busskommunikationen
@@ -128,3 +133,7 @@
 #define REG_SPEED 3
 #define REG_TIMER 4
 ///@}
+
+/*
+ * @}
+ */

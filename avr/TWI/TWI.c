@@ -1,3 +1,8 @@
+/**
+ * \defgroup buss I2C-buss och protokoll
+ * @{
+ */
+
 /** @file
  * Här finns kod som hanterar I2C bussen. Denna hanteras genom två arrayer som agerar
  * cirkulära listor för att spara data som tagits emot men inte hunnit behandlas alternativt
@@ -288,3 +293,7 @@ uint8_t TWI_read(uint8_t* s){
 		}
 		else return 0;
 }
+
+/*
+ * @}
+ */

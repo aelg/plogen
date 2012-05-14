@@ -1,4 +1,9 @@
-/** @file
+/**
+ * \defgroup styr Styrenhet
+ * @{
+ */
+
+ * /** @file
  * Huvudprogram för styrenheten.
  * Här finns all logik för styrenheten. Koden är uppdelad så tydligt som möjligt.
  * Den är skriven för läsbarhet och för att kunna ändras lätt. Återanvändbarhet och
@@ -561,3 +566,7 @@ int main(void)
 		}
 	}
 }
+
+/*
+ * @}
+ */

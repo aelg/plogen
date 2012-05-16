@@ -42,6 +42,7 @@ int main(void)
 			case CMD_MANUAL:
 			case CMD_SET_REG_PARAMS:
             case CMD_AUTO_ON:
+			case CMD_MANUAL_SPEED:
 				TWI_write(CONTROL_ADDRESS, buff, len);
 				break;
 			}

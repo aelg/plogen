@@ -107,13 +107,13 @@ uint8_t k_d = K_D;
  */
 ///@{
 /// Höger hjuls riktning.
-rDir = 0;
+uint8_t rDir = 0;
 /// Vänster hjuls riktning.
-lDir = 0;
+uint8_t lDir = 0;
 /// Höger hjuls fart.
-rSpeed = 3;
+uint8_t rSpeed = 3;
 /// Vänster hjuls fart.
-lSpeed = 3;
+uint8_t lSpeed = 3;
 ///@}
 
 /** Initiera interrupts.

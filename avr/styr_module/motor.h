@@ -51,5 +51,6 @@ void interrupts(void);
 void run_straight(uint8_t diff, uint8_t rot, uint8_t k_p, uint8_t k_d, uint8_t run);
 uint8_t run_line_follow(uint8_t num_diods, uint8_t tape_position);
 void set_speed(int16_t max, int16_t turn, int16_t stop);
+void manual_speed(uint8_t rDir, uint8_t lDir, uint8_t rSpeed, uint8_t lSpeed);
 
 #endif

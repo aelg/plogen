@@ -1,3 +1,12 @@
+# coding: Latin1
+
+##\ingroup computer_interface Datorgränsnitt
+# @{
+
+
+## @file
+#  Definiering av konstanter.
+
 ERROR = -1
 IN = 11 		# In-queue in the BT
 OUT = 1 		# Out-queue in the BT
@@ -54,3 +63,4 @@ REG_TIMER = chr(4)
 
 debug_nobluetooth = 0
 debug = 0
+## @}

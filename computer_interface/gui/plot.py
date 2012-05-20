@@ -1,4 +1,13 @@
 #! /usr/bin/python
+# coding: Latin1
+
+##\ingroup computer_interface Datorgränsnitt
+# @{
+
+
+## @file
+#  Hanterar plottning av data.
+
 
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -55,3 +64,4 @@ class Plot():
       repeat=False, save_count=0)
     plt.show()
 
+## @}

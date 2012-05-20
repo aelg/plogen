@@ -1,3 +1,12 @@
+# coding: Latin1
+
+##\ingroup computer_interface Datorgränsnitt
+# @{
+
+
+## @file
+#  Hantering av blåtand.
+
 from constants import *
 from bluetooth import *
 import time
@@ -187,4 +196,5 @@ class Cbt:
       return
     self.bt.shutdown(2) 	# Stop accepting data
     self.bt.close() 	# Destroy socket
-#    self.socket_lock.release() 	# Release socket
+    self.socket_lock.release() 	# Release socket
+## @}

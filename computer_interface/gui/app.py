@@ -1,13 +1,21 @@
-# coding: utf-8
+# coding: Latin1
+##\ingroup computer_interface Datorgränsnitt
+# @{
+
+
+## @file
+#   Hanterar fönstet definerar utseendet för gränsnittet. Tar också emot data från roboten.
+
 from Tkinter import * 	# GUI
 from thread_safe_label import ThreadSafeLabel
 import threading 	# Threading
 from constants import *
 from plot import Plot
-##
-# Objects which holds the GUI
-#
+
+## Objects which holds the GUI.
+# Hanterar fönstet definerar utseendet för gränsnittet. Tar också emot data från roboten.
 class Capp(threading.Thread):
+
 
   ##
   # Constructor
@@ -53,10 +61,10 @@ class Capp(threading.Thread):
     self.bPlot = Button(self.frame, text="Start Reg Plot", command=self.startPlot)
     self.bPlot.grid(column=3, row=1)
 
-    self.bOpen = Button(self.frame, text="Ã–ppna", command=self.gripOpen)
+    self.bOpen = Button(self.frame, text="Öppna", command=self.gripOpen)
     self.bOpen.grid(column=4, row=0)
 
-    self.bClose = Button(self.frame, text="StÃ¤ng", command=self.gripClose)
+    self.bClose = Button(self.frame, text="Stäng", command=self.gripClose)
     self.bClose.grid(column=4, row=1)
 
     self.input = StringVar()      # Text-field used to read input from user
@@ -204,3 +212,4 @@ class Capp(threading.Thread):
       elif isinstance(message, int) : print "E: ", hex(message) # We recieved an integer, something is wrong, output to console
       else : print "Message.typ() == : ", type(message)
     print 'Exiting app thread!.'
+## @}

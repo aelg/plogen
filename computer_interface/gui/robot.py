@@ -1,3 +1,12 @@
+# coding: Latin1
+
+##\ingroup computer_interface Datorgränsnitt
+# @{
+
+
+## @file
+#  Kontrollerar roboten och skickar data till den.
+
 import threading 	# Threading
 import pygame  		# For keyboard input
 import time
@@ -171,3 +180,4 @@ class Crobot(threading.Thread):
     elif command == CLOSE :
       self.bt.sendcmd(CMD_MANUAL, '' + CLOSE)
     else : print "Invalid command to grip()"
+## @}

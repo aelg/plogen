@@ -1,4 +1,18 @@
 #!/usr/bin/python
+# coding: Latin1
+##\defgroup computer_interface Datorgränsnitt
+# @{
+
+
+## @file
+# Huvudprogram för datorgränsnittet. Drar igång datorgränsnittet.
+# För att köra detta behövs:
+# - Python 2.6
+# - Pygame
+# - Pybluez
+# - Matplotlib
+# - Numpy
+
 
 debug = 2                               # Turns on or off some printing to console. 1 = Print outgoing data, 2 = Print in and outgoing data
 
@@ -28,3 +42,4 @@ bt.shutdown()		# Shutdown bluetooth
 
 time.sleep(0.01)		# Wait for some unexplained reason
 
+##@}

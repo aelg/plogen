@@ -1,4 +1,13 @@
+# coding: Latin1
 from Tkinter import * 	# GUI
+
+##\ingroup computer_interface Datorgränsnitt
+# @{
+
+
+## @file
+#  Hanterar gränsnittet så det visar data som skickas till den.
+
 
 ##
 # Wrapper for Label class which reads and display data from the robot object
@@ -38,3 +47,4 @@ class ThreadSafeLabel(Label):
         "\nReg D: " + str(self.robot.getRegD()) + \
         "\nSpeed: " + str(self.robot.getSpeed()))
     self.after(100, self.updateData) # Request to be called again after 100 milliseconds
+## @}

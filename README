@@ -1,0 +1,11 @@
+Plogen is an autonomous labyrinth robot built by 6 students from
+Linköping University as part of the course TSEA27.
+
+Plogen has four wheels, three ATmega16 microprocessors, five IR
+distance sensors, a bluetooth module and a photo diode sensor for
+reading marks on the floor, see plogen.jpg.
+
+Plogen can autonomously drive through a labyrinth and fetch objects,
+which it brings back to its origin.
+
+Demo: http://youtu.be/k0ODmPurUis
